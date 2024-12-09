@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Doctor {
+  id        Int    @id @default(autoincrement()) // Уникальный идентификатор врача
+  name      String // Имя врача
+  specialty String
+  file      File[]
+}
+
+model Category {
+  id       Int        @id @default(autoincrement())
+  name     String
+  parentId Int? // Связь с родительской категорией
+  only     Boolean    @default(false) // Указывает, что категория второго уровня без родительской категории
+  parent   Category?  @relation("CategoryParent", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryParent")
+  services Service[]
+}
+
+model Service {
+  id         Int      @id @default(autoincrement())
+  name       String
+  price      Int?
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  username String  @unique
+  password String
+  isAdmin  Boolean @default(false)
+}
+
+model File {
+  id       Int     @id @default(autoincrement()) // Уникальный идентификатор файла
+  name     String?
+  url      String // URL файла
+  doctorId Int? // Внешний ключ для связи с доктором
+  doctor   Doctor? @relation(fields: [doctorId], references: [id]) // Связь с моделью Doctor
+}

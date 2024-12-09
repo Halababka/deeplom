@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Request {
+  id               String         @id @default(uuid()) // Уникальный идентификатор
+  dateAndTime      DateTime // Дата создания заявки
+  clientPhone      String // Телефон клиента
+  clientEmail      String? // Email клиента
+  formName         String? // Наименование формы
+  clientFullName   String? // Полное имя клиента
+  clientSurname    String? // Фамилия клиента
+  clientName       String? // Имя клиента
+  clientPatronymic String? // Отчество клиента
+  planStart        DateTime? // Желаемое время начала приема
+  planEnd          DateTime? // Желаемое время окончания приема
+  comment          String? // Комментарий
+  doctorId         Int? // ID врача
+  doctor           IDENT_Doctors? @relation(fields: [doctorId], references: [id]) // Связь с врачом
+  doctorName       String? // Имя врача
+  utmSource        String? // Источник UTM
+  utmMedium        String? // Среда UTM
+  utmCampaign      String? // Кампания UTM
+  utmTerm          String? // Термин UTM
+  utmContent       String? // Контент UTM
+  httpReferer      String? // HTTP Referer
+}
+
+model IDENT_Branches {
+  id    Int               @id // Уникальный идентификатор филиала
+  name  String // Название филиала
+  slots IDENT_Intervals[] // Слоты расписания
+}
+
+model IDENT_Doctors {
+  id      Int               @id // Уникальный идентификатор врача
+  name    String // Имя врача
+  slots   IDENT_Intervals[] // Слоты расписания
+  Request Request[]
+}
+
+model IDENT_Intervals {
+  branchId        Int // ID филиала
+  doctorId        Int // ID врача
+  startDateTime   DateTime // Время начала слота
+  lengthInMinutes Int // Длительность слота в минутах
+  isBusy          Boolean // Признак занятости слота
+  branch          IDENT_Branches @relation(fields: [branchId], references: [id])
+  doctor          IDENT_Doctors  @relation(fields: [doctorId], references: [id])
+
+  @@id([branchId, doctorId, startDateTime]) // Составной первичный ключ
+}
+
+model SmsVerification {
+  id               Int      @id @default(autoincrement())
+  requestId        String   @unique
+  phoneNumber      String // Номер телефона пользователя
+  verificationCode String // Код подтверждения
+  expiresAt        DateTime // Время истечения срока действия кода
+  createdAt        DateTime @default(now())
+}
