@@ -2,8 +2,10 @@ import express from "express"
 import doctorRoutes from "./routes/doctor.routes";
 import categoryRoutes from "./routes/category.routes";
 import authRoutes from './routes/auth.routes';
+import selfRoutes from "./routes/self.routes";
 import path from "path";
 import fileRoutes from "./routes/file.routes";
+import companyRoutes from './routes/company.routes';
 import cors from "cors"
 
 // Настройки CORS
@@ -26,6 +28,8 @@ app.use("/api/doctors", doctorRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/files", fileRoutes);
+app.use("/api/me", selfRoutes)
+app.use('/companies', companyRoutes);
 
 // Обработка несуществующих маршрутов
 app.use((req, res, next) => {

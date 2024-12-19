@@ -15,15 +15,15 @@ const logout = () => {
 <template>
   <header class="bg-white shadow-md p-4">
     <div class="container mx-auto flex items-center justify-between">
-      <a href="/">
+      <NuxtLink to="/">
         <img src="/logo.png" class="h-15" alt="Логотип">
-      </a>
+      </NuxtLink>
       <nav class="hidden md:flex space-x-4 justify-center items-center ">
-        <a href="#" class="text-gray-700 hover:text-blue-500">Сайт</a>
-        <a href="/about" class="text-gray-700 hover:text-blue-500">О нас</a>
-        <a href="/services" class="text-gray-700 hover:text-blue-500">Услуги</a>
-        <a href="/contact" class="text-gray-700 hover:text-blue-500">Контакты</a>
-        <span>{{ userStore.user?.name }}</span>
+<!--        <NuxtLink to="#" class="text-gray-700 hover:text-blue-500">Сайт</NuxtLink>-->
+<!--        <NuxtLink to="/about" class="text-gray-700 hover:text-blue-500">О нас</NuxtLink>-->
+<!--        <NuxtLink to="/services" class="text-gray-700 hover:text-blue-500">Услуги</NuxtLink>-->
+<!--        <NuxtLink to="/contact" class="text-gray-700 hover:text-blue-500">Контакты</NuxtLink>-->
+        <span>{{ userStore.user?.username }}</span>
         <Button v-if="token" @click="logout">
           Выйти
         </Button>

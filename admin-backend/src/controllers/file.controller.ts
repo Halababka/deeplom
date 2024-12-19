@@ -11,7 +11,17 @@ export class FileController {
             }
 
             const files = req.files as Express.Multer.File[];
-            const filesUpload = await FileService.addFiles(files);
+
+            // Декодируем имена файлов
+            const decodedFiles = files.map(file => {
+                return {
+                    ...file,
+                    originalname: decodeURIComponent(file.originalname), // Декодируем имя файла
+                    filename: decodeURIComponent(file.filename)
+                };
+            });
+
+            const filesUpload = await FileService.addFiles(decodedFiles);
 
             res.status(200).send({ message: "Файлы загружены успешно", files: filesUpload });
         } catch (error: any) {

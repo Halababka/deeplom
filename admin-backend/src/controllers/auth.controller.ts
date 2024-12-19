@@ -44,7 +44,7 @@ export class AuthController {
                 isAdmin: user.isAdmin,
             });
 
-            res.status(200).json({message: 'Успешный вход', token, user: {name: user.username}});
+            res.status(200).json({message: 'Успешный вход', token, user: {username: user.username}});
         } catch (error: any) {
             res.status(500).json({message: 'Ошибка сервера', error: error.message});
         }

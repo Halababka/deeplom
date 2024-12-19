@@ -36,8 +36,31 @@ export class FileService {
         }
     }
 
+    static async deleteFilesByIds(ids: number[]): Promise<void> {
+        const files = await prisma.file.findMany({
+            where: { id: { in: ids } },
+        });
+
+        for (const file of files) {
+            const filePath = path.join(__dirname, `../../uploads/${file.url.split("/uploads/")[1]}`);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath); // Удаляем файл из файловой системы
+            }
+        }
+
+        await prisma.file.deleteMany({
+            where: { id: { in: ids } },
+        });
+    }
+
     // Метод для получения всех файлов
     static async getAllFiles(): Promise<any[]> {
         return await prisma.file.findMany();
+    }
+
+    // Метод для обработки открепленных файлов
+    static async handleDetachedFiles(oldFileIds: number[], newFileIds: number[]): Promise<void> {
+        const detachedFileIds = oldFileIds.filter(id => !newFileIds.includes(id));
+        await this.deleteFilesByIds(detachedFileIds);
     }
 }

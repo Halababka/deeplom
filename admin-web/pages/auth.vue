@@ -33,9 +33,7 @@ const login = async () => {
       const data = await response.json();
       token.value = `Bearer ${data.token}`; // Сохраняем токен в cookie
       // Сохранение данных пользователя в Pinia
-      userStore.setUser({
-        name: data.user.name
-      });
+      userStore.setUser(data.user)
       router.push('/');
     } else {
       toast.add({ severity: 'error', summary: 'Неверные данные для входа', life: 5000 });

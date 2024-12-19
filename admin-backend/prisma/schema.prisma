@@ -8,10 +8,15 @@ datasource db {
 }
 
 model Doctor {
-  id        Int    @id @default(autoincrement()) // Уникальный идентификатор врача
-  name      String // Имя врача
-  specialty String
-  file      File[]
+  id           Int     @id @default(autoincrement())
+  name         String
+  education    String?
+  courses      String?
+  specialty    String
+  avatar       File?   @relation("DoctorAvatar", fields: [avatarId], references: [id])
+  avatarId     Int?    @unique
+  photos       File[]  @relation("DoctorPhotos")
+  certificates File[]  @relation("DoctorCertificates")
 }
 
 model Category {
@@ -40,9 +45,32 @@ model User {
 }
 
 model File {
-  id       Int     @id @default(autoincrement()) // Уникальный идентификатор файла
-  name     String?
-  url      String // URL файла
-  doctorId Int? // Внешний ключ для связи с доктором
-  doctor   Doctor? @relation(fields: [doctorId], references: [id]) // Связь с моделью Doctor
+  id                    Int      @id @default(autoincrement())
+  name                  String?
+  url                   String
+  doctorAvatar          Doctor?  @relation("DoctorAvatar")
+  doctorPhotos          Doctor?  @relation("DoctorPhotos", fields: [doctorPhotosId], references: [id])
+  doctorPhotosId        Int?
+  doctorCertificates    Doctor?  @relation("DoctorCertificates", fields: [doctorCertificatesId], references: [id])
+  doctorCertificatesId  Int?
+  companyPhotos         Company? @relation("CompanyPhotos", fields: [companyPhotosId], references: [id])
+  companyCertificates   Company? @relation("CompanyCertificates", fields: [companyCertificatesId], references: [id])
+  companyPhotosId       Int?
+  companyCertificatesId Int?
+}
+
+model Company {
+  id           Int    @id @default(autoincrement())
+  name         String
+  fullName     String
+  email        String
+  phone        String
+  socialMedia  String
+  licence      String
+  adress       String
+  details      String
+  schedule     String
+  description  String
+  photos       File[] @relation("CompanyPhotos")
+  certificates File[] @relation("CompanyCertificates")
 }

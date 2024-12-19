@@ -68,4 +68,21 @@ export class CategoryController {
             res.status(500).json({error: "Failed to delete category."});
         }
     }
+
+    async deleteCategories(req: Request, res: Response) {
+        const {ids} = req.body; // Ожидаем массив идентификаторов в теле запроса
+
+        if (!Array.isArray(ids) || ids.length === 0) {
+            res.status(400).json({error: 'Invalid input: ids should be a non-empty array.'});
+            return
+        }
+
+        try {
+            const result = await categoryService.deleteCategories(ids);
+            res.status(200).json({message: 'Categories deleted successfully', result});
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({error: 'Failed to delete categories'});
+        }
+    }
 }

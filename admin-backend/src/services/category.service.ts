@@ -32,4 +32,14 @@ export class CategoryService {
             where: { id },
         });
     }
+
+    async deleteCategories(ids: number[]) {
+        return prisma.category.deleteMany({
+            where: {
+                id: {
+                    in: ids, // Указываем массив идентификаторов для удаления
+                },
+            },
+        });
+    }
 }
