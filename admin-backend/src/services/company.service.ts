@@ -1,7 +1,6 @@
 import { Prisma } from '@prisma/client';
 import prisma from "../db";
 
-
 export class CompanyService {
     async getCompanies() {
         return prisma.company.findMany({
@@ -22,16 +21,53 @@ export class CompanyService {
         });
     }
 
-    async createCompany(data: Prisma.CompanyCreateInput) {
+    async createCompany(data: Prisma.CompanyCreateInput & {
+        photoIds?: number[];
+        certificateIds?: number[];
+    }) {
+        const { photoIds, certificateIds, ...rest } = data;
+        console.log(data)
         return prisma.company.create({
-            data,
+            data: {
+                ...rest,
+                photos: photoIds ? { connect: photoIds.map((id) => ({ id })) } : undefined,
+                certificates: certificateIds ? { connect: certificateIds.map((id) => ({ id })) } : undefined,
+            },
+            include: {
+                photos: true,
+                certificates: true,
+            },
         });
     }
 
-    async updateCompany(id: number, data: Prisma.CompanyUpdateInput) {
+    async updateCompany(
+        id: number,
+        data: Prisma.CompanyUpdateInput & {
+            photoIds?: number[] | null;
+            certificateIds?: number[] | null;
+        }
+    ) {
+        const { photoIds, certificateIds, ...rest } = data;
+
         return prisma.company.update({
             where: { id },
-            data,
+            data: {
+                ...rest,
+                photos: photoIds === null
+                    ? { set: [] } // Очищает все связанные записи
+                    : photoIds
+                        ? { set: photoIds.map((id) => ({ id })) } // Обновляет список связанных записей
+                        : undefined,
+                certificates: certificateIds === null
+                    ? { set: [] }
+                    : certificateIds
+                        ? { set: certificateIds.map((id) => ({ id })) }
+                        : undefined,
+            },
+            include: {
+                photos: true,
+                certificates: true,
+            },
         });
     }
 
@@ -50,5 +86,4 @@ export class CompanyService {
             },
         });
     }
-
 }

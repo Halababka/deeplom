@@ -60,17 +60,24 @@ model File {
 }
 
 model Company {
-  id           Int    @id @default(autoincrement())
-  name         String
-  fullName     String
-  email        String
-  phone        String
-  socialMedia  String
-  licence      String
-  adress       String
-  details      String
-  schedule     String
-  description  String
-  photos       File[] @relation("CompanyPhotos")
-  certificates File[] @relation("CompanyCertificates")
+  id              Int    @id @default(autoincrement())
+  name            String
+  fullName        String
+  services        String
+  slogan          String
+  socialLinks     String
+  legalAddress    String
+  ogrnDetails     String
+  ogrn            String
+  inn             String
+  legalInn        String
+  email           String
+  phone           String
+  licence         String
+  address         String
+  schedule        String
+  description     String
+  fullDescription String
+  photos          File[] @relation("CompanyPhotos")
+  certificates    File[] @relation("CompanyCertificates")
 }

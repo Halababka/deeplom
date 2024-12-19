@@ -29,7 +29,7 @@ app.use("/api/categories", categoryRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/files", fileRoutes);
 app.use("/api/me", selfRoutes)
-app.use('/companies', companyRoutes);
+app.use('/api/companies', companyRoutes);
 
 // Обработка несуществующих маршрутов
 app.use((req, res, next) => {
