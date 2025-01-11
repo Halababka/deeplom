@@ -30,11 +30,11 @@ model Category {
 }
 
 model Service {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   name       String
   price      Int?
-  categoryId Int
-  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id])
 }
 
 model User {
@@ -53,10 +53,13 @@ model File {
   doctorPhotosId        Int?
   doctorCertificates    Doctor?  @relation("DoctorCertificates", fields: [doctorCertificatesId], references: [id])
   doctorCertificatesId  Int?
+  companyMainPhoto      Company? @relation("CompanyMainPhoto")
   companyPhotos         Company? @relation("CompanyPhotos", fields: [companyPhotosId], references: [id])
   companyCertificates   Company? @relation("CompanyCertificates", fields: [companyCertificatesId], references: [id])
   companyPhotosId       Int?
   companyCertificatesId Int?
+  Company               Company? @relation(fields: [companyId], references: [id])
+  companyId             Int?
 }
 
 model Company {
@@ -78,6 +81,9 @@ model Company {
   schedule        String
   description     String
   fullDescription String
+  mainPhoto       File?  @relation("CompanyMainPhoto", fields: [mainPhotoId], references: [id])
+  mainPhotoId     Int?   @unique
   photos          File[] @relation("CompanyPhotos")
   certificates    File[] @relation("CompanyCertificates")
+  File            File[]
 }

@@ -1,0 +1,42 @@
+.gallery {
+    background-image: url('../img/gradient2.png');
+    margin-bottom: rem(70);
+    @media (width < $tablet) {
+        margin-bottom: rem(20);
+    }
+
+    // .gallery__container
+    &__container {}
+
+    // .gallery__content
+    &__content {
+        padding-bottom: rem(85);
+        @media (width < $tablet) {
+            padding-bottom: rem(45);
+        }
+    }
+
+    // .gallery__title
+    &__title {
+        font-family: 'Open Sans', sans-serif;
+        padding-top: rem(36);
+        text-align: center;
+        margin-bottom: rem(58);
+        @media (width < $tablet) {
+            font-size: rem(25);
+            margin-bottom: rem(30);
+        }
+    }
+
+    // .gallery__link
+    &__link {
+        border-radius: rem(20);
+        overflow: hidden;
+        //box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, 0.25);
+        & img{
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+    }
+}

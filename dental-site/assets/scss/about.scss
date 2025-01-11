@@ -1,0 +1,74 @@
+.about {
+	margin-bottom: rem(100);
+	margin-top: rem(10);
+	// .about__container
+	&__container {}
+
+	// .about__content
+	&__content {
+		background-image: url('../img/gradient2.png');
+		background-repeat: repeat;
+		display: flex;
+		border-radius: rem(20);
+		overflow: hidden;
+		//box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, 0.25);
+		@media (width < 1050px) {
+			flex-direction: column-reverse;
+			gap: rem(30);
+		}
+	}
+
+	// .about__image
+	&__image {
+		
+		img {
+			display: block;
+			height: auto;
+			width: 100%;
+		}
+	}
+
+	// .about__text
+	&__text {
+		margin: 0 auto;
+		margin-top: rem(90);
+		min-width: rem(400);
+		@media (width < 1200px) {
+			margin-top: rem(40);
+		}
+		@media (width < $mobileSmall) {
+			min-width: rem(290);
+		}
+	}
+
+	// .about__title
+	&__title {
+		text-align: center;
+		margin: 0 rem(10) rem(57) rem(10);
+		font-family: 'Open Sans', sans-serif;
+		@media (width < 1200px) {
+			margin-bottom: rem(30);
+		}
+		@media (width < $tablet) {
+			font-size: rem(25);
+		}
+	}
+
+	// .about__subtitle
+	&__subtitle {
+		max-width: rem(400);
+		display: block;
+		text-align: justify;
+		line-height: normal;
+		margin: 0 rem(25);
+		@media (width < 1050px) {
+			max-width: 100%;
+		}
+		@media (width < $tablet) {
+			font-size: rem(15);
+		}
+	}
+	@media (width < $tablet) {
+		margin-bottom: rem(60);
+	}
+}

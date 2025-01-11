@@ -6,13 +6,14 @@ import selfRoutes from "./routes/self.routes";
 import path from "path";
 import fileRoutes from "./routes/file.routes";
 import companyRoutes from './routes/company.routes';
+import serviceRoutes from './routes/service.routes';
 import cors from "cors"
 
 // Настройки CORS
 const corsOptions = {
-    origin: 'http://localhost:3000', // Разрешить ваш фронтенд
+    origin: "*", // Разрешить ваш фронтенд
     methods: 'GET,POST,PUT,DELETE',
-    allowedHeaders: 'Content-Type,Authorization',
+
 };
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use("/api/files", fileRoutes);
 app.use("/api/me", selfRoutes)
 app.use('/api/companies', companyRoutes);
+app.use('/api/services', serviceRoutes);
 
 // Обработка несуществующих маршрутов
 app.use((req, res, next) => {

@@ -1,0 +1,243 @@
+
+
+.footer {
+    min-height: rem(350);
+    background-image: url('../img/gradient.png');
+
+    // .footer__container
+    &__container {}
+
+    // .footer__content
+    &__content {
+        margin-top: rem(73);
+        margin-bottom: rem(53);
+        display: flex;
+        justify-content: space-between;
+        gap: rem(30);
+        @media (width < 650px) {
+            display: block;
+            margin-top: rem(40);
+            margin-bottom: rem(40);
+        }
+    }
+
+    // .footer__column
+    &__column {}
+
+    // .footer__info
+    &__info {
+        flex: 0 1 rem(286);
+        @media (width < $mobile) {
+            flex: 0 1 auto;
+        }
+    }
+
+    // .footer__nav
+    &__nav {
+        flex: 0 1 rem(347);
+        @media (width < $mobile) {
+            flex: 0 1 auto;
+        }
+    }
+
+    // .footer__contacts
+    &__contacts {
+        flex: 0 1 rem(279);
+        @media (width < $mobile) {
+            flex: 0 1 200;
+        }
+    }
+}
+
+.footer-info {
+
+    // .footer-info__logo
+    &__logo {}
+
+    // .footer-info__license
+    &__license {
+        display: block;
+        max-width: rem(223);
+        font-size: rem(16);
+        font-weight: 400;
+        line-height: rem(25);
+        margin: rem(30);
+        @media (width < $mobile) {
+            margin: rem(30) 0 0 rem(10);
+        }
+    }
+}
+
+.footer-nav {
+    gap: rem(20);
+    display: flex;
+    justify-content: space-between;
+
+    // .footer-nav__sector-1
+    &__sector-1 {}
+
+    // .footer-nav__title
+    &__title {}
+
+    // .footer-nav__list
+    &__list {
+        margin-top: rem(25);
+        display: flex;
+        flex-direction: column;
+        gap: rem(8);
+        white-space: nowrap;
+        @media (width < $tablet) {
+            gap: rem(25);
+            margin-top: rem(15);
+        }
+    }
+
+    // .footer-nav__item
+    &__item {
+        font-family: 'Open Sans';
+        font-size: rem(16);
+        font-weight: 400;
+        line-height: normal;
+
+        & a {
+            transition: 0.3s;
+
+            &:hover {
+                color: $blue;
+            }
+        }
+    }
+
+    // .footer-nav__sector-2
+    &__sector-2 {
+        @media (width < $mobile) {
+            margin-top: rem(40);
+        }
+        @media (width < 650px) {
+            margin-top: 0;
+        }
+    }
+
+    @media (width < $mobile) {
+        display: block;
+    }
+    @media (width < 650px) {
+        margin: rem(50) 0;
+        display: flex;
+        justify-content: start;
+        gap: rem(60);
+    }
+}
+
+.footer-contacts {
+    font-family: 'IKEA Sans';
+    font-size: rem(18);
+    font-weight: 400;
+    line-height: normal;
+    max-width: rem(280);
+
+    // .footer-contacts__location
+    &__location {
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        &::before {
+            font-family: 'dentalicons';
+            content: '\e907';
+            font-size: rem(20);
+            font-weight: 400;
+            margin-right: rem(7);
+            width: rem(20);
+            height: auto;
+        }
+    }
+
+    // .footer-contacts__number
+    &__number {
+        white-space: nowrap;
+        margin-top: rem(12);
+        display: flex;
+        align-items: center;
+
+        & a {
+            transition: 0.3s;
+
+            &:hover {
+                color: $blue;
+            }
+        }
+
+        &::before {
+            font-family: 'dentalicons';
+            content: '\e908';
+            font-size: rem(20);
+            font-weight: 400;
+            margin-right: rem(7);
+            width: rem(20);
+            height: auto;
+        }
+    }
+
+    // .footer-contacts__info
+    &__info {
+        font-size: rem(16);
+        display: block;
+        margin-top: rem(20);
+        margin-bottom: rem(22);
+    }
+
+    // .footer-contacts__messengers
+    &__messengers {
+        display: flex;
+        gap: rem(20);
+        justify-content: end;
+
+        & a:first-of-type {
+            &::before {
+                font-family: 'dentalicons';
+                content: '\e98d';
+                font-size: rem(36);
+                font-weight: 400;
+                width: rem(36);
+                height: auto;
+                display: block;
+                margin: 0 auto;
+                line-height: rem(60);
+                color: rgb(34, 151, 39);
+                transition: 0.5s;
+            }
+        }
+
+        & a:last-of-type {
+            &::before {
+                font-family: 'dentalicons';
+                content: '\e976';
+                font-size: rem(36);
+                font-weight: 400;
+                width: rem(36);
+                height: auto;
+                display: block;
+                margin: 0 auto;
+                line-height: rem(60);
+                color: rgb(34, 116, 151);
+                transition: 0.5s;
+            }
+        }
+
+        & a:hover::before {
+            transform: scale(1.1);
+        }
+        @media (width < 650px) {
+            justify-content: start;
+        }
+    }
+
+    // .footer-contacts__link
+    &__link {
+        height: rem(60);
+        width: rem(60);
+        background-color: $white;
+        display: block;
+        border-radius: rem(24);
+    }
+}

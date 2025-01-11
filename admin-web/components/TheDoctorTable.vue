@@ -4,6 +4,7 @@ import {useToast} from "primevue/usetoast";
 import {useCookie} from "#app";
 import {FilterMatchMode} from "@primevue/core/api";
 
+const loadingTable = ref(false)
 
 const doctors = ref([]);
 const selectedDoctors = ref([]);
@@ -27,6 +28,7 @@ const filters = ref({
 const submitted = ref(false);
 
 const fetchDoctors = async () => {
+  loadingTable.value = true
   try {
     const response = await fetch(api + '/doctors', {
       headers: {
@@ -36,6 +38,8 @@ const fetchDoctors = async () => {
     doctors.value = await response.json();
   } catch (error) {
     console.error('Error fetching doctors:', error);
+  } finally {
+    loadingTable.value = false
   }
 };
 
@@ -149,9 +153,7 @@ const confirmDeleteSelected = async () => {
 };
 
 const deleteCertificatesFromDoctor = (index) => {
-  console.log(newDoctor.value.certificates)
   delete newDoctor.value.certificates[index]
-  console.log(newDoctor.value.certificates)
   if (!newDoctor.value.certificates[0]) {
     newDoctor.value.certificates = null
   }
@@ -201,7 +203,7 @@ const onBeforeSend = async (event) => {
   });
 };
 
-onMounted(() => {
+onBeforeMount(() => {
   fetchDoctors();
 });
 </script>
@@ -224,6 +226,7 @@ onMounted(() => {
           dataKey="id"
           :paginator="true"
           :rows="10"
+          :loading="loadingTable"
           :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           :rowsPerPageOptions="[5, 10, 25]"

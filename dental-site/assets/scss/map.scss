@@ -1,0 +1,183 @@
+
+
+.map {
+    margin-bottom: rem(100);
+    border-radius: rem(50);
+    display: flex;
+    overflow: hidden;
+    //box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, 0.25);
+
+    // .map__container
+    &__container {
+        padding-top: rem(80);
+    }
+
+    // .map__header
+    &__header {
+        display: flex;
+        justify-content: start;
+        gap: rem(50);
+        align-items: center;
+        @media (width < 1200px) {
+            gap: rem(15);
+        }
+        @media (width < $mobile) {
+            display: block;
+        }
+    }
+
+    // .map__content
+    &__content {
+        display: block;
+        background-image: url('../img/gradient2.png');
+        padding: rem(62) rem(40) 0 rem(45);
+        flex: 0 1 rem(652);
+        min-height: rem(592);
+        @media (width < $tablet) {
+            padding-top: rem(40);
+            min-height: auto;
+        }
+        @media (width < $mobile) {
+            padding: rem(20) rem(30);
+        }
+    }
+
+    // .map__title
+    &__title {
+        font-size: rem(40);
+        font-weight: 400;
+        line-height: normal;
+        @media (width < $mobile) {
+            font-size: rem(30);
+        }
+    }
+
+    // .map__contacts
+    &__contacts {
+        line-height: normal;
+        font-size: rem(22);
+        margin-top: rem(56);
+        display: flex;
+        flex-direction: column;
+        gap: rem(45);
+        @media (width < $tablet) {
+            margin: rem(30) 0;
+            gap: rem(25);
+        }
+        @media (width < $mobile) {
+            font-size: rem(18);
+        }
+    }
+
+    // .map__messengers
+    &__messengers {
+        @media (width < $mobile) {
+            justify-content: start !important;
+            margin-top: rem(20) !important;
+        }
+    }
+
+    // .map__location
+    &__location {
+        display: flex;
+        align-items: center;
+
+        &::before {
+            font-family: 'dentalicons';
+            content: '\e907';
+            font-size: rem(24);
+            font-weight: 400;
+            margin-right: rem(24);
+            width: rem(24);
+            height: auto;
+        }
+    }
+
+    // .map__number
+    &__number {
+        display: flex;
+        align-items: center;
+
+        & a {
+            transition: 0.4s ease;
+
+            &:hover {
+                color: $green;
+            }
+        }
+
+        &::before {
+            font-family: 'dentalicons';
+            content: '\e908';
+            font-size: rem(24);
+            font-weight: 400;
+            margin-right: rem(24);
+            width: rem(24);
+            height: auto;
+        }
+    }
+
+    // .map__hours
+    &__hours {}
+
+    // .map__email
+    &__email {
+        display: flex;
+        align-items: center;
+
+        &::before {
+            font-family: 'dentalicons';
+            content: '\e904';
+            font-size: rem(24);
+            font-weight: 400;
+            margin-right: rem(24);
+            width: rem(24);
+            height: auto;
+        }
+    }
+
+    // .map__map
+    &__map {
+        background-color: $white;
+        flex: 0 1 rem(788);
+        @media (width < $tablet) {
+            height: 450px;
+        }
+        @media (width < $mobile) {
+            height: 400px;
+        }
+        @media (width < $mobileSmall) {
+            height: 300px;
+        }
+    }
+    @media (width < $tablet) {
+        display: block;
+        margin-bottom: rem(60);
+    }
+}
+
+
+.hours {
+    display: flex;
+
+    // .hours__icon
+    &__icon {
+        margin-right: rem(24);
+
+        &::before {
+            font-family: 'dentalicons';
+            content: '\e909';
+            font-size: rem(24);
+            font-weight: 400;
+            width: rem(24);
+            height: auto;
+        }
+    }
+
+    // .hours__text
+    &__text {
+        display: flex;
+        flex-direction: column;
+        gap: rem(14);
+    }
+}

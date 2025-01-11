@@ -58,7 +58,6 @@ export class CompanyController {
             const company = await companyService.createCompany(data);
             res.status(201).json(company);
         } catch (error) {
-            console.log(error)
             res.status(500).json({ error: 'Ошибка создания компании' });
         }
     }
@@ -81,6 +80,7 @@ export class CompanyController {
             const company = await companyService.updateCompany(id, data);
             res.status(200).json(company);
         } catch (error) {
+            console.log(error)
             res.status(500).json({ error: 'Ошибка обновления компании' });
         }
     }

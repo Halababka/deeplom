@@ -1,0 +1,21 @@
+// Заголовки, общие БЄМ блоки и прочее...
+h1 {
+    font-size: rem(32);
+    //font-family: 'Ikea Sans';
+    font-weight: 400;
+}
+
+h2 {
+    //font-family: 'Ikea Sans';
+    font-size: rem(20);
+    font-weight: 400;
+    line-height: normal;
+}
+
+* {
+    font-family: 'Open Sans', sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+}

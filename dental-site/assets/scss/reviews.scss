@@ -1,0 +1,31 @@
+
+
+.reviews {
+    // .reviews__container
+    &__container {
+        margin-top: rem(30);
+        margin-bottom: rem(100);
+    }
+    // .reviews__content
+    &__content {
+        display: flex;
+        justify-content: space-around;
+        @media (width < $mobile) {
+            display: block;
+        }
+    }
+    // .reviews__yandex
+    &__yandex {
+        flex: 0 1 80%;
+        max-width: rem(700);
+        @media (width < $mobile) {
+            margin: 0 auto rem(60) auto;
+        }
+    }
+    // .reviews__yandex
+    &__google {
+        flex: 0 1 50%;
+        max-height: rem(1300);
+        margin: 0 auto;
+    }
+}

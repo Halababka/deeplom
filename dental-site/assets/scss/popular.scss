@@ -1,0 +1,141 @@
+
+
+.popular {
+	margin-bottom: rem(80);
+	@media (width < $tablet) {
+		margin-bottom: rem(50);
+	}
+	// .popular__container
+	&__container {
+	}
+	// .popular__content
+	&__content {
+		display: flex;
+		gap: rem(40);
+		@media (width < $tablet) {
+			display: block;
+		}
+	}
+
+	// .popular__main
+	&__main {
+		@media (width < $tablet) {
+			display: flex;
+			justify-content: space-around;
+		}
+		@media (width < $mobileSmall) {
+			margin-bottom: rem(20);
+		}
+	}
+
+	// .popular__title
+	&__title {
+		font-family: 'Open Sans';
+		font-size: rem(35);
+		font-weight: 600;
+		line-height: normal;
+		max-width: rem(400);
+		margin-bottom: rem(32);
+		@media (width < $tablet) {
+			font-size: rem(25);
+		}
+		@media (width < $mobileSmall) {
+			font-size: rem(20);
+		}
+	}
+
+	// .popular__link
+	&__link {
+		color: #A7A7A7;
+		font-family: 'Panton';
+		font-size: rem(27);
+		font-style: italic;
+		font-weight: 600;
+		line-height: normal;
+		text-decoration: underline !important;
+		margin-bottom: rem(7);
+		transition: 0.5s ease-in-out;
+		&:hover {
+			color: $green;
+		}
+		@media (width < $tablet) {
+			font-size: rem(20);
+		}
+	}
+
+	// .popular__image
+	&__image {
+		min-width: rem(400);
+		@media (width < $tablet) {
+			flex: 0 1 350px;
+			min-width: rem(180);
+		}
+		img {
+			display: block;
+			width: 100%;
+			height: auto;
+		}
+	}
+
+	// .popular__table
+	&__table {
+		line-height: rem(25);
+		margin: 0 auto;
+		max-width: rem(900);
+		width: 100%;
+		text-align: left;
+		color: #6C6C6C;
+		font-family: 'Open Sans';
+		font-size: rem(17);
+		letter-spacing: 0.85px;
+		@media (width < $tablet) {
+			font-size: rem(15);
+		}
+	}
+
+	// .popular__stroke
+	&__stroke {
+		height: rem(45);
+		position: relative;
+		transition: 0.5s ease;
+		&::after {
+			content: "";
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			opacity: 1;
+			height: rem(1);
+			background-color: $gray;
+			transition: 0.5s ease;
+		}
+		&:hover {
+			color: $green;
+			cursor:default;
+			&::after {
+				background-color:$green
+			}
+		}
+	}
+
+	// .popular__item
+	&__item {
+		text-align: left;
+		padding-left: rem(30);
+		font-weight: 400;
+		@media (width < $mobile) {
+			padding-left: 0;
+		}
+	}
+
+	// .popular__price
+	&__price {
+		text-align: right;
+		padding-right: rem(30);
+		font-weight: 400;
+		white-space: nowrap;
+		@media (width < $mobile) {
+			padding-right: 0;
+		}
+	}
+}

@@ -4,10 +4,14 @@ import {useToast} from "primevue/usetoast";
 import {useCookie} from "#app";
 import {FilterMatchMode} from "@primevue/core/api";
 
+const loadingTable = ref(false)
+
+const allServices = ref([]); // Все доступные услуги (для выпадающего меню)
+
 const categories = ref([]);
 const selectedCategories = ref([]);
 const categoryDialog = ref(false);
-const newCategory = ref({id: null, name: "", parentId: null, only: false});
+const newCategory = ref({id: null, name: "", parentId: null, only: false, services: []});
 const toast = useToast();
 const token = useCookie("auth_token");
 const api = useRuntimeConfig().public.apiBase;
@@ -18,6 +22,7 @@ const filters = ref({
 
 // Загрузка категорий
 const fetchCategories = async () => {
+  loadingTable.value = true
   try {
     const response = await fetch(`${api}/categories`, {
       headers: {Authorization: token.value},
@@ -25,6 +30,21 @@ const fetchCategories = async () => {
     categories.value = await response.json();
   } catch (error) {
     console.error("Error fetching categories:", error);
+  } finally {
+    loadingTable.value = false
+  }
+};
+
+const fetchServices = async () => {
+  try {
+    const response = await fetch(`${api}/services`, {
+      headers: { Authorization: token.value },
+    });
+    const data = await response.json();
+    allServices.value = data;
+  } catch (error) {
+    console.error("Ошибка загрузки услуг:", error);
+    toast.add({ severity: "error", summary: "Ошибка", detail: "Не удалось загрузить услуги", life: 3000 });
   }
 };
 
@@ -37,7 +57,7 @@ const openNewCategory = () => {
 // Открытие формы редактирования
 const editCategory = (category) => {
   console.log(category)
-  newCategory.value = {id: category.id, name: category.name, only: category.only, parentId: category.parentId};
+  newCategory.value = {id: category.id, name: category.name, only: category.only, parentId: category.parentId, services: category.services};
   console.log(newCategory.value)
   categoryDialog.value = true;
 };
@@ -55,14 +75,20 @@ const saveCategory = async () => {
         ? `${api}/categories/${newCategory.value.id}`
         : `${api}/categories`;
 
-    await fetch(url, {
+    newCategory.value.services = newCategory.value.services.length > 0 ? newCategory.value.services : null
+
+    const response = await fetch(url, {
       method,
       headers: {"Content-Type": "application/json", Authorization: token.value},
       body: JSON.stringify(newCategory.value),
     });
 
+    if (!response.ok) {
+      throw new Error("Ошибка")
+    }
+
     toast.add({severity: "success", summary: "Успех", detail: "Категория сохранена", life: 3000});
-    fetchCategories();
+    await fetchCategories();
     closeDialog();
   } catch (error) {
     console.error("Error saving category:", error);
@@ -131,8 +157,9 @@ function getParentCategoryName(categoryId, categories) {
 
 const test = ref(false)
 
-onMounted(() => {
+onBeforeMount(() => {
   fetchCategories();
+  fetchServices()
 });
 </script>
 
@@ -153,6 +180,7 @@ onMounted(() => {
           dataKey="id"
           :paginator="true"
           :rows="10"
+          :loading="loadingTable"
           :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           :rowsPerPageOptions="[5, 10, 25]"
@@ -219,13 +247,21 @@ onMounted(() => {
               :filter="true"
           />
         </div>
-        <!--        <div class="field-checkbox">-->
-        <!--          <Checkbox v-model="newCategory.only" inputId="only"/>-->
-        <!--          <label for="only">Только для второго уровня</label>-->
-        <!--        </div>-->
         <div class="flex items-center gap-2">
           <Checkbox v-model="newCategory.only" :binary="true" inputId="only"/>
           <label for="only"> Только для второго уровня </label>
+        </div>
+        <!-- Выпадающее меню для выбора услуг -->
+        <div class="flex flex-col gap-2">
+          <label for="services" class="block text-sm font-medium mb-1">Услуги</label>
+          <MultiSelect
+              v-model="newCategory.services"
+              :options="allServices"
+              optionLabel="name"
+              filter
+              pt:overlay:style="max-width: 700px; overflow-x: auto; white-space: nowrap;"
+              placeholder="Выберите услуги"
+          />
         </div>
       </div>
       <template #footer>

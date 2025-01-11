@@ -1,0 +1,334 @@
+@font-face {
+  font-family: 'dentalicons';
+  src:
+    url('~/assets/fonts/dentalicons.woff') format('woff'),
+    url('~/assets/fonts/dentalicons.ttf') format('truetype'),
+    url('~/assets/fonts/dentalicons.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="icon-"],
+[class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'dentalicons', serif !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-tooth-svgrepo-com-1-converted:before {
+  content: "\e901";
+}
+
+.icon-Item-1-converted:before {
+  content: "\e900";
+}
+
+.icon-email:before {
+  content: "\e904";
+}
+
+.icon-Layer2:before {
+  content: "\e906";
+}
+
+.icon-location:before {
+  content: "\e907";
+}
+
+.icon-phone:before {
+  content: "\e908";
+}
+
+.icon-time:before {
+  content: "\e909";
+}
+
+.icon-tg:before {
+  content: "\e90a";
+}
+
+.icon-wap:before {
+  content: "\e90b";
+}
+
+.icon-attach:before {
+  content: "\e90c";
+}
+
+.icon-card:before {
+  content: "\e90d";
+}
+
+.icon-cart:before {
+  content: "\e90e";
+}
+
+.icon-check:before {
+  content: "\e90f";
+}
+
+.icon-cross:before {
+  content: "\e910";
+}
+
+.icon-ellipse:before {
+  content: "\e911";
+}
+
+.icon-eye:before {
+  content: "\e912";
+}
+
+.icon-stroke:before {
+  content: "\e914";
+}
+
+.icon-stroke1:before {
+  content: "\e915";
+}
+
+.icon-stroke2:before {
+  content: "\e916";
+}
+
+.icon-stroke3:before {
+  content: "\e917";
+}
+
+.icon-stroke4:before {
+  content: "\e918";
+}
+
+.icon-stroke5:before {
+  content: "\e919";
+}
+
+.icon-stroke6:before {
+  content: "\e91a";
+}
+
+.icon-stroke7:before {
+  content: "\e91b";
+}
+
+.icon-stroke8:before {
+  content: "\e91c";
+}
+
+.icon-stroke9:before {
+  content: "\e91d";
+}
+
+.icon-stroke10:before {
+  content: "\e91e";
+}
+
+.icon-stroke11:before {
+  content: "\e91f";
+}
+
+.icon-stroke12:before {
+  content: "\e920";
+}
+
+.icon-stroke13:before {
+  content: "\e921";
+}
+
+.icon-stroke14:before {
+  content: "\e922";
+}
+
+.icon-stroke15:before {
+  content: "\e923";
+}
+
+.icon-person:before {
+  content: "\e92a";
+}
+
+.icon-pin:before {
+  content: "\e92b";
+}
+
+.icon-plus1:before {
+  content: "\e92c";
+}
+
+.icon-plus2:before {
+  content: "\e92d";
+}
+
+.icon-stroke16:before {
+  content: "\e92e";
+}
+
+.icon-home:before {
+  content: "\e92f";
+}
+
+.icon-like:before {
+  content: "\e930";
+}
+
+.icon-shape:before {
+  content: "\e931";
+}
+
+.icon-star:before {
+  content: "\e932";
+}
+
+.icon-star2:before {
+  content: "\e933";
+}
+
+.icon-location2:before {
+  content: "\e934";
+}
+
+.icon-inst:before {
+  content: "\e936";
+}
+
+.icon-time2:before {
+  content: "\e938";
+}
+
+.icon-mail2:before {
+  content: "\e939";
+}
+
+.icon-exit:before {
+  content: "\e93a";
+}
+
+.icon-exit2:before {
+  content: "\e93b";
+}
+
+.icon-refresh:before {
+  content: "\e93d";
+}
+
+.icon-love:before {
+  content: "\e941";
+}
+
+.icon-calendar:before {
+  content: "\e942";
+}
+
+.icon-sleep:before {
+  content: "\e943";
+}
+
+.icon-message:before {
+  content: "\e944";
+}
+
+.icon-share:before {
+  content: "\e945";
+}
+
+.icon-basket:before {
+  content: "\e946";
+}
+
+.icon-glass:before {
+  content: "\e947";
+}
+
+.icon-love2:before {
+  content: "\e949";
+}
+
+.icon-stroke17:before {
+  content: "\e94b";
+}
+
+.icon-stroke18:before {
+  content: "\e94c";
+}
+
+.icon-lock:before {
+  content: "\e94e";
+}
+
+.icon-danger:before {
+  content: "\e959";
+}
+
+.icon-message3:before {
+  content: "\e95a";
+}
+
+.icon-twitter:before {
+  content: "\e95d";
+}
+
+.icon-stroke19:before {
+  content: "\e960";
+}
+
+.icon-volume:before {
+  content: "\e961";
+}
+
+.icon-danger2:before {
+  content: "\e963";
+}
+
+.icon-mail3:before {
+  content: "\e964";
+}
+
+.icon-stroke20:before {
+  content: "\e965";
+}
+
+.icon-burger:before {
+  content: "\e969";
+}
+
+.icon-google2:before {
+  content: "\e96c";
+}
+
+.icon-mark:before {
+  content: "\e96e";
+}
+
+.icon-inst2:before {
+  content: "\e96f";
+}
+
+.icon-telega2:before {
+  content: "\e976";
+}
+
+.icon-whatsapp2:before {
+  content: "\e977";
+}
+
+.icon-skype2:before {
+  content: "\e97e";
+}
+
+.icon-message4:before {
+  content: "\e984";
+}
+
+.icon-whatsapp3:before {
+  content: "\e98d";
+}
