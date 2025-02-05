@@ -2,11 +2,13 @@ import {Request, Response} from "express";
 import * as bookingService from "../services/booking.service";
 import * as smsService from "../services/sms.service";
 
+
+
 // Получение доступных временных слотов
 export const getAvailableSlots = async (req: Request, res: Response) => {
-    const {branchId, doctorId, date} = req.query;
+    const {branchId, doctorId} = req.query;
 
-    if (!branchId || !doctorId || !date) {
+    if (!branchId || !doctorId) {
         res.status(400).json({error: "Не указаны обязательные параметры"});
         return
     }
@@ -15,7 +17,6 @@ export const getAvailableSlots = async (req: Request, res: Response) => {
         const slots = await bookingService.getAvailableSlots(
             Number(branchId),
             Number(doctorId),
-            date as string
         );
         res.json(slots);
     } catch (error: unknown) {

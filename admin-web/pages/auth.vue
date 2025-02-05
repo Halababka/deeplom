@@ -34,14 +34,16 @@ const login = async () => {
       token.value = `Bearer ${data.token}`; // Сохраняем токен в cookie
       // Сохранение данных пользователя в Pinia
       userStore.setUser(data.user)
-      router.push('/');
+      return navigateTo('/');
     } else {
       toast.add({ severity: 'error', summary: 'Неверные данные для входа', life: 5000 });
     }
   } catch (error) {
     console.error('Ошибка при входе:', error);
+  } finally {
+    loading.value = false
   }
-  loading.value = false
+
 };
 </script>
 

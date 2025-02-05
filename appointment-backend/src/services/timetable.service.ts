@@ -2,6 +2,7 @@ import { prisma } from "../db";
 import { TimeTablePayload } from "../types/timetable";
 
 export const saveTimeTable = async ({ branches, doctors, intervals }: TimeTablePayload) => {
+    await prisma.iDENT_Intervals.deleteMany()
     for (const branch of branches) {
         await prisma.iDENT_Branches.upsert({
             where: { id: branch.id },

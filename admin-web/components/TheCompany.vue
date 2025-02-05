@@ -41,6 +41,7 @@ const fetchClinicData = async () => {
       },
     });
     const data = await response.json();
+    console.log(data)
     clinicData.value = data
   } catch (error) {
     console.error('Error fetching clinic data:', error);
@@ -56,7 +57,7 @@ const saveClinicData = async () => {
     clinicData.value.certificateIds = clinicData.value.certificates?.map(i => i.id) ?? null
     delete clinicData.value.certificates
     clinicData.value.mainPhotoId = clinicData.value.mainPhoto?.id ?? null
-
+    clinicData.value.fullDescription = clinicData.value.fullDescription.split('\n');
 
     const response = await fetch(api + '/companies/1', {
       method: 'PUT',

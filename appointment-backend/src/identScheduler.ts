@@ -20,20 +20,7 @@ const scheduleIdentRequests = () => {
     setInterval(async () => {
         try {
             console.log("[Ident] Отправка расписания...");
-            // const payload = {
-            //     branches: [{ id: 1, name: "Филиал в г. Санкт-Петербург" }],
-            //     doctors: [{ id: 1, name: "Иванов Иван Иванович" }],
-            //     intervals: [
-            //         {
-            //             branchId: 1,
-            //             doctorId: 1,
-            //             startDateTime: new Date().toISOString(),
-            //             lengthInMinutes: 30,
-            //             isBusy: false,
-            //         },
-            //     ],
-            // };
-            const payload = generateTimeTablePayload();
+            const payload = generateTimeTablePayload(7);
             await postTimeTable(payload);
             console.log("[Ident] Расписание успешно отправлено");
         } catch (error: any) {
@@ -43,7 +30,8 @@ const scheduleIdentRequests = () => {
 };
 
 // Генерация расписания
-const generateTimeTablePayload = () => {
+// Генерация расписания
+const generateTimeTablePayload = (daysCount: number) => {
     const branch = { id: 1, name: "Филиал в г. Волгодонск" };
 
     const doctors = Array.from({ length: 10 }, (_, index) => ({
@@ -53,7 +41,15 @@ const generateTimeTablePayload = () => {
     }));
 
     const intervals = [];
-    const days = ["2024-12-04", "2024-12-05", "2024-12-06", "2024-12-07", "2024-12-08", "2024-12-09"]; // Понедельник - Суббота
+    const today = new Date(); // Сегодняшняя дата
+    today.setHours(0, 0, 0, 0); // Устанавливаем время на начало дня
+
+    // Генерируем дни, начиная с сегодняшнего и добавляем daysCount дней вперед
+    const days = Array.from({ length: daysCount }, (_, index) => {
+        const date = new Date(today);
+        date.setDate(today.getDate() + index);
+        return date.toISOString().split('T')[0]; // Форматируем дату в YYYY-MM-DD
+    });
 
     for (const doctor of doctors) {
         for (const day of days) {
@@ -86,7 +82,11 @@ const generateTimeTablePayload = () => {
         }
     }
 
-    return { branches: [branch], doctors, intervals };
+    return {
+        branches: [branch], // Массив филиалов
+        doctors, // Массив врачей
+        intervals, // Массив интервалов
+    };
 };
 
 export default scheduleIdentRequests;

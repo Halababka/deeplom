@@ -10,11 +10,14 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@yandex/ymaps3-types": "^1.0.15731128",
     "lightgallery": "^2.8.2",
     "nuxt": "^3.14.1592",
     "swiper": "^11.1.15",
     "vue": "latest",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "vue-yandex-maps": "^2.1.6",
+    "ymaps": "^0.2.1"
   },
   "devDependencies": {
     "sass": "^1.64.2"

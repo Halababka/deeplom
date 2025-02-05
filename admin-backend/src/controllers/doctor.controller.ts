@@ -7,8 +7,15 @@ export class DoctorController {
     async getAllDoctors(req: Request, res: Response) {
         try {
             const doctors = await doctorService.getAllDoctors();
-            res.json(doctors);
+            console.log(doctors)
+            const formattedDoctors = doctors.map(doctor => ({
+                ...doctor,
+                education: JSON.parse(<string>doctor.education),
+                courses: JSON.parse(<string>doctor.courses)
+            }));
+            res.json(formattedDoctors);
         } catch (error) {
+            console.log(error)
             res.status(500).json({error: "Failed to fetch doctors"});
         }
     }
@@ -17,21 +24,33 @@ export class DoctorController {
         try {
             const id = parseInt(req.params.id);
             const doctor = await doctorService.getDoctorById(id);
+
             if (!doctor) {
                 res.status(404).json({error: "Doctor not found"});
                 return;
             }
-            res.json(doctor);
+
+            const formattedDoctor = {
+                ...doctor,
+                education: JSON.parse(<string>doctor.education),
+                courses: JSON.parse(<string>doctor.courses)
+            };
+
+            res.json(formattedDoctor);
         } catch (error) {
+            console.log(error)
             res.status(500).json({error: "Failed to fetch doctor"});
         }
     }
 
     async createDoctor(req: Request, res: Response) {
         try {
-            const {name, avatarId, education, courses, specialty, photoIds, certificateIds} = req.body;
+            let {name, experience, avatarId, education, courses, specialty, photoIds, certificateIds} = req.body;
 
-            const newDoctor = await doctorService.createDoctor({name, education, courses, avatarId, specialty, photoIds, certificateIds});
+            if (education) education = JSON.stringify(education)
+            if (specialty) courses = JSON.stringify(courses)
+
+            const newDoctor = await doctorService.createDoctor({name, experience, education, courses, avatarId, specialty, photoIds, certificateIds});
             res.status(201).json(newDoctor);
         } catch (error) {
             console.error(error);
@@ -42,9 +61,14 @@ export class DoctorController {
     async updateDoctor(req: Request, res: Response) {
         try {
             const id = parseInt(req.params.id);
-            const {name, education, courses, specialty, avatarId, photoIds, certificateIds} = req.body;
+            let {name, experience, education, courses, specialty, avatarId, photoIds, certificateIds} = req.body;
+
+            if (education) education = JSON.stringify(education)
+            if (courses) courses = JSON.stringify(courses)
+
             const updatedDoctor = await doctorService.updateDoctor(id, {
                 name,
+                experience,
                 specialty,
                 education,
                 courses,

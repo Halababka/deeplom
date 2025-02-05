@@ -41,7 +41,9 @@ const fetchServices = async () => {
       headers: { Authorization: token.value },
     });
     const data = await response.json();
+    data.forEach(item => delete item.category)
     allServices.value = data;
+    console.log(allServices.value[0])
   } catch (error) {
     console.error("Ошибка загрузки услуг:", error);
     toast.add({ severity: "error", summary: "Ошибка", detail: "Не удалось загрузить услуги", life: 3000 });
@@ -56,9 +58,8 @@ const openNewCategory = () => {
 
 // Открытие формы редактирования
 const editCategory = (category) => {
-  console.log(category)
   newCategory.value = {id: category.id, name: category.name, only: category.only, parentId: category.parentId, services: category.services};
-  console.log(newCategory.value)
+  console.log(newCategory.value.services)
   categoryDialog.value = true;
 };
 
@@ -261,7 +262,8 @@ onBeforeMount(() => {
               filter
               pt:overlay:style="max-width: 700px; overflow-x: auto; white-space: nowrap;"
               placeholder="Выберите услуги"
-          />
+          >
+          </MultiSelect>
         </div>
       </div>
       <template #footer>

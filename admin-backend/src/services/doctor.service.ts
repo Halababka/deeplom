@@ -12,13 +12,14 @@ export class DoctorService {
     async createDoctor(data: {
         name: string;
         specialty: string;
+        experience?: number;
         avatarId?: number;
         education?: string;
         courses?: string;
         photoIds?: number[];
         certificateIds?: number[];
     }) {
-        const {name, specialty, education, courses, avatarId, photoIds, certificateIds} = data;
+        const {name, specialty, experience, education, courses, avatarId, photoIds, certificateIds} = data;
 
         return prisma.doctor.create({
             data: {
@@ -26,6 +27,7 @@ export class DoctorService {
                 specialty,
                 education,
                 courses,
+                experience,
                 avatar: avatarId ? {connect: {id: avatarId}} : undefined,
                 photos: photoIds ? {connect: photoIds.map(id => ({id}))} : undefined,
                 certificates: certificateIds ? {connect: certificateIds.map(id => ({id}))} : undefined
@@ -41,6 +43,7 @@ export class DoctorService {
 
     async updateDoctor(id: number, data: {
         name?: string;
+        experience?: number;
         specialty?: string;
         education?: string;
         courses?: string;
@@ -48,7 +51,7 @@ export class DoctorService {
         photoIds?: number[] | null;
         certificateIds?: number[] | null;
     }) {
-        const {name, avatarId, education, courses, specialty, photoIds, certificateIds} = data;
+        const {name, experience,avatarId, education, courses, specialty, photoIds, certificateIds} = data;
 
         return prisma.doctor.update({
             where: {id},
@@ -57,6 +60,7 @@ export class DoctorService {
                 specialty,
                 education,
                 courses,
+                experience,
                 avatar: avatarId === null
                     ? {disconnect: true}
                     : avatarId

@@ -12,9 +12,10 @@ const doctorDialog = ref(false);
 const newDoctor = ref({
   id: null,
   name: '',
+  experience: null,
   specialty: '',
-  education: '',
-  courses: '',
+  education: [],
+  courses: [],
   avatar: null,
   photos: null,
   certificates: null
@@ -47,9 +48,10 @@ const openNewDoctor = () => {
   newDoctor.value = {
     id: null,
     name: '',
+    experience: null,
     specialty: '',
-    education: '',
-    courses: '',
+    education: [],
+    courses: [],
     avatar: null,
     photos: null,
     certificates: null
@@ -63,6 +65,7 @@ const editDoctor = (doctor) => {
   newDoctor.value = JSON.parse(JSON.stringify({
     id: doctor.id,
     name: doctor.name,
+    experience: doctor.experience,
     education: doctor.education,
     courses: doctor.courses,
     specialty: doctor.specialty,
@@ -84,6 +87,7 @@ const saveDoctor = async () => {
     formData.specialty = newDoctor.value.specialty
     formData.education = newDoctor.value.education
     formData.courses = newDoctor.value.courses
+    formData.experience = newDoctor.value.experience
     formData.avatarId = newDoctor.value.avatar?.id ?? null
     formData.photoIds = newDoctor.value.photos?.map(item => item.id) ?? null
     formData.certificateIds = newDoctor.value.certificates?.map(item => item.id) ?? null
@@ -273,22 +277,28 @@ onBeforeMount(() => {
     <Dialog v-model:visible="doctorDialog" :style="{ width: '450px' }" header="Доктор" :modal="true" dismissable-mask>
       <div class="flex flex-col gap-6">
         <div>
-          <label for="name" class="block font-bold mb-3">Имя</label>
+          <label for="name" class="block font-bold mb-3">ФИО</label>
           <InputText id="name" v-model.trim="newDoctor.name" required autofocus
                      :invalid="submitted && !newDoctor.name" fluid/>
           <small v-if="submitted && !newDoctor.name" class="text-red-500">Имя обязательно</small>
+        </div>
+        <div>
+          <label for="experience" class="block font-bold mb-3">Стаж</label>
+          <InputNumber id="experience" v-model="newDoctor.experience" required fluid/>
         </div>
         <div>
           <label for="specialty" class="block font-bold mb-3">Специальность</label>
           <InputText id="specialty" v-model="newDoctor.specialty" required fluid/>
         </div>
         <div>
-          <label for="specialty" class="block font-bold mb-3">Образование</label>
-          <InputText id="specialty" v-model="newDoctor.education" required fluid/>
+          <label for="education" class="block font-bold mb-3">Образование</label>
+<!--          <InputText id="specialty" v-model="newDoctor.education" required fluid/>-->
+          <Textarea id="education" v-model="newDoctor.education" rows="5" fluid/>
         </div>
         <div>
-          <label for="specialty" class="block font-bold mb-3">Курсы повышения квалификации</label>
-          <InputText id="specialty" v-model="newDoctor.courses" required fluid/>
+          <label for="courses" class="block font-bold mb-3">Курсы повышения квалификации</label>
+<!--          <InputText id="specialty" v-model="newDoctor.courses" required fluid/>-->
+          <Textarea id="courses" v-model="newDoctor.courses" rows="5" fluid/>
         </div>
         <div class="space-y-2">
           <label for="file" class="block font-bold mb-3">Аватар</label>

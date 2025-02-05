@@ -8,6 +8,10 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_API_BASE,
     }
   },
+  modules: ['vue-yandex-maps/nuxt'],
+  yandexMaps: {
+    apikey: '50c73745-8e71-4c20-8098-8be1d741af6f',
+  },
   css: [
     '~/assets/scss/main.scss'
   ],

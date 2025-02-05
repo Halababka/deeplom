@@ -4,18 +4,41 @@ import { prisma } from "../db";
 export const getAvailableSlots = async (
     branchId: number,
     doctorId: number,
-    date: string
 ) => {
-    return prisma.iDENT_Intervals.findMany({
+    const currentDateTime = new Date(Date.now() + (3 * 60 * 60 * 1000)); // UTC+3 // Текущая дата и время
+    console.log(currentDateTime)
+    // Получаем доступные слоты, начиная с текущего момента
+    const slots = await prisma.iDENT_Intervals.findMany({
         where: {
             branchId,
             doctorId,
-            startDateTime: {
-                gte: new Date(date),
-            },
             isBusy: false,
+            startDateTime: {
+                gte: currentDateTime, // Фильтр: слоты, которые начинаются после текущего момента
+            },
+        },
+        orderBy: {
+            startDateTime: 'asc', // Сортировка по возрастанию времени начала
         },
     });
+
+    // Группируем слоты по датам
+    const groupedSlots = slots.reduce((acc, slot) => {
+        const date = slot.startDateTime.toISOString().split('T')[0]; // Получаем дату в формате YYYY-MM-DD
+
+        if (!acc[date]) {
+            acc[date] = [];
+        }
+
+        acc[date].push({
+            startDateTime: slot.startDateTime,
+            lengthInMinutes: slot.lengthInMinutes,
+        });
+
+        return acc;
+    }, {} as Record<string, { startDateTime: Date; lengthInMinutes: number }[]>);
+
+    return groupedSlots;
 };
 
 // Сервис для создания заявки

@@ -13,6 +13,7 @@ model Doctor {
   education    String?
   courses      String?
   specialty    String
+  experience   Int?
   avatar       File?   @relation("DoctorAvatar", fields: [avatarId], references: [id])
   avatarId     Int?    @unique
   photos       File[]  @relation("DoctorPhotos")

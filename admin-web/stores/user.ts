@@ -36,6 +36,7 @@ export const useUserStore = defineStore('user', {
                 this.setUser(userData); // Обновляем состояние пользователя
             } catch (error) {
                 console.error('Не удалось получить данные пользователя:', error);
+                return navigateTo('/')
                 this.logout(); // Сбрасываем состояние пользователя при ошибке
             }
         },
