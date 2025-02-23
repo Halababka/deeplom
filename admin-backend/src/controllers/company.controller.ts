@@ -34,7 +34,6 @@ export class CompanyController {
                 res.status(404).json({error: 'Компания не найдена'});
                 return;
             }
-            console.log(company)
             // Десериализация JSON-строк
             const formattedCompany = {
                 ...company,

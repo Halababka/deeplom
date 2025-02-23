@@ -5,14 +5,11 @@ export default defineNuxtConfig({
   ssr: false,
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE,
+      apiBase: process.env.NUXT_PUBLIC_API_BASE, // путь к api
+      imgBase: process.env.NUXT_PUBLIC_MEDIA_API_URL_BASE // путь к медиа файлам
     }
-  },
-  modules: ['vue-yandex-maps/nuxt'],
-  yandexMaps: {
-    apikey: '50c73745-8e71-4c20-8098-8be1d741af6f',
   },
   css: [
     '~/assets/scss/main.scss'
-  ],
+  ]
 })

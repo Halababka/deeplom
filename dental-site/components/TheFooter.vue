@@ -30,7 +30,7 @@
             <ul class="footer-nav__list">
               <li class="footer-nav__item"><NuxtLink to="/about">О клинике</NuxtLink></li>
               <li class="footer-nav__item"><NuxtLink href="#" id="toLicense">Документы</NuxtLink></li>
-              <li class="footer-nav__item"><NuxtLink to="/сontacts">Контакты</NuxtLink></li>
+              <li class="footer-nav__item"><NuxtLink to="#map">Контакты</NuxtLink></li>
             </ul>
           </div>
         </div>

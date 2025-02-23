@@ -10,6 +10,9 @@ import "~/js/files/sticky.js";
         <a href="" class="header__logo">
           <img src="/logo.png" class="header__img " alt="logo">
         </a>
+        <img id="specialButton" style="cursor:pointer;" src="https://lidrekon.ru/images/special.png"
+             alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ"/>
+        <!--        <a  id="specialButton" href="#"><img src="https://lidrekon.ru/images/special.png" id='glazd' alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ"/></a>-->
         <div class="header__info info">
           <div class="info__location">ул.Строителей 2е</div>
           <div class="info__number">
@@ -40,7 +43,9 @@ import "~/js/files/sticky.js";
             <li class="navbar__item">
               <NuxtLink to="/reviews" class="navbar__link">Отзывы</NuxtLink>
             </li>
-            <!--            <li class="navbar__item"><NuxtLink href="#map" class="navbar__link">Контакты</NuxtLink></li>-->
+            <li class="navbar__item">
+              <NuxtLink href="#map" class="navbar__link">Контакты</NuxtLink>
+            </li>
           </ul>
         </nav>
       </div>
@@ -49,5 +54,4 @@ import "~/js/files/sticky.js";
 </template>
 
 <style scoped>
-
 </style>

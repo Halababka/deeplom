@@ -1,14 +1,14 @@
 <script setup lang="ts">
-
+const companyData = (await useCompanyStore()).value.data
 </script>
 
 <template>
-  <div class="requisites__container">
+  <div class="requisites__container" v-if="companyData">
     <div class="requisites">
-      <h1 class="requisites__title">Реквизиты ООО «Дентал»</h1>
-      <p class="requisites__p"><b>ИНН:</b> 9715404657</p>
-      <p class="requisites__p"><b>ОГРН:</b> 1037739596322 (свидетельство о внесении записи в Единый государственный реестр юридических лиц о юридическом лице, зарегистрированном до 01.07.2002, выдано 12.02.2003 Управлением МНС России по г. Москва, бланк серия 77 № 007376313).</p>
-      <p class="requisites__p"><b>Адрес:</b> 127254, г. Москва, Огородный проезд, 19 корп. 2</p>
+      <h1 class="requisites__title">Реквизиты {{ companyData.fullName }}</h1>
+      <p class="requisites__p"><b>ИНН:</b> {{ companyData.inn }}</p>
+      <p class="requisites__p"><b>ОГРН:</b> {{ companyData.ogrn }}</p>
+      <p class="requisites__p"><b>Юридический адрес:</b> {{ companyData.legalAddress }}</p>
     </div>
   </div>
 </template>

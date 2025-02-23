@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+const companyData = (await useCompanyStore()).value.data
 </script>
 
 <template>

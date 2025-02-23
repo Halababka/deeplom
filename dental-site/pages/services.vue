@@ -3,7 +3,10 @@
 </script>
 
 <template>
-
+  <TheFollowing/>
+  <ThePrice/>
+  <TheLicence/>
+  <TheRequisites/>
 </template>
 
 <style scoped>
