@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  admin-backend:
+    build:
+      context: ./admin-backend
+      dockerfile: Dockerfile
+      args:
+        PRISMA_BINARY_TARGETS: '["native", "debian-openssl-3.0.x"]'
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./admin-backend:/app
+      - /app/node_modules
+      - ./admin-backend/prisma:/app/prisma # Монтируем папку prisma для доступа к SQLite
+    env_file:
+      - ./admin-backend/.env # Указываем путь к .env файлу
+    restart: unless-stopped
+
+  admin-web:
+    build:
+      context: ./admin-web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80" # Локальный порт 3000 → порт 80 в контейнере
+    volumes:
+      - ./admin-web:/app
+      - /app/node_modules
+    env_file:
+      - ./admin-web/.env # Указываем путь к .env файлу (если есть)
+    restart: unless-stopped

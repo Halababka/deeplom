@@ -1,17 +1,159 @@
 <script setup lang="ts">
-import Lightgallery from 'lightgallery/vue/LightGalleryVue.umd.js';
+import Lightgallery from 'lightgallery/vue';
 import lgThumbnail from 'lightgallery/plugins/thumbnail';
 import lgZoom from 'lightgallery/plugins/zoom';
-import lgFullscreen from 'lightgallery/plugins/fullscreen'
-import lightGallery from "lightgallery";
+import Swiper from 'swiper';
+import { Navigation } from 'swiper/modules';
+import 'lightgallery/css/lightgallery.css';
+import 'lightgallery/css/lg-thumbnail.css';
+import 'lightgallery/css/lg-zoom.css';
 
-// Получаем данные о компании
-const companyStore = await useCompanyStore();
-const companyData = companyStore.value.data;
-
-// Получаем базовый URL для изображений
+const companyStore = (await useCompanyStore()).value;
 const runtimeConfig = useRuntimeConfig();
 const imgBase = runtimeConfig.public.imgBase;
+const images = ref([]);
+let lightGallery: any = null;
+let swiperInstance: Swiper | null = null;
+
+const loadImages = () => {
+  if (companyStore?.data?.certificates) {
+    images.value = companyStore.data.certificates.map(cert => ({
+      src: imgBase + cert.url,
+      thumb: imgBase + cert.url,
+      alt: cert.name
+    }));
+  }
+};
+
+onMounted(async () => {
+  loadImages();
+  await nextTick();
+  lightGallery?.refresh(toRaw(images.value));
+  swiperInstance = new Swiper('.license__slider', { // Указываем класс нужного слайдера
+        // Подключаем модули слайдера
+        // для конкретного случая
+        modules: [Navigation],
+        centerInsufficientSlides:true, //Центрует оболочку со слайдами если их количества недостаточно для пролистывания
+        observeSlideChildren: true,
+        observer: true, //Установите значение true, чтобы включить Mutation Observer для Swiper и его элементов. В этом случае Swiper будет обновляться (повторно инициализироваться) каждый раз, когда вы меняете его стиль (например, скрытие/отображение) или изменяете его дочерние элементы (например, добавляете/удаляете слайды).
+        observeParents: true, //Установите значение true, если вам необходимо отслеживать мутации для родительских элементов Swiper.
+        slidesPerView: 5, //Количество отображаемых слайдов
+        spaceBetween: 75,
+        autoHeight: true,
+        speed: 800,
+        shortSwipes: false,
+        longSwipesMs: 50, //Как долго удерживать для свайпа?
+        longSwipesRatio: 0.2, //% сдвига для свайпа
+        allowTouchMove: true,  //Переключение слайдов только с помощью Navigation если false
+        //direction: 'horizontal',
+        loop: false, //Режим карусель
+        rewind: true, //Режим перемотки на первый слайд, если последний свайп вправо (не юзать совместно с каруселью)
+
+        //touchRatio: 0,
+        //simulateTouch: false,
+        //preloadImages: true, //принудительно загружает все изображения
+        //lazy: true, //ленивая загрузка (используй гайд(другая разметка))
+
+
+        // Эффекты
+        //effect: 'fade',
+
+        //autoplay: {
+        //	delay: 5000,
+        //	disableOnInteraction: false,
+        //},
+
+
+        // Пагинация
+
+        //pagination: {
+        //	el: '.arrivals-pagination',
+        //	bulletClass: 'swiper-pagination-bullet-arrival',
+        //	bulletActiveClass: 'swiper-pagination-bullet-arrival-active',
+        //	clickable: true,
+        //	bulletElement: 'div',
+        //	dynamicBullets: false,
+        //	type: 'bullets', //'bullets' | 'fraction' | 'progressbar' | 'custom'
+        //	//renderBullet: function (index, className) {
+        //	//	return `<div class=${className}>0${index + 1}</div>`
+        //	//}
+        //},
+
+        // Скроллбар
+
+        //scrollbar: {
+        //	el: '.swiper-scrollbar',
+        //	draggable: true,
+        //},
+
+
+        // Кнопки "влево/вправо"
+        navigation: {
+          hideOnClick: false,
+          prevEl: '.swiper-button-prev',
+          nextEl: '.swiper-button-next',
+        },
+
+        // // Брейкпоинты
+
+        breakpoints: {
+          200: {
+            slidesPerView: 1,
+            spaceBetween: 20,
+            autoHeight: true,
+          },
+          480: {
+            slidesPerView: 2,
+            spaceBetween: 40,
+            autoHeight: true,
+          },
+          650: {
+            slidesPerView: 3,
+            spaceBetween: 40,
+            autoHeight: true,
+          },
+          950: {
+            slidesPerView: 4,
+            spaceBetween: 60,
+            autoHeight: true,
+          },
+          1350: {
+            slidesPerView: 5,
+            spaceBetween: 75,
+            autoHeight: true,
+          },
+        },
+
+        // События
+        on: {
+        }
+      }
+  );
+});
+
+watch(images, async () => {
+  await nextTick();
+  lightGallery?.refresh(toRaw(images.value));
+  swiperInstance?.update();
+});
+
+const settings = {
+  plugins: [lgZoom, lgThumbnail],
+  licenseKey: '7EC452A9-0CFD441C-BD984C7C-17C8456E',
+  speed: 800,
+  thumbnail: true,
+  pager: false,
+  mobileSettings: {
+    controls: true,
+    showCloseIcon: true,
+    download: false,
+    rotate: false
+  }
+};
+
+const onInit = (detail) => {
+  lightGallery = detail.instance;
+};
 </script>
 
 <template>
@@ -19,34 +161,22 @@ const imgBase = runtimeConfig.public.imgBase;
     <div class="license__container" id="license">
       <h1 class="license__title">Лицензии и сертификаты</h1>
       <div class="license__content">
-        <!-- Оболочка слайдера -->
         <div class="license__slider swiper">
-          <!-- Двигающееся часть слайдера -->
-          <div class="license__wrapper swiper-wrapper static-thumbnails" id="static-thumbnails-2">
-              <!-- Слайд -->
-              <!--              <a class="license__slide swiper-slide" href="../img/123.jpg">-->
-              <!--                <img src="../img/123.jpg" class="license__img">-->
-              <!--              </a>-->
-              <a
-                  v-for="(cert, index) in companyStore.data.certificates"
-                  :key="index"
-                  :href="imgBase+cert.url"
-                  class="license__slide swiper-slide"
-              >
-                <img :src="imgBase+cert.url" class="license__img" alt=""/>
-              </a>
-          </div>
-          <!--          <div ref="galleryRef" class="license__gallery">-->
-          <!--            <a-->
-          <!--                v-for="(cert, index) in certificates"-->
-          <!--                :key="index"-->
-          <!--                :href="cert.src"-->
-          <!--                class="license__slide swiper-slide"-->
-          <!--            >-->
-          <!--              <img :src="cert.thumb" class="license__img" alt=""/>-->
-          <!--            </a>-->
-          <!--          </div>-->
-          <!-- Если нужна навигация (влево/вправо) -->
+          <lightgallery
+              :settings="settings"
+              :onInit="onInit"
+              class="license__wrapper swiper-wrapper"
+          >
+            <a
+                v-for="item in images"
+                :key="item.id"
+                :data-lg-size="item.size"
+                class="license__slide swiper-slide"
+                :data-src="item.src"
+            >
+              <img :src="item.thumb" class="license__img"/>
+            </a>
+          </lightgallery>
           <button type="button" class="swiper-button-prev swiper-button-prev-solid swiper-button-left"></button>
           <button type="button" class="swiper-button-next swiper-button-next-solid swiper-button-right"></button>
         </div>
@@ -59,5 +189,4 @@ const imgBase = runtimeConfig.public.imgBase;
 @import 'lightgallery/css/lightgallery.css';
 @import 'lightgallery/css/lg-thumbnail.css';
 @import 'lightgallery/css/lg-zoom.css';
-@import 'lightgallery/css/lg-fullscreen.css';
 </style>

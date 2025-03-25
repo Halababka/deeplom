@@ -22,11 +22,12 @@ const MainPreset = definePreset(Aura, {
 
 export default defineNuxtConfig({
     compatibilityDate: '2024-11-01',
-    ssr: true,
+    ssr: false,
     devtools: {enabled: false},
     runtimeConfig: {
         public: {
             apiBase: process.env.NUXT_PUBLIC_API_BASE,
+            imgBase: process.env.NUXT_PUBLIC_MEDIA_API_URL_BASE // путь к медиа файлам
         }
     },
     modules: ['@primevue/nuxt-module', '@nuxtjs/tailwindcss', '@pinia/nuxt'],

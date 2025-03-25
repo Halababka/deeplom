@@ -57,7 +57,10 @@ const saveClinicData = async () => {
     clinicData.value.certificateIds = clinicData.value.certificates?.map(i => i.id) ?? null
     delete clinicData.value.certificates
     clinicData.value.mainPhotoId = clinicData.value.mainPhoto?.id ?? null
-    clinicData.value.fullDescription = clinicData.value.fullDescription.split('\n');
+    clinicData.value.fullDescription =
+        typeof clinicData.value.fullDescription === 'string'
+            ? clinicData.value.fullDescription.split('\n')
+            : clinicData.value.fullDescription;
 
     const response = await fetch(api + '/companies/1', {
       method: 'PUT',
@@ -129,7 +132,7 @@ const onTemplatedUpload = (event, type) => {
       clinicData.value.photos = response.files
       break;
     case "certificates":
-      clinicData.value.certificates = response.files
+      clinicData.value.certificates = [...clinicData.value.certificates, ...response.files]
       break;
     case "mainPhoto":
       clinicData.value.mainPhoto = response.files[0]
@@ -266,7 +269,7 @@ fetchClinicData();
         <label for="file" class="block font-bold mb-3">Фото</label>
         <div v-if="clinicData.photos && clinicData.photos.length !== 0" class="flex justify-between items-center"
              v-for="(item, index) in clinicData.photos">
-          <ImageViewerModal v-if="item.url" :src="`http://localhost:8080${item.url}`"/>
+          <ImageViewerModal v-if="item.url" :src="useRuntimeConfig().public.imgBase + item.url"/>
           <Button @click="deletePhotosFromClinic(index)" label="Удалить" class="h-12 p-button-danger"/>
         </div>
         <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
@@ -278,7 +281,7 @@ fetchClinicData();
         <label for="file" class="block font-bold mb-3">Сертификаты</label>
         <div v-if="clinicData.certificates && clinicData.certificates[0]" class="flex justify-between items-center"
              v-for="(item, index) in clinicData.certificates">
-          <ImageViewerModal :src="`http://localhost:8080${item.url}`"/>
+          <ImageViewerModal :src="useRuntimeConfig().public.imgBase + item.url"/>
           <Button @click="deleteCertificatesFromClinic(index)" label="Удалить" class="h-12 p-button-danger"/>
         </div>
         <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"

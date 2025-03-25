@@ -29,13 +29,9 @@ useHead({
       </div>
     </div>
   </div>
-
   <TheAbout/>
-
   <ThePopular/>
-
   <TheDoctors/>
-
 </template>
 
 <style scoped>

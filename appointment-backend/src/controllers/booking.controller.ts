@@ -2,8 +2,6 @@ import {Request, Response} from "express";
 import * as bookingService from "../services/booking.service";
 import * as smsService from "../services/sms.service";
 
-
-
 // Получение доступных временных слотов
 export const getAvailableSlots = async (req: Request, res: Response) => {
     const {branchId, doctorId} = req.query;
