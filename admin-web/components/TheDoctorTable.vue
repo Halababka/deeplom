@@ -273,7 +273,7 @@ onBeforeMount(() => {
     </DataTable>
   </div>
 
-  <Dialog v-model:visible="doctorDialog" class="max-w-[95%] min-w-[95%] sm:w-[700px]" header="Доктор" modal dismissable-mask closable :draggable="false">
+  <Dialog v-model:visible="doctorDialog" class="max-w-[95%] min-w-[95%] sm:min-w-[200px] sm:w-[700px]" header="Доктор" modal dismissable-mask closable :draggable="false">
     <div class="flex flex-col gap-6">
       <div>
         <label for="name" class="block font-bold mb-3">ФИО</label>
