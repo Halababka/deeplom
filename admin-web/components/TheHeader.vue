@@ -12,15 +12,13 @@ const logout = () => {
 
 <template>
   <header class="bg-white shadow-md p-4 w-[100%]">
-    <div class="container mx-auto flex items-center justify-between">
+    <div class="container mx-auto flex items-center justify-between gap-2">
       <NuxtLink to="/">
         <img src="/logo.png" class="h-15" alt="Логотип">
       </NuxtLink>
-      <nav class="md:flex space-x-4 justify-center items-center ">
+      <nav class="flex space-x-4 justify-center items-center ">
         <span>{{ userStore.user?.username }}</span>
-        <Button v-if="userStore.isAuthenticated" @click="logout">
-          Выйти
-        </Button>
+        <Button v-if="userStore.isAuthenticated" @click="logout" label="Выйти"/>
       </nav>
     </div>
   </header>

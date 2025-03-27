@@ -14,7 +14,7 @@ const form = reactive({
   username: '',
   password: ''
 });
-const token = useCookie('auth_token', { secure: true, sameSite: 'strict' }); // Токен сохраняется в cookie
+const token = useCookie('auth_token', { secure: false, sameSite: 'lax' }); // Токен сохраняется в cookie
 const loading = ref(false);
 const toast = useToast();
 
@@ -48,10 +48,9 @@ const login = async () => {
 </script>
 
 <template>
-  <div class="flex justify-center items-center bg-gray-100">
-    <form @submit.prevent="login" class="p-8 bg-white rounded shadow-md w-96">
+  <div class="flex justify-center items-center bg-gray-100 p-2">
+    <form @submit.prevent="login" class="p-8 bg-white rounded shadow-md sm:w-96 max-w-[100%]">
       <h2 class="text-2xl font-bold text-center mb-6">Вход</h2>
-
       <!-- Логин -->
       <div class="mb-4">
         <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Логин</label>

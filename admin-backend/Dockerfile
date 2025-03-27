@@ -23,6 +23,7 @@ RUN npm install
 # Копируем остальные файлы приложения
 COPY . .
 
+RUN npx prisma migrate deploy
 # Генерируем Prisma клиент
 RUN npx prisma generate
 

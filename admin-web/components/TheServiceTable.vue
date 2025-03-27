@@ -231,7 +231,7 @@ onBeforeMount(() => {
   </div>
 
   <!-- Диалог для добавления/редактирования услуги -->
-  <Dialog v-model:visible="serviceDialog" :style="{ width: '450px' }" header="Услуга" modal dismissable-mask>
+  <Dialog v-model:visible="serviceDialog" class="max-w-[95%] min-w-[95%] sm:w-[700px]" header="Услуга" modal dismissable-mask closable :draggable="false">
     <div class="flex flex-col gap-6">
       <div class="flex flex-col gap-2">
         <label for="name">Название</label>
@@ -245,7 +245,8 @@ onBeforeMount(() => {
             optionLabel="name"
             optionValue="id"
             placeholder="Выберите категорию"
-            pt:overlay:style="max-width: 700px; overflow-x: auto; white-space: nowrap;"
+            pt:overlay:class="max-w-[50px]"
+            pt:overlay:style="overflow-x: auto;"
             :filter="true"
         />
       </div>

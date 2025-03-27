@@ -237,7 +237,8 @@ onBeforeMount(() => {
     </DataTable>
   </div>
 
-  <Dialog v-model:visible="categoryDialog" :style="{ width: '450px' }" header="Категория" modal dismissable-mask>
+<!--  <Dialog v-model:visible="categoryDialog" :style="{ width: '450px' }" header="Категория" modal dismissable-mask>-->
+  <Dialog v-model:visible="categoryDialog" class="max-w-[95%] min-w-[95%] sm:w-[700px]" header="Категория" modal dismissable-mask closable :draggable="false">
     <div class="flex flex-col gap-6">
       <div class="flex flex-col gap-2">
         <label for="name">Название</label>
@@ -252,6 +253,7 @@ onBeforeMount(() => {
             optionValue="id"
             placeholder="Выберите родительскую категорию"
             :filter="true"
+            pt:overlay:class="max-w-[50px]"
         />
       </div>
       <div class="flex items-center gap-2">
@@ -266,7 +268,8 @@ onBeforeMount(() => {
             :options="allServices"
             optionLabel="name"
             filter
-            pt:overlay:style="max-width: 700px; overflow-x: auto; white-space: nowrap;"
+            pt:overlay:style="overflow-x: auto; white-space: nowrap;"
+            pt:overlay:class="max-w-[50px]"
             placeholder="Выберите услуги"
         >
         </MultiSelect>
