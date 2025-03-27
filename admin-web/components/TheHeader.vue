@@ -18,7 +18,7 @@ const logout = () => {
       </NuxtLink>
       <nav class="md:flex space-x-4 justify-center items-center ">
         <span>{{ userStore.user?.username }}</span>
-        <Button v-if="token" @click="logout">
+        <Button v-if="userStore.isAuthenticated" @click="logout">
           Выйти
         </Button>
       </nav>

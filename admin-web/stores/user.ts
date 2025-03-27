@@ -19,6 +19,9 @@ export const useUserStore = defineStore('user', {
         async fetchUser() {
             try {
                 const token = useCookie('auth_token'); // Получаем токен из cookies
+                if (!token.value) {
+                    throw new Error('Authentication token is missing');
+                }
                 const api = useRuntimeConfig().public.apiBase; // Базовый URL API
 
                 const response = await fetch(`${api}/me`, {
@@ -38,7 +41,15 @@ export const useUserStore = defineStore('user', {
             } catch (error) {
                 console.error('Не удалось получить данные пользователя:', error);
                 this.logout(); // Сбрасываем состояние пользователя при ошибке
-                return navigateTo('/auth')
+                // Получаем текущий маршрут
+                const route = useRoute();
+
+                // Проверяем, не находимся ли уже на странице авторизации
+                if (route.path !== '/auth') {
+                    return navigateTo('/auth');
+                }
+
+                // Дополнительная логика, если уже на /auth
             }
         },
     },
