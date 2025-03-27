@@ -7,7 +7,7 @@ import "~/js/files/sticky.js";
   <header class="header">
     <div class="header__container">
       <div class="header__top">
-        <a href="" class="header__logo">
+        <a href="/" class="header__logo">
           <img src="/logo.png" class="header__img " alt="logo">
         </a>
         <img id="specialButton" style="cursor:pointer;" src="https://lidrekon.ru/images/special.png"

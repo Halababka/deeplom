@@ -213,134 +213,132 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div>
-    <div class="card">
-      <Toolbar class="mb-6">
-        <template #start>
-          <Button label="Добавить" icon="pi pi-plus" class="mr-2" @click="openNewDoctor"/>
-          <Button label="Удалить" icon="pi pi-trash" severity="danger" outlined @click="confirmDeleteSelected"
-                  :disabled="!selectedDoctors || !selectedDoctors.length"/>
-        </template>
-      </Toolbar>
+  <div class="card w-[100%]">
+    <Toolbar class="mb-6">
+      <template #start>
+        <Button label="Добавить" icon="pi pi-plus" class="mr-2" @click="openNewDoctor"/>
+        <Button label="Удалить" icon="pi pi-trash" severity="danger" outlined @click="confirmDeleteSelected"
+                :disabled="!selectedDoctors || !selectedDoctors.length"/>
+      </template>
+    </Toolbar>
 
-      <DataTable
-          ref="dt"
-          v-model:selection="selectedDoctors"
-          :value="doctors"
-          dataKey="id"
-          :paginator="true"
-          :rows="10"
-          :loading="loadingTable"
-          :filters="filters"
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          :rowsPerPageOptions="[5, 10, 25]"
-          currentPageReportTemplate="Показаны {first} по {last} из {totalRecords} докторов"
-          tableClass="min-w-[70rem] max-w-[70rem]"
-      >
-        <template #header>
-          <div class="flex flex-wrap gap-2 items-center justify-between">
-            <div class="flex gap-4 items-center">
-              <h4 class="m-0">Доктора</h4>
-              <Button icon="pi pi-refresh" @click="fetchDoctors" rounded raised/>
-            </div>
-            <IconField>
-              <InputIcon>
-                <i class="pi pi-search"/>
-              </InputIcon>
-              <InputText v-model="filters['global'].value" placeholder="Поиск..."/>
-            </IconField>
+    <DataTable
+        ref="dt"
+        v-model:selection="selectedDoctors"
+        :value="doctors"
+        dataKey="id"
+        :paginator="true"
+        :rows="10"
+        :loading="loadingTable"
+        :filters="filters"
+        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+        :rowsPerPageOptions="[5, 10, 25]"
+        currentPageReportTemplate="Показаны {first} по {last} из {totalRecords} докторов"
+        tableClass="w-[70rem] max-w-[70rem]"
+    >
+      <template #header>
+        <div class="flex flex-wrap gap-2 items-center justify-between">
+          <div class="flex gap-4 items-center">
+            <h4 class="m-0">Доктора</h4>
+            <Button icon="pi pi-refresh" @click="fetchDoctors" rounded raised/>
           </div>
-        </template>
-        <template #empty>
-          Данные не найдены
-        </template>
+          <IconField>
+            <InputIcon>
+              <i class="pi pi-search"/>
+            </InputIcon>
+            <InputText v-model="filters['global'].value" placeholder="Поиск..."/>
+          </IconField>
+        </div>
+      </template>
+      <template #empty>
+        Данные не найдены
+      </template>
 
 
-        <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-        <Column field="name" header="Имя" sortable style="min-width: 16rem"></Column>
-        <Column field="specialty" header="Специальность" sortable style="min-width: 16rem"></Column>
-        <Column header="Фото">
-          <template #body="slotProps">
-            <ImageViewerModal v-if="slotProps.data.avatar" :src="'http://localhost:8080'+ slotProps.data.avatar.url"
-                              :alt="slotProps.data.name"/>
-          </template>
-        </Column>
-        <Column :exportable="false" style="min-width: 12rem">
-          <template #body="slotProps">
-            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editDoctor(slotProps.data)"/>
-            <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteDoctor(slotProps.data)"/>
-          </template>
-        </Column>
-      </DataTable>
+      <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
+      <Column field="name" header="Имя" sortable style="min-width: 16rem" frozen></Column>
+      <Column field="specialty" header="Специальность" sortable style="min-width: 16rem"></Column>
+      <Column header="Фото">
+        <template #body="slotProps">
+          <ImageViewerModal v-if="slotProps.data.avatar" :src="'http://localhost:8080'+ slotProps.data.avatar.url"
+                            :alt="slotProps.data.name"/>
+        </template>
+      </Column>
+      <Column :exportable="false" style="min-width: 12rem">
+        <template #body="slotProps">
+          <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editDoctor(slotProps.data)"/>
+          <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteDoctor(slotProps.data)"/>
+        </template>
+      </Column>
+    </DataTable>
+  </div>
+
+  <Dialog v-model:visible="doctorDialog" :style="{ width: '450px' }" header="Доктор" :modal="true" dismissable-mask>
+    <div class="flex flex-col gap-6">
+      <div>
+        <label for="name" class="block font-bold mb-3">ФИО</label>
+        <InputText id="name" v-model.trim="newDoctor.name" required autofocus
+                   :invalid="submitted && !newDoctor.name" fluid/>
+        <small v-if="submitted && !newDoctor.name" class="text-red-500">Имя обязательно</small>
+      </div>
+      <div>
+        <label for="experience" class="block font-bold mb-3">Стаж</label>
+        <InputNumber id="experience" v-model="newDoctor.experience" required fluid/>
+      </div>
+      <div>
+        <label for="specialty" class="block font-bold mb-3">Специальность</label>
+        <InputText id="specialty" v-model="newDoctor.specialty" required fluid/>
+      </div>
+      <div>
+        <label for="education" class="block font-bold mb-3">Образование</label>
+        <!--          <InputText id="specialty" v-model="newDoctor.education" required fluid/>-->
+        <Textarea id="education" v-model="newDoctor.education" rows="5" fluid/>
+      </div>
+      <div>
+        <label for="courses" class="block font-bold mb-3">Курсы повышения квалификации</label>
+        <!--          <InputText id="specialty" v-model="newDoctor.courses" required fluid/>-->
+        <Textarea id="courses" v-model="newDoctor.courses" rows="5" fluid/>
+      </div>
+      <div class="space-y-2">
+        <label for="file" class="block font-bold mb-3">Аватар</label>
+        <div v-if="newDoctor.avatar" class="flex justify-between items-center">
+          <ImageViewerModal :src="`http://localhost:8080${newDoctor.avatar.url}`"/>
+          <Button @click="deleteAvatarFromDoctor" label="Удалить" class="h-12"/>
+        </div>
+        <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
+                    @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'avatar')"
+                    :multiple="false" :fileLimit="1" auto/>
+      </div>
+      <div class="space-y-2">
+        <label for="file" class="block font-bold mb-3">Фото</label>
+        <div v-if="newDoctor.photos && newDoctor.photos[0]" class="flex justify-between items-center"
+             v-for="(item, index) in newDoctor.photos">
+          <ImageViewerModal :src="`http://localhost:8080${item.url}`"/>
+          <Button @click="deletePhotosFromDoctor(index)" label="Удалить" class="h-12"/>
+        </div>
+        <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
+                    @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'photos')"
+                    :multiple="true" :fileLimit="10" auto/>
+      </div>
+      <div class="space-y-2">
+        <label for="file" class="block font-bold mb-3">Сертификаты</label>
+        <div v-if="newDoctor.certificates && newDoctor.certificates[0]" class="flex justify-between items-center"
+             v-for="(item, index) in newDoctor.certificates">
+          <ImageViewerModal :src="`http://localhost:8080${item.url}`"/>
+          <Button @click="deleteCertificatesFromDoctor(index)" label="Удалить" class="h-12"/>
+        </div>
+        <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
+                    @before-send="onBeforeSend($event)"
+                    @upload="($event) => onTemplatedUpload($event, 'certificates')"
+                    :multiple="true" :fileLimit="10" auto/>
+      </div>
     </div>
 
-    <Dialog v-model:visible="doctorDialog" :style="{ width: '450px' }" header="Доктор" :modal="true" dismissable-mask>
-      <div class="flex flex-col gap-6">
-        <div>
-          <label for="name" class="block font-bold mb-3">ФИО</label>
-          <InputText id="name" v-model.trim="newDoctor.name" required autofocus
-                     :invalid="submitted && !newDoctor.name" fluid/>
-          <small v-if="submitted && !newDoctor.name" class="text-red-500">Имя обязательно</small>
-        </div>
-        <div>
-          <label for="experience" class="block font-bold mb-3">Стаж</label>
-          <InputNumber id="experience" v-model="newDoctor.experience" required fluid/>
-        </div>
-        <div>
-          <label for="specialty" class="block font-bold mb-3">Специальность</label>
-          <InputText id="specialty" v-model="newDoctor.specialty" required fluid/>
-        </div>
-        <div>
-          <label for="education" class="block font-bold mb-3">Образование</label>
-<!--          <InputText id="specialty" v-model="newDoctor.education" required fluid/>-->
-          <Textarea id="education" v-model="newDoctor.education" rows="5" fluid/>
-        </div>
-        <div>
-          <label for="courses" class="block font-bold mb-3">Курсы повышения квалификации</label>
-<!--          <InputText id="specialty" v-model="newDoctor.courses" required fluid/>-->
-          <Textarea id="courses" v-model="newDoctor.courses" rows="5" fluid/>
-        </div>
-        <div class="space-y-2">
-          <label for="file" class="block font-bold mb-3">Аватар</label>
-          <div v-if="newDoctor.avatar" class="flex justify-between items-center">
-            <ImageViewerModal :src="`http://localhost:8080${newDoctor.avatar.url}`"/>
-            <Button @click="deleteAvatarFromDoctor" label="Удалить" class="h-12"/>
-          </div>
-          <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
-                      @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'avatar')"
-                      :multiple="false" :fileLimit="1" auto/>
-        </div>
-        <div class="space-y-2">
-          <label for="file" class="block font-bold mb-3">Фото</label>
-          <div v-if="newDoctor.photos && newDoctor.photos[0]" class="flex justify-between items-center"
-               v-for="(item, index) in newDoctor.photos">
-            <ImageViewerModal :src="`http://localhost:8080${item.url}`"/>
-            <Button @click="deletePhotosFromDoctor(index)" label="Удалить" class="h-12"/>
-          </div>
-          <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
-                      @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'photos')"
-                      :multiple="true" :fileLimit="10" auto/>
-        </div>
-        <div class="space-y-2">
-          <label for="file" class="block font-bold mb-3">Сертификаты</label>
-          <div v-if="newDoctor.certificates && newDoctor.certificates[0]" class="flex justify-between items-center"
-               v-for="(item, index) in newDoctor.certificates">
-            <ImageViewerModal :src="`http://localhost:8080${item.url}`"/>
-            <Button @click="deleteCertificatesFromDoctor(index)" label="Удалить" class="h-12"/>
-          </div>
-          <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
-                      @before-send="onBeforeSend($event)"
-                      @upload="($event) => onTemplatedUpload($event, 'certificates')"
-                      :multiple="true" :fileLimit="10" auto/>
-        </div>
-      </div>
-
-      <template #footer>
-        <Button label="Выйти" icon="pi pi-times" text @click="closeDialog"/>
-        <Button label="Сохранить" icon="pi pi-check" @click="saveDoctor"/>
-      </template>
-    </Dialog>
-  </div>
+    <template #footer>
+      <Button label="Выйти" icon="pi pi-times" text @click="closeDialog"/>
+      <Button label="Сохранить" icon="pi pi-check" @click="saveDoctor"/>
+    </template>
+  </Dialog>
 </template>
 
 <style scoped>

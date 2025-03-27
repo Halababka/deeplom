@@ -29,8 +29,8 @@ export class ServiceController {
 
     async createService(req: Request, res: Response): Promise<void> {
         try {
-            const {name, price, categoryId} = req.body
-            const service = await serviceService.createService({name, price, categoryId});
+            const {name, price, categoryId, popular} = req.body
+            const service = await serviceService.createService({name, price, categoryId, popular});
             res.status(201).json(service);
         } catch (error) {
             res.status(500).json({error: 'Internal server error'});

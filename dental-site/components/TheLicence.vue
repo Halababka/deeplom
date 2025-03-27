@@ -49,44 +49,6 @@ onMounted(async () => {
         loop: false, //Режим карусель
         rewind: true, //Режим перемотки на первый слайд, если последний свайп вправо (не юзать совместно с каруселью)
 
-        //touchRatio: 0,
-        //simulateTouch: false,
-        //preloadImages: true, //принудительно загружает все изображения
-        //lazy: true, //ленивая загрузка (используй гайд(другая разметка))
-
-
-        // Эффекты
-        //effect: 'fade',
-
-        //autoplay: {
-        //	delay: 5000,
-        //	disableOnInteraction: false,
-        //},
-
-
-        // Пагинация
-
-        //pagination: {
-        //	el: '.arrivals-pagination',
-        //	bulletClass: 'swiper-pagination-bullet-arrival',
-        //	bulletActiveClass: 'swiper-pagination-bullet-arrival-active',
-        //	clickable: true,
-        //	bulletElement: 'div',
-        //	dynamicBullets: false,
-        //	type: 'bullets', //'bullets' | 'fraction' | 'progressbar' | 'custom'
-        //	//renderBullet: function (index, className) {
-        //	//	return `<div class=${className}>0${index + 1}</div>`
-        //	//}
-        //},
-
-        // Скроллбар
-
-        //scrollbar: {
-        //	el: '.swiper-scrollbar',
-        //	draggable: true,
-        //},
-
-
         // Кнопки "влево/вправо"
         navigation: {
           hideOnClick: false,
@@ -170,7 +132,6 @@ const onInit = (detail) => {
             <a
                 v-for="item in images"
                 :key="item.id"
-                :data-lg-size="item.size"
                 class="license__slide swiper-slide"
                 :data-src="item.src"
             >

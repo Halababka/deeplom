@@ -9,7 +9,7 @@ const services = ref([]); // Данные для таблицы услуг
 const categories = ref([]);
 const selectedServices = ref([]);
 const serviceDialog = ref(false); // Открытие/закрытие диалога
-const newService = ref({id: null, name: "", categoryId: null, price: 0});
+const newService = ref({id: null, name: "", categoryId: null, price: 0, popular: false});
 const submitted = ref(false);
 const toast = useToast();
 const api = useRuntimeConfig().public.apiBase;
@@ -49,13 +49,19 @@ const fetchServices = async () => {
 
 // Открытие формы для добавления новой услуги
 const openNewService = () => {
-  newService.value = {id: null, name: "", categoryId: null, price: 0};
+  newService.value = {id: null, name: "", categoryId: null, price: 0, popular: false};
   serviceDialog.value = true;
 };
 
 // Открытие формы редактирования услуги
 const editService = (service) => {
-  newService.value = {id: service.id, name: service.name, categoryId: service.categoryId, price: service.price};
+  newService.value = {
+    id: service.id,
+    name: service.name,
+    categoryId: service.categoryId,
+    price: service.price,
+    popular: service.popular
+  };
   serviceDialog.value = true;
 };
 
@@ -156,98 +162,107 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div>
-    <div class="card">
-      <Toolbar class="mb-6">
-        <template #start>
-          <Button label="Добавить" icon="pi pi-plus" class="mr-2" @click="openNewService"/>
-          <Button
-              label="Удалить"
-              icon="pi pi-trash"
-              severity="danger"
-              outlined
-              @click="confirmDeleteSelected"
-              :disabled="!selectedServices.length"
-          />
-        </template>
-      </Toolbar>
-
-      <DataTable
-          v-model:selection="selectedServices"
-          :value="services"
-          dataKey="id"
-          paginator
-          :rows="10"
-          :loading="loadingTable"
-          :filters="filters"
-          tableClass="min-w-[70rem] max-w-[70rem]"
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          :rowsPerPageOptions="[5, 10, 25]"
-          currentPageReportTemplate="Показаны {first} по {last} из {totalRecords} услуг"
-      >
-        <template #header>
-          <div class="flex flex-wrap gap-2 items-center justify-between">
-            <div class="flex gap-4 items-center">
-              <h4 class="m-0">Список услуг</h4>
-              <Button icon="pi pi-refresh" @click="fetchServices" rounded raised/>
-            </div>
-            <IconField>
-              <InputIcon>
-                <i class="pi pi-search"/>
-              </InputIcon>
-              <InputText v-model="filters['global'].value" placeholder="Поиск..."/>
-            </IconField>
-          </div>
-        </template>
-
-        <Column selectionMode="multiple" style="width: 3rem"></Column>
-        <Column field="name" header="Название" sortable></Column>
-        <Column field="category.name" header="Категория" sortable></Column>
-        <Column field="price" header="Цена" sortable>
-          <template #body="slotProps">
-            {{ slotProps.data.price }} ₽
-          </template>
-        </Column>
-        <Column :exportable="false" style="width: 10rem">
-          <template #body="slotProps">
-            <Button icon="pi pi-pencil" class="mr-2" outlined rounded @click="editService(slotProps.data)"/>
-            <Button icon="pi pi-trash" outlined rounded severity="danger"
-                    @click="confirmDeleteService(slotProps.data)"/>
-          </template>
-        </Column>
-      </DataTable>
-    </div>
-
-    <!-- Диалог для добавления/редактирования услуги -->
-    <Dialog v-model:visible="serviceDialog" :style="{ width: '450px' }" header="Услуга" modal dismissable-mask>
-      <div class="flex flex-col gap-6">
-        <div class="flex flex-col gap-2">
-          <label for="name">Название</label>
-          <InputText v-model="newService.name" id="name" required autofocus/>
-        </div>
-        <div class="flex flex-col gap-2">
-          <label for="categoryId">Категория</label>
-          <Select
-              v-model="newService.categoryId"
-              :options="categories"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Выберите категорию"
-              pt:overlay:style="max-width: 700px; overflow-x: auto; white-space: nowrap;"
-              :filter="true"
-          />
-        </div>
-        <div class="flex flex-col gap-2">
-          <label for="price">Цена</label>
-          <InputNumber v-model="newService.price" id="price" mode="currency" currency="RUB" locale="ru-RU"/>
-        </div>
-      </div>
-      <template #footer>
-        <Button label="Отменить" icon="pi pi-times" class="p-button-text" @click="closeDialog"/>
-        <Button label="Сохранить" icon="pi pi-check" @click="saveService"/>
+  <div class="card w-[100%]">
+    <Toolbar class="mb-6">
+      <template #start>
+        <Button label="Добавить" icon="pi pi-plus" class="mr-2" @click="openNewService"/>
+        <Button
+            label="Удалить"
+            icon="pi pi-trash"
+            severity="danger"
+            outlined
+            @click="confirmDeleteSelected"
+            :disabled="!selectedServices.length"
+        />
       </template>
-    </Dialog>
+    </Toolbar>
+
+    <DataTable
+        v-model:selection="selectedServices"
+        :value="services"
+        dataKey="id"
+        scrollable
+        paginator
+        :rows="10"
+        :loading="loadingTable"
+        :filters="filters"
+        tableClass="w-[70rem] max-w-[70rem]"
+        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+        :rowsPerPageOptions="[5, 10, 25]"
+        currentPageReportTemplate="Показаны {first} по {last} из {totalRecords} услуг"
+    >
+      <template #header>
+        <div class="flex flex-wrap gap-2 items-center justify-between">
+          <div class="flex gap-4 items-center">
+            <h4 class="m-0">Список услуг</h4>
+            <Button icon="pi pi-refresh" @click="fetchServices" rounded raised/>
+          </div>
+          <IconField>
+            <InputIcon>
+              <i class="pi pi-search"/>
+            </InputIcon>
+            <InputText v-model="filters['global'].value" placeholder="Поиск..."/>
+          </IconField>
+        </div>
+      </template>
+
+      <Column selectionMode="multiple" style="width: 3rem"></Column>
+      <Column field="name" header="Название" sortable frozen></Column>
+      <Column field="category.name" header="Категория" sortable></Column>
+      <Column field="popular" header="Популярная услуга" sortable>
+        <template #body="{data}">
+          <span v-if="data.popular">Да</span>
+          <span v-else>Нет</span>
+        </template>
+      </Column>
+      <Column field="price" header="Цена" sortable>
+        <template #body="slotProps">
+          {{ slotProps.data.price }} ₽
+        </template>
+      </Column>
+      <Column :exportable="false" style="width: 10rem">
+        <template #body="slotProps">
+          <Button icon="pi pi-pencil" class="mr-2" outlined rounded @click="editService(slotProps.data)"/>
+          <Button icon="pi pi-trash" outlined rounded severity="danger"
+                  @click="confirmDeleteService(slotProps.data)"/>
+        </template>
+      </Column>
+    </DataTable>
   </div>
+
+  <!-- Диалог для добавления/редактирования услуги -->
+  <Dialog v-model:visible="serviceDialog" :style="{ width: '450px' }" header="Услуга" modal dismissable-mask>
+    <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <label for="name">Название</label>
+        <InputText v-model="newService.name" id="name" required autofocus/>
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="categoryId">Категория</label>
+        <Select
+            v-model="newService.categoryId"
+            :options="categories"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Выберите категорию"
+            pt:overlay:style="max-width: 700px; overflow-x: auto; white-space: nowrap;"
+            :filter="true"
+        />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="price">Цена</label>
+        <InputNumber v-model="newService.price" id="price" mode="currency" currency="RUB" locale="ru-RU"/>
+      </div>
+      <div class="flex flex-row items-center gap-2">
+        <Checkbox v-model="newService.popular" inputId="popular" binary variant="filled"/>
+        <label for="popular">Популярная услуга</label>
+      </div>
+    </div>
+    <template #footer>
+      <Button label="Отменить" icon="pi pi-times" class="p-button-text" @click="closeDialog"/>
+      <Button label="Сохранить" icon="pi pi-check" @click="saveService"/>
+    </template>
+  </Dialog>
 </template>
 
 <style scoped>

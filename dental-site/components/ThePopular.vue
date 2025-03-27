@@ -9,7 +9,7 @@
         <div class="popular__main">
           <div class="popular__title-wrapper">
             <h1 class="popular__title">Популярные услуги Dental</h1>
-            <a href="#" class="popular__link">Все услуги</a>
+            <NuxtLink to="/services" class="popular__link">Все услуги</NuxtLink>
           </div>
           <div class="popular__image">
             <img src="~/assets/img/cartoon.png" alt="">

@@ -13,6 +13,7 @@ export const useUserStore = defineStore('user', {
         logout() {
             this.user = null;
             this.isAuthenticated = false;
+            useCookie('auth_token').value = ""
             navigateTo("/auth")
         },
         async fetchUser() {
@@ -29,15 +30,15 @@ export const useUserStore = defineStore('user', {
                 });
 
                 if (!response.ok) {
-                    new Error(`Ошибка запроса: ${response.status}`);
+                    throw new Error(`Ошибка запроса: ${response.status}`);
                 }
 
                 const userData = await response.json();
                 this.setUser(userData); // Обновляем состояние пользователя
             } catch (error) {
                 console.error('Не удалось получить данные пользователя:', error);
-                return navigateTo('/')
                 this.logout(); // Сбрасываем состояние пользователя при ошибке
+                return navigateTo('/auth')
             }
         },
     },

@@ -1,26 +1,3 @@
-<template>
-  <div class="doctors">
-    <div class="doctors__container">
-      <div class="doctors__slider swiper-doctors">
-        <div class="doctors__wrapper swiper-wrapper">
-          <div class="doctors__slide doctors-slide swiper-slide" v-for="(doctor, index) in doctors" :key="index">
-            <div class="doctors-slide__wrapper">
-              <img :src="getUrl(doctor.image)" alt="" class="doctors-slide__image">
-              <span class="doctors-slide__name">
-                <a href="#" class="doctors-slide__link">{{ doctor.name }}</a>
-              </span>
-              <span class="doctors-slide__prof">{{ doctor.profession }}</span>
-              <span class="doctors-slide__experience">{{ doctor.experience }}</span>
-            </div>
-          </div>
-        </div>
-        <button type="button" class="swiper-button-prev swiper-button-prev-solid"></button>
-        <button type="button" class="swiper-button-next swiper-button-prev-solid"></button>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import {onMounted} from "vue";
 import Swiper from "swiper";
@@ -108,7 +85,28 @@ const getUrl = (url) => {
   return new URL(url, import.meta.url).href
 }
 </script>
-
+<template>
+  <div class="doctors">
+    <div class="doctors__container">
+      <div class="doctors__slider swiper-doctors">
+        <div class="doctors__wrapper swiper-wrapper">
+          <div class="doctors__slide doctors-slide swiper-slide" v-for="(doctor, index) in doctors" :key="index">
+            <div class="doctors-slide__wrapper">
+              <img :src="getUrl(doctor.image)" alt="" class="doctors-slide__image">
+              <span class="doctors-slide__name">
+                <a href="#" class="doctors-slide__link">{{ doctor.name }}</a>
+              </span>
+              <span class="doctors-slide__prof">{{ doctor.profession }}</span>
+              <span class="doctors-slide__experience">{{ doctor.experience }}</span>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="swiper-button-prev swiper-button-prev-solid"></button>
+        <button type="button" class="swiper-button-next swiper-button-prev-solid"></button>
+      </div>
+    </div>
+  </div>
+</template>
 <style scoped>
 
 </style>

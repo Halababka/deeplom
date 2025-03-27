@@ -96,9 +96,11 @@ const updateSlides = async () => {
 
 .justified-gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   grid-auto-rows: 150px;
   gap: 10px;
+  justify-content: center; /* Центрирует колонки */
+  width: 100%;
 }
 
 .gallery__image {

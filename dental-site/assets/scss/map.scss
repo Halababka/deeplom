@@ -134,6 +134,14 @@
             width: rem(24);
             height: auto;
         }
+
+        & a {
+            transition: 0.4s ease;
+
+            &:hover {
+                color: $green;
+            }
+        }
     }
 
     // .map__map

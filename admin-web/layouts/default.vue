@@ -1,15 +1,14 @@
 <script setup lang="ts">
 const userStore = useUserStore();
 
-onMounted(async () => {
-  await userStore.fetchUser(); // Загружаем данные пользователя при монтировании компонента
-});
+await userStore.fetchUser(); // Загружаем данные пользователя при монтировании компонента
+
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-gray-100 space-y-8">
+  <div class="min-h-screen flex flex-col bg-gray-100 space-y-8 items-center">
     <TheHeader />
-    <main class="flex-grow flex justify-center items-start">
+    <main class="flex justify-center items-start flex-col max-w-[100%]">
       <NuxtPage />
     </main>
     <Toast />

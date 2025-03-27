@@ -3,7 +3,7 @@
 </script>
 
 <template>
-
+  <TheCards/>
 </template>
 
 <style scoped>

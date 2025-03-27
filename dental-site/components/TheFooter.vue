@@ -29,7 +29,7 @@
             <h2 class="footer-nav__title">Информация</h2>
             <ul class="footer-nav__list">
               <li class="footer-nav__item"><NuxtLink to="/about">О клинике</NuxtLink></li>
-              <li class="footer-nav__item"><NuxtLink href="#" id="toLicense">Документы</NuxtLink></li>
+<!--              <li class="footer-nav__item"><NuxtLink href="#" id="toLicense">Документы</NuxtLink></li>-->
               <li class="footer-nav__item"><NuxtLink to="#map">Контакты</NuxtLink></li>
             </ul>
           </div>

@@ -1,5 +1,9 @@
 <script setup lang="ts">
+const companyStore = (await useCompanyStore()).value;
 
+const splitSchedule = computed(() => {
+  return companyStore.data.schedule.split(';').map(item => item.trim());
+});
 </script>
 
 <template>
@@ -9,21 +13,20 @@
         <div class="map__header">
           <h1 class="map__title">Как нас найти</h1>
           <div class="footer-contacts__messengers contacts__messengers map__messengers" style="display: flex;">
-            <a href="https://wa.me/79381303333" class="footer-contacts__link"></a>
-            <a href="https://t.me/Dental_vdonsk" class="footer-contacts__link"></a>
+            <a :href="companyStore.data.socialLinks.whatsapp" class="footer-contacts__link"></a>
+            <a :href="companyStore.data.socialLinks.telegram" class="footer-contacts__link"></a>
           </div>
         </div>
         <div class="map__contacts">
-          <span class="map__location">г. Волгодонск, ул. Строителей 2е</span>
-          <span class="map__number"><a href="tel:+74951234567">+7-938-130-3333</a></span>
+          <span class="map__location">{{ companyStore.data.address }}</span>
+          <span class="map__number"><a :href="`tel:${companyStore.data.phone}`">{{ companyStore.data.phone }}</a></span>
           <div class="map__hours hours">
             <span class="hours__icon"></span>
             <div class="hours__text">
-              <span>Пн-Пт с 9:00 до 19:00</span>
-              <span>Сб с 9:00 до 14:00</span>
+              <span v-for="item in splitSchedule">{{ item.trim() }}</span>
             </div>
           </div>
-          <span class="map__email">dental-vdonsk@mail.ru</span>
+          <span class="map__email"><a :href="`mailto:${companyStore.data.email}`">{{ companyStore.data.email }}</a></span>
         </div>
       </div>
       <div class="map__map">
