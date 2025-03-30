@@ -91,7 +91,7 @@ const saveCategory = async () => {
     });
 
     if (!response.ok) {
-      throw new Error("Ошибка")
+      throw response;
     }
 
     toast.add({severity: "success", summary: "Успех", detail: "Категория сохранена", life: 3000});
@@ -99,7 +99,46 @@ const saveCategory = async () => {
     closeDialog();
   } catch (error) {
     console.error("Error saving category:", error);
-    toast.add({severity: "error", summary: "Ошибка", detail: "Не удалось сохранить категорию", life: 3000});
+    if (error instanceof Response) {
+      // Ошибка от сервера с HTTP статусом
+      switch (error.status) {
+        case 403:
+          toast.add({
+            severity: 'error',
+            summary: 'Ошибка 403',
+            detail: 'Доступ запрещен. Проверьте ваши права.',
+            life: 5000
+          });
+          useUserStore().logout()
+          break;
+
+        case 401:
+          toast.add({
+            severity: 'error',
+            summary: 'Ошибка 401',
+            detail: 'Требуется авторизация.',
+            life: 5000
+          });
+          break;
+
+        case 500:
+          toast.add({
+            severity: 'error',
+            summary: 'Ошибка сервера',
+            detail: 'Внутренняя ошибка сервера. Попробуйте позже.',
+            life: 5000
+          });
+          break;
+
+        default:
+          toast.add({
+            severity: 'error',
+            summary: `Ошибка ${error.status}`,
+            detail: 'Произошла ошибка при сохранении данных.',
+            life: 5000
+          });
+      }
+    }
   }
 };
 

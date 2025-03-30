@@ -83,9 +83,9 @@ const saveService = async () => {
       headers: {"Content-Type": "application/json", Authorization: token.value},
       body: JSON.stringify(newService.value),
     });
-
+    
     if (!response.ok) {
-      throw new Error("Ошибка сохранения");
+      throw response;
     }
 
     toast.add({severity: "success", summary: "Успех", detail: "Услуга сохранена", life: 3000});
@@ -93,7 +93,46 @@ const saveService = async () => {
     closeDialog();
   } catch (error) {
     console.error("Ошибка сохранения услуги:", error);
-    toast.add({severity: "error", summary: "Ошибка", detail: "Не удалось сохранить услугу", life: 3000});
+    if (error instanceof Response) {
+      // Ошибка от сервера с HTTP статусом
+      switch (error.status) {
+        case 403:
+          toast.add({
+            severity: 'error',
+            summary: 'Ошибка 403',
+            detail: 'Доступ запрещен. Проверьте ваши права.',
+            life: 5000
+          });
+          useUserStore().logout()
+          break;
+
+        case 401:
+          toast.add({
+            severity: 'error',
+            summary: 'Ошибка 401',
+            detail: 'Требуется авторизация.',
+            life: 5000
+          });
+          break;
+
+        case 500:
+          toast.add({
+            severity: 'error',
+            summary: 'Ошибка сервера',
+            detail: 'Внутренняя ошибка сервера. Попробуйте позже.',
+            life: 5000
+          });
+          break;
+
+        default:
+          toast.add({
+            severity: 'error',
+            summary: `Ошибка ${error.status}`,
+            detail: 'Произошла ошибка при сохранении данных.',
+            life: 5000
+          });
+      }
+    }
   }
 };
 

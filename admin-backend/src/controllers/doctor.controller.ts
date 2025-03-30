@@ -10,7 +10,7 @@ export class DoctorController {
             console.log(doctors)
             const formattedDoctors = doctors.map(doctor => ({
                 ...doctor,
-                education: JSON.parse(<string>doctor.education),
+                educationPlaces: JSON.parse(<string>doctor.educationPlaces),
                 courses: JSON.parse(<string>doctor.courses)
             }));
             res.json(formattedDoctors);
@@ -32,7 +32,7 @@ export class DoctorController {
 
             const formattedDoctor = {
                 ...doctor,
-                education: JSON.parse(<string>doctor.education),
+                educationPlaces: JSON.parse(<string>doctor.educationPlaces),
                 courses: JSON.parse(<string>doctor.courses)
             };
 
@@ -45,12 +45,12 @@ export class DoctorController {
 
     async createDoctor(req: Request, res: Response) {
         try {
-            let {name, experience, avatarId, education, courses, specialty, photoIds, certificateIds} = req.body;
+            let {name, experience, avatarId, education, courses, specialty, photoIds, certificateIds, educationPlaces} = req.body;
 
-            if (education) education = JSON.stringify(education)
+            if (educationPlaces) educationPlaces = JSON.stringify(educationPlaces)
             if (specialty) courses = JSON.stringify(courses)
 
-            const newDoctor = await doctorService.createDoctor({name, experience, education, courses, avatarId, specialty, photoIds, certificateIds});
+            const newDoctor = await doctorService.createDoctor({name, experience, education, educationPlaces, courses, avatarId, specialty, photoIds, certificateIds});
             res.status(201).json(newDoctor);
         } catch (error) {
             console.error(error);
@@ -61,9 +61,9 @@ export class DoctorController {
     async updateDoctor(req: Request, res: Response) {
         try {
             const id = parseInt(req.params.id);
-            let {name, experience, education, courses, specialty, avatarId, photoIds, certificateIds} = req.body;
+            let {name, experience, education, educationPlaces, courses, specialty, avatarId, photoIds, certificateIds} = req.body;
 
-            if (education) education = JSON.stringify(education)
+            if (educationPlaces) educationPlaces = JSON.stringify(educationPlaces)
             if (courses) courses = JSON.stringify(courses)
 
             const updatedDoctor = await doctorService.updateDoctor(id, {
@@ -71,6 +71,7 @@ export class DoctorController {
                 experience,
                 specialty,
                 education,
+                educationPlaces,
                 courses,
                 avatarId,
                 photoIds,

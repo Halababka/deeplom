@@ -14,7 +14,8 @@ const newDoctor = ref({
   name: '',
   experience: null,
   specialty: '',
-  education: [],
+  education: '',
+  educationPlaces: [],
   courses: [],
   avatar: null,
   photos: null,
@@ -50,7 +51,8 @@ const openNewDoctor = () => {
     name: '',
     experience: null,
     specialty: '',
-    education: [],
+    education: '',
+    educationPlaces: [],
     courses: [],
     avatar: null,
     photos: null,
@@ -67,6 +69,7 @@ const editDoctor = (doctor) => {
     name: doctor.name,
     experience: doctor.experience,
     education: doctor.education,
+    educationPlaces: doctor.educationPlaces,
     courses: doctor.courses,
     specialty: doctor.specialty,
     avatar: doctor.avatar,
@@ -86,7 +89,25 @@ const saveDoctor = async () => {
     formData.name = newDoctor.value.name
     formData.specialty = newDoctor.value.specialty
     formData.education = newDoctor.value.education
-    formData.courses = newDoctor.value.courses
+    // Обработка educationPlaces (массив или строка)
+    formData.educationPlaces = Array.isArray(newDoctor.value.educationPlaces)
+        ? newDoctor.value.educationPlaces
+        : newDoctor.value.educationPlaces
+            ? newDoctor.value.educationPlaces.includes('\n')
+                ? newDoctor.value.educationPlaces.split('\n').filter(item => item.trim() !== '')
+                : [newDoctor.value.educationPlaces.trim()]
+            : null;
+
+    // Обработка courses (массив или строка)
+    formData.courses = Array.isArray(newDoctor.value.courses)
+        ? newDoctor.value.courses
+        : newDoctor.value.courses
+            ? typeof newDoctor.value.courses === 'string'
+                ? newDoctor.value.courses.includes('\n')
+                    ? newDoctor.value.courses.split('\n').filter(item => item.trim() !== '')
+                    : [newDoctor.value.courses.trim()]
+                : newDoctor.value.courses
+            : null;
     formData.experience = newDoctor.value.experience
     formData.avatarId = newDoctor.value.avatar?.id ?? null
     formData.photoIds = newDoctor.value.photos?.map(item => item.id) ?? null
@@ -96,7 +117,7 @@ const saveDoctor = async () => {
     const method = newDoctor.value.id ? 'PUT' : 'POST';
     const url = newDoctor.value.id ? `${api}/doctors/${newDoctor.value.id}` : `${api}/doctors`;
     console.log("method", method, "\n", "formData", formData)
-    await fetch(url, {
+    const response = await fetch(url, {
       method: method,
       headers: {
         'Content-Type': 'application/json',
@@ -105,12 +126,56 @@ const saveDoctor = async () => {
       body: JSON.stringify(formData)
     });
 
+    // Если ответ не успешный, пробрасываем весь response
+    if (!response.ok) {
+      throw response;
+    }
+
     toast.add({severity: 'success', summary: 'Успешно', detail: 'Данные сохранены', life: 3000});
     fetchDoctors();
     closeDialog();
   } catch (error) {
     console.error('Error saving doctor:', error);
-    toast.add({severity: 'error', summary: 'Ошибка', detail: 'Failed to save doctor', life: 3000});
+    if (error instanceof Response) {
+      // Ошибка от сервера с HTTP статусом
+      switch (error.status) {
+        case 403:
+          toast.add({
+            severity: 'error',
+            summary: 'Ошибка 403',
+            detail: 'Доступ запрещен. Проверьте ваши права.',
+            life: 5000
+          });
+          useUserStore().logout()
+          break;
+
+        case 401:
+          toast.add({
+            severity: 'error',
+            summary: 'Ошибка 401',
+            detail: 'Требуется авторизация.',
+            life: 5000
+          });
+          break;
+
+        case 500:
+          toast.add({
+            severity: 'error',
+            summary: 'Ошибка сервера',
+            detail: 'Внутренняя ошибка сервера. Попробуйте позже.',
+            life: 5000
+          });
+          break;
+
+        default:
+          toast.add({
+            severity: 'error',
+            summary: `Ошибка ${error.status}`,
+            detail: 'Произошла ошибка при сохранении данных.',
+            life: 5000
+          });
+      }
+    }
   }
 };
 
@@ -207,6 +272,34 @@ const onBeforeSend = async (event) => {
   });
 };
 
+// Для поля "Учебные заведения"
+const educationPlacesText = computed({
+  get: () => {
+    return Array.isArray(newDoctor.value.educationPlaces)
+        ? newDoctor.value.educationPlaces.join('\n')
+        : newDoctor.value.educationPlaces || ''
+  },
+  set: (value) => {
+    newDoctor.value.educationPlaces = value.includes('\n')
+        ? value.split('\n').filter(item => item.trim() !== '')
+        : value.trim() ? [value.trim()] : []
+  }
+})
+
+// Для поля "Курсы"
+const coursesText = computed({
+  get: () => {
+    return Array.isArray(newDoctor.value.courses)
+        ? newDoctor.value.courses.join('\n')
+        : newDoctor.value.courses || ''
+  },
+  set: (value) => {
+    newDoctor.value.courses = value.includes('\n')
+        ? value.split('\n').filter(item => item.trim() !== '')
+        : value.trim() ? [value.trim()] : []
+  }
+})
+
 onBeforeMount(() => {
   fetchDoctors();
 });
@@ -290,14 +383,16 @@ onBeforeMount(() => {
         <InputText id="specialty" v-model="newDoctor.specialty" required fluid/>
       </div>
       <div>
-        <label for="education" class="block font-bold mb-3">Образование</label>
-        <!--          <InputText id="specialty" v-model="newDoctor.education" required fluid/>-->
-        <Textarea id="education" v-model="newDoctor.education" rows="5" fluid/>
+        <label for="education" class="block font-bold mb-3">Уровень образования</label>
+        <InputText id="education" v-model="newDoctor.education" fluid/>
+      </div>
+      <div>
+        <label for="educationPlaces" class="block font-bold mb-3">Учебные заведения</label>
+        <Textarea id="educationPlaces" v-model="educationPlacesText" rows="6" fluid/>
       </div>
       <div>
         <label for="courses" class="block font-bold mb-3">Курсы повышения квалификации</label>
-        <!--          <InputText id="specialty" v-model="newDoctor.courses" required fluid/>-->
-        <Textarea id="courses" v-model="newDoctor.courses" rows="5" fluid/>
+        <Textarea id="courses" v-model="coursesText" rows="5" fluid/>
       </div>
       <div class="space-y-2">
         <label for="file" class="block font-bold mb-3">Аватар</label>

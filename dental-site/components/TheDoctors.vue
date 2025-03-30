@@ -4,51 +4,8 @@ import Swiper from "swiper";
 import {Navigation} from "swiper/modules"
 import "~/assets/scss/base/swiper.scss";
 
-// Массив данных для докторов
-const doctors = [
-  {
-    image: "../assets/img/345.jpg",
-    name: "Доктор Дулитл",
-    profession: "Врач-ортопед",
-    experience: "Стаж 40 лет",
-  },
-  {
-    image: "../assets/img/345.jpg",
-    name: "Доктор Дулитл",
-    profession: "Врач-ортопед",
-    experience: "Стаж 40 лет",
-  },
-  {
-    image: "../assets/img/foto1.png",
-    name: "Доктор Дулитл",
-    profession: "Врач-ортопед",
-    experience: "Стаж 40 лет",
-  },
-  {
-    image: "../assets/img/foto1.png",
-    name: "Доктор Дулитл",
-    profession: "Врач-ортопед",
-    experience: "Стаж 40 лет",
-  },
-  {
-    image: "../assets/img/foto1.png",
-    name: "Доктор Дулитл",
-    profession: "Врач-ортопед",
-    experience: "Стаж 40 лет",
-  },
-  {
-    image: "../assets/img/foto1.png",
-    name: "Доктор Дулитл",
-    profession: "Врач-ортопед",
-    experience: "Стаж 40 лет",
-  },
-  {
-    image: "../assets/img/foto1.png",
-    name: "Доктор Дулитл",
-    profession: "Врач-ортопед",
-    experience: "Стаж 40 лет",
-  },
-];
+const doctorsStore = await useDoctorsStore()
+const imgBase = useRuntimeConfig().public.imgBase
 
 // Инициализация Swiper при монтировании компонента
 onMounted(() => {
@@ -56,6 +13,7 @@ onMounted(() => {
     modules: [Navigation],
     slidesPerView: 4,
     spaceBetween: 50,
+    centeredSlides: true,
     navigation: {
       nextEl: ".swiper-button-next",
       prevEl: ".swiper-button-prev",
@@ -86,18 +44,18 @@ const getUrl = (url) => {
 }
 </script>
 <template>
-  <div class="doctors">
+  <div class="doctors" v-if="!doctorsStore.pending">
     <div class="doctors__container">
       <div class="doctors__slider swiper-doctors">
         <div class="doctors__wrapper swiper-wrapper">
-          <div class="doctors__slide doctors-slide swiper-slide" v-for="(doctor, index) in doctors" :key="index">
+          <div class="doctors__slide doctors-slide swiper-slide" v-for="doctor in doctorsStore.data" :key="doctor.id">
             <div class="doctors-slide__wrapper">
-              <img :src="getUrl(doctor.image)" alt="" class="doctors-slide__image">
+              <img :src="imgBase + doctor.avatar.url" alt="" class="doctors-slide__image">
               <span class="doctors-slide__name">
-                <a href="#" class="doctors-slide__link">{{ doctor.name }}</a>
+                <NuxtLink :to="`/specialists#doctor-${doctor.id}`" class="doctors-slide__link">{{ doctor.name }}</NuxtLink>
               </span>
-              <span class="doctors-slide__prof">{{ doctor.profession }}</span>
-              <span class="doctors-slide__experience">{{ doctor.experience }}</span>
+              <span class="doctors-slide__prof">{{ doctor.specialty }}</span>
+              <span class="doctors-slide__experience">Стаж {{ doctor.experience }} лет</span>
             </div>
           </div>
         </div>

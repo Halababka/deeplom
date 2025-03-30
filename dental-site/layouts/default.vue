@@ -18,6 +18,38 @@ useHead({
 
 const company = (await useCompanyStore()).value // Загрузка данных клиники
 console.log(company)
+
+const route = useRoute()
+
+// Функция для плавного скролла с учетом header'а
+const scrollToHash = () => {
+  if (route.hash) {
+    // Небольшая задержка для полной загрузки контента
+    setTimeout(() => {
+      const header = document.querySelector('header')
+      // const headerHeight = header?.offsetHeight || 80 // Fallback 80px
+      const headerHeight = 80
+      const target = document.querySelector(route.hash)
+
+      if (target) {
+        const targetPosition = target.getBoundingClientRect().top
+        const scroll = window.scrollY || window.pageYOffSet
+        const offsetPosition = targetPosition + scroll - headerHeight
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        })
+      }
+    }, 100)
+  }
+}
+
+// Обработка при монтировании и изменении маршрута
+onMounted(() => {
+  scrollToHash()
+  watch(() => route.hash, scrollToHash)
+})
 </script>
 
 <template>

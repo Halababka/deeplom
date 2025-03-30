@@ -5,6 +5,8 @@ const token = useCookie("auth_token");
 const api = useRuntimeConfig().public.apiBase;
 const toast = useToast()
 
+const dataPending = ref(false)
+
 // Состояние для хранения данных клиники
 const clinicData = ref({
   name: '',
@@ -35,6 +37,7 @@ const clinicData = ref({
 // Функция для загрузки данных клиники с сервера
 const fetchClinicData = async () => {
   try {
+    dataPending.value = true
     const response = await fetch(api + '/companies/1', {
       headers: {
         "Authorization": token.value,
@@ -45,22 +48,30 @@ const fetchClinicData = async () => {
     clinicData.value = data
   } catch (error) {
     console.error('Error fetching clinic data:', error);
+  } finally {
+    dataPending.value = false
   }
 };
 
 // Функция для сохранения изменений
 const saveClinicData = async () => {
   try {
+    dataPending.value = true
+
     delete clinicData.value.id
     clinicData.value.photoIds = clinicData.value.photos?.map(i => i.id) ?? null
     delete clinicData.value.photos
     clinicData.value.certificateIds = clinicData.value.certificates?.map(i => i.id) ?? null
     delete clinicData.value.certificates
     clinicData.value.mainPhotoId = clinicData.value.mainPhoto?.id ?? null
-    clinicData.value.fullDescription =
-        typeof clinicData.value.fullDescription === 'string'
-            ? clinicData.value.fullDescription.split('\n')
-            : clinicData.value.fullDescription;
+    // Обработка fullDescription
+    clinicData.value.fullDescription = Array.isArray(clinicData.value.fullDescription)
+        ? clinicData.value.fullDescription
+        : clinicData.value.fullDescription
+            ? clinicData.value.fullDescription.includes('\n')
+                ? clinicData.value.fullDescription.split('\n').filter(item => item.trim() !== '')
+                : [clinicData.value.fullDescription.trim()]
+            : null
 
     const response = await fetch(api + '/companies/1', {
       method: 'PUT',
@@ -70,13 +81,70 @@ const saveClinicData = async () => {
       },
       body: JSON.stringify(clinicData.value),
     });
+
+    // Если ответ не успешный, пробрасываем весь response
+    if (!response.ok) {
+      throw response;
+    }
+
     const result = await response.json();
     console.log('Clinic data saved:', result);
+
+    toast.add({
+      severity: 'success',
+      summary: 'Успешно',
+      detail: 'Данные клиники сохранены',
+      life: 3000
+    });
+
     fetchClinicData()
   } catch (error) {
     console.error('Error sending clinic data:', error);
+    // Обрабатываем разные типы ошибок
+    if (error instanceof Response) {
+      // Ошибка от сервера с HTTP статусом
+      switch (error.status) {
+        case 403:
+          toast.add({
+            severity: 'error',
+            summary: 'Ошибка 403',
+            detail: 'Доступ запрещен. Проверьте ваши права.',
+            life: 5000
+          });
+          useUserStore().logout()
+          break;
+
+        case 401:
+          toast.add({
+            severity: 'error',
+            summary: 'Ошибка 401',
+            detail: 'Требуется авторизация.',
+            life: 5000
+          });
+          break;
+
+        case 500:
+          toast.add({
+            severity: 'error',
+            summary: 'Ошибка сервера',
+            detail: 'Внутренняя ошибка сервера. Попробуйте позже.',
+            life: 5000
+          });
+          break;
+
+        default:
+          toast.add({
+            severity: 'error',
+            summary: `Ошибка ${error.status}`,
+            detail: 'Произошла ошибка при сохранении данных.',
+            life: 5000
+          });
+      }
+    }
+  } finally {
+    dataPending.value = false
   }
-};
+}
 
 // Функция для добавления новой услуги
 const addService = () => {
@@ -141,12 +209,29 @@ const onTemplatedUpload = (event, type) => {
   toast.add({severity: "success", summary: "Успешно", detail: "Файл загружен", life: 3000});
 }
 
+// Вычисляемое свойство для fullDescription
+const fullDescriptionText = computed({
+  get: () => {
+    return Array.isArray(clinicData.value.fullDescription)
+        ? clinicData.value.fullDescription.join('\n')
+        : clinicData.value.fullDescription || '';
+  },
+  set: (value) => {
+    clinicData.value.fullDescription = value.includes('\n')
+        ? value.split('\n').filter(item => item.trim() !== '')
+        : value.trim() ? [value.trim()] : [];
+  }
+});
+
 // Загружаем данные клиники при монтировании компонента
-fetchClinicData();
+fetchClinicData()
 
 </script>
 
 <template>
+  <div v-if="dataPending" class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
   <div class="flex flex-col w-[800px]">
     <div class="clinic-card">
       <h2>Редактирование данных клиники</h2>
@@ -173,7 +258,7 @@ fetchClinicData();
 
       <div class="form-group">
         <label for="fullDescription">Полное описание</label>
-        <Textarea id="fullDescription" v-model="clinicData.fullDescription" rows="5"/>
+        <Textarea id="fullDescription" v-model="fullDescriptionText" rows="5"/>
       </div>
 
       <div class="form-group">

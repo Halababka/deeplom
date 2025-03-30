@@ -15,17 +15,19 @@ export class DoctorService {
         experience?: number;
         avatarId?: number;
         education?: string;
+        educationPlaces?: string;
         courses?: string;
         photoIds?: number[];
         certificateIds?: number[];
     }) {
-        const {name, specialty, experience, education, courses, avatarId, photoIds, certificateIds} = data;
+        const {name, specialty, experience, education, educationPlaces, courses, avatarId, photoIds, certificateIds} = data;
 
         return prisma.doctor.create({
             data: {
                 name,
                 specialty,
                 education,
+                educationPlaces,
                 courses,
                 experience,
                 avatar: avatarId ? {connect: {id: avatarId}} : undefined,
@@ -46,12 +48,13 @@ export class DoctorService {
         experience?: number;
         specialty?: string;
         education?: string;
+        educationPlaces?: string;
         courses?: string;
         avatarId?: number | null;
         photoIds?: number[] | null;
         certificateIds?: number[] | null;
     }) {
-        const {name, experience,avatarId, education, courses, specialty, photoIds, certificateIds} = data;
+        const {name, experience,avatarId, education, educationPlaces, courses, specialty, photoIds, certificateIds} = data;
 
         return prisma.doctor.update({
             where: {id},
@@ -59,6 +62,7 @@ export class DoctorService {
                 name,
                 specialty,
                 education,
+                educationPlaces,
                 courses,
                 experience,
                 avatar: avatarId === null
