@@ -1,5 +1,7 @@
 <script setup lang="ts">
-
+useHead({
+  title: "Услуги и цены"
+})
 </script>
 
 <template>

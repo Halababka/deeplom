@@ -8,7 +8,7 @@ const doctorsStore = await useDoctorsStore()
 const imgBase = useRuntimeConfig().public.imgBase
 
 // Инициализация Swiper при монтировании компонента
-onMounted(() => {
+onMounted( () => {
   new Swiper(".swiper-doctors", {
     modules: [Navigation],
     slidesPerView: 4,
@@ -38,10 +38,6 @@ onMounted(() => {
     },
   });
 });
-
-const getUrl = (url) => {
-  return new URL(url, import.meta.url).href
-}
 </script>
 <template>
   <div class="doctors" v-if="!doctorsStore.pending">

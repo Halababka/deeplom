@@ -2,6 +2,8 @@
 // Подключение стороннего плагина "Версия для слабовидящих", не переносить в nuxt.config, т.к. порядок загрузки скриптов
 // изменится, плагин начнет грузиться первым, что приведет к его авто-включению
 import {useCompanyStore} from "~/composables/useCompanyStore";
+import Swiper from "swiper";
+import {Navigation} from "swiper/modules";
 
 const { isLoading, stopLoading, startLoading } = useLoading();
 
@@ -43,6 +45,39 @@ const scrollToHash = () => {
       }
     }, 100)
   }
+
+  let swiperInstance = null;
+  let initAttempts = 0;
+  const maxAttempts = 5;
+
+  const initSwiper = () => {
+    if (document.querySelector('.swiper-doctors .swiper-slide')) {
+      swiperInstance = new Swiper(".swiper-doctors", {
+        modules: [Navigation],
+        slidesPerView: 4,
+        spaceBetween: 50,
+        centeredSlides: true,
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+        breakpoints: {
+          // ваши breakpoints
+        },
+        on: {
+          init: function() {
+            this.update();
+            setTimeout(() => this.update(), 100);
+          }
+        }
+      });
+    } else if (initAttempts < maxAttempts) {
+      initAttempts++;
+      setTimeout(initSwiper, 200);
+    }
+  };
+
+  initSwiper();
 }
 
 // Обработка при монтировании и изменении маршрута

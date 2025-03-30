@@ -29,3 +29,16 @@ services:
     env_file:
       - ./admin-web/.env # Указываем путь к .env файлу (если есть)
     restart: unless-stopped
+
+  dental-site:
+    build:
+      context: ./dental-site
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80" # Локальный порт 3000 → порт 80 в контейнере
+    volumes:
+      - ./dental-site:/app
+      - /app/node_modules
+    env_file:
+      - ./dental-site/.env # Указываем путь к .env файлу (если есть)
+    restart: unless-stopped
