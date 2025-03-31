@@ -5,8 +5,6 @@ import {useCompanyStore} from "~/composables/useCompanyStore";
 import Swiper from "swiper";
 import {Navigation} from "swiper/modules";
 
-const { isLoading, stopLoading, startLoading } = useLoading();
-
 useHead({
   script: [
     {
@@ -25,6 +23,8 @@ const route = useRoute()
 
 // Функция для плавного скролла с учетом header'а
 const scrollToHash = () => {
+  useDoctorsStore()
+
   if (route.hash) {
     // Небольшая задержка для полной загрузки контента
     setTimeout(() => {
@@ -62,7 +62,22 @@ const scrollToHash = () => {
           prevEl: ".swiper-button-prev",
         },
         breakpoints: {
-          // ваши breakpoints
+          200: {
+            slidesPerView: 1,
+            spaceBetween: 40,
+          },
+          660: {
+            slidesPerView: 2,
+            spaceBetween: 30,
+          },
+          950: {
+            slidesPerView: 3,
+            spaceBetween: 40,
+          },
+          1350: {
+            slidesPerView: 4,
+            spaceBetween: 50,
+          },
         },
         on: {
           init: function() {

@@ -10,6 +10,10 @@
 	// .doctors__container
 	&__container {
 		position: relative;
+
+		@media (width < $mobileSmall) {
+			padding: rem(5);
+		}
 	}
 
 	// .doctors__slider
@@ -20,6 +24,9 @@
 		padding-top: rem(80);
 		overflow: hidden;
 
+		@media (width < $mobileSmall) {
+			padding: rem(10);
+		}
 	}
 
 	// .doctors__wrapper
