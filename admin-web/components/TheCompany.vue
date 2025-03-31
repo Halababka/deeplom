@@ -4,6 +4,7 @@ import {ref, reactive, onMounted} from 'vue';
 const token = useCookie("auth_token");
 const api = useRuntimeConfig().public.apiBase;
 const toast = useToast()
+const imgBase = useRuntimeConfig().public.imgBase
 
 const dataPending = ref(false)
 
@@ -342,7 +343,7 @@ fetchClinicData()
       <div class="form-group">
         <label for="file" class="block font-bold mb-3">Приветственное фото</label>
         <div v-if="clinicData.mainPhoto && clinicData.mainPhoto.length !== 0" class="flex justify-between items-center">
-          <ImageViewerModal v-if="clinicData.mainPhoto.url" :src="`http://localhost:8080${clinicData.mainPhoto.url}`"/>
+          <ImageViewerModal v-if="clinicData.mainPhoto.url" :src="imgBase + clinicData.mainPhoto.url"/>
           <Button @click="deleteMainPhotoFromClinic()" label="Удалить" class="h-12 p-button-danger"/>
         </div>
         <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"

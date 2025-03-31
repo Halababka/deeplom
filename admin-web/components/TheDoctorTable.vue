@@ -5,6 +5,7 @@ import {useCookie} from "#app";
 import {FilterMatchMode} from "@primevue/core/api";
 
 const loadingTable = ref(false)
+const imgBase = useRuntimeConfig().public.imgBase
 
 const doctors = ref([]);
 const selectedDoctors = ref([]);
@@ -353,7 +354,7 @@ onBeforeMount(() => {
       <Column field="specialty" header="Специальность" sortable style="min-width: 16rem"></Column>
       <Column header="Фото">
         <template #body="slotProps">
-          <ImageViewerModal v-if="slotProps.data.avatar" :src="'http://localhost:8080'+ slotProps.data.avatar.url"
+          <ImageViewerModal v-if="slotProps.data.avatar" :src="imgBase + slotProps.data.avatar.url"
                             :alt="slotProps.data.name"/>
         </template>
       </Column>
@@ -397,7 +398,7 @@ onBeforeMount(() => {
       <div class="space-y-2">
         <label for="file" class="block font-bold mb-3">Аватар</label>
         <div v-if="newDoctor.avatar" class="flex justify-between items-center">
-          <ImageViewerModal :src="`http://localhost:8080${newDoctor.avatar.url}`"/>
+          <ImageViewerModal :src="imgBase + newDoctor.avatar.url"/>
           <Button @click="deleteAvatarFromDoctor" label="Удалить" class="h-12"/>
         </div>
         <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
@@ -408,7 +409,7 @@ onBeforeMount(() => {
         <label for="file" class="block font-bold mb-3">Фото</label>
         <div v-if="newDoctor.photos && newDoctor.photos[0]" class="flex justify-between items-center"
              v-for="(item, index) in newDoctor.photos">
-          <ImageViewerModal :src="`http://localhost:8080${item.url}`"/>
+          <ImageViewerModal :src="imgBase + item.url"/>
           <Button @click="deletePhotosFromDoctor(index)" label="Удалить" class="h-12"/>
         </div>
         <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
@@ -419,7 +420,7 @@ onBeforeMount(() => {
         <label for="file" class="block font-bold mb-3">Сертификаты</label>
         <div v-if="newDoctor.certificates && newDoctor.certificates[0]" class="flex justify-between items-center"
              v-for="(item, index) in newDoctor.certificates">
-          <ImageViewerModal :src="`http://localhost:8080${item.url}`"/>
+          <ImageViewerModal :src="imgBase + item.url"/>
           <Button @click="deleteCertificatesFromDoctor(index)" label="Удалить" class="h-12"/>
         </div>
         <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
