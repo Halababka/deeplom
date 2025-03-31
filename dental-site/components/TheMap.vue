@@ -37,7 +37,7 @@ const splitSchedule = computed(() => {
           style="color:#eee;font-size:12px;position:absolute;top:14px;">Стоматологическая клиника в Волгодонске</a><a
           href="https://yandex.ru/maps/11036/volgodonsk/category/dental_laboratory/65565837500/?utm_medium=mapframe&utm_source=maps"
           style="color:#eee;font-size:12px;position:absolute;top:28px;">Зуботехническая лаборатория в Волгодонске</a>
-        <iframe src="https://yandex.ru/map-widget/v1/org/dental/135910965001/?ll=42.192097%2C47.510737&z=17"
+        <iframe src="https://yandex.ru/map-widget/v1/org/dental/135910965001/?ll=42.192097%2C47.510737&z=16"
                 width="100%" height="100%" frameborder="1" allowfullscreen="true" style="position:relative;"></iframe>
 
       </div>

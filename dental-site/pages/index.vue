@@ -2,7 +2,7 @@
 import ThePopular from "~/components/ThePopular.vue";
 
 useHead({
-  title: "Главная"
+  title: "Зубная клиника Дентал в Волгодонске"
 })
 </script>
 
