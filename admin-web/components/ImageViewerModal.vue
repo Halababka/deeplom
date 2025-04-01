@@ -7,7 +7,7 @@ const props = defineProps({
   },
   alt: {
     type: String,
-    default: "Image",
+    default: "Изображение",
   },
   thumbnailWidth: {
     type: String,
@@ -38,7 +38,7 @@ const openModal = () => {
     />
 
     <!-- Модальное окно для просмотра изображения -->
-    <Dialog v-model:visible="isModalVisible" :modal="true" :style="{ width: '80%' }" dismissableMask>
+    <Dialog v-model:visible="isModalVisible" :modal="true" :style="{ width: '80%' }" dismissableMask :header="alt">
       <img :src="src" :alt="alt" class="modal-image" />
     </Dialog>
   </div>
@@ -58,7 +58,7 @@ const openModal = () => {
 .modal-image {
   max-width: 100%;
   height: auto;
-  max-height: 800px;
+  max-height: 700px;
   display: block;
   margin: 0 auto;
 }

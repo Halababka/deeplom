@@ -409,7 +409,7 @@ onBeforeMount(() => {
       <div class="space-y-2">
         <label for="file" class="block font-bold mb-3">Аватар</label>
         <div v-if="newDoctor.avatar" class="flex justify-between items-center">
-          <ImageViewerModal :src="imgBase + newDoctor.avatar.url"/>
+          <ImageViewerModal :src="imgBase + newDoctor.avatar.url" :alt="newDoctor.avatar.name"/>
           <Button @click="deleteAvatarFromDoctor" label="Удалить" class="h-12"/>
         </div>
         <FileUpload name="files" :url="`${api}/files/upload`"

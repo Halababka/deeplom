@@ -352,7 +352,7 @@ fetchClinicData()
       <div class="form-group">
         <label for="file" class="block font-bold mb-3">Приветственное фото</label>
         <div v-if="clinicData.mainPhoto && clinicData.mainPhoto.length !== 0" class="flex justify-between items-center">
-          <ImageViewerModal v-if="clinicData.mainPhoto.url" :src="imgBase + clinicData.mainPhoto.url"/>
+          <ImageViewerModal v-if="clinicData.mainPhoto.url" :src="imgBase + clinicData.mainPhoto.url" :alt="clinicData.mainPhoto.name"/>
           <Button @click="deleteMainPhotoFromClinic()" label="Удалить" class="h-12 p-button-danger"/>
         </div>
         <FileUpload name="files" :url="`${api}/files/upload`"
@@ -372,7 +372,7 @@ fetchClinicData()
         <label for="file" class="block font-bold mb-3">Фото</label>
         <div v-if="clinicData.photos && clinicData.photos.length !== 0" class="flex justify-between items-center"
              v-for="(item, index) in clinicData.photos">
-          <ImageViewerModal v-if="item.url" :src="useRuntimeConfig().public.imgBase + item.url"/>
+          <ImageViewerModal v-if="item.url" :src="useRuntimeConfig().public.imgBase + item.url" :alt="item.name"/>
           <Button @click="deletePhotosFromClinic(index)" label="Удалить" class="h-12 p-button-danger"/>
         </div>
         <FileUpload name="files" :url="`${api}/files/upload`"
@@ -392,7 +392,7 @@ fetchClinicData()
         <label for="file" class="block font-bold mb-3">Сертификаты</label>
         <div v-if="clinicData.certificates && clinicData.certificates[0]" class="flex justify-between items-center"
              v-for="(item, index) in clinicData.certificates">
-          <ImageViewerModal :src="useRuntimeConfig().public.imgBase + item.url"/>
+          <ImageViewerModal :src="useRuntimeConfig().public.imgBase + item.url" :alt="item.name"/>
           <Button @click="deleteCertificatesFromClinic(index)" label="Удалить" class="h-12 p-button-danger"/>
         </div>
         <FileUpload name="files" :url="`${api}/files/upload`"
