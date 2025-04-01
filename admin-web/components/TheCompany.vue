@@ -171,13 +171,14 @@ const deleteMainPhotoFromClinic = () => {
 };
 
 const deleteCertificatesFromClinic = (index) => {
-  clinicData.value.certificates.splice(index, 1); // Удаляет элемент массива
+  if (clinicData.value.certificates && clinicData.value.certificates.length > index) {
+    clinicData.value.certificates.splice(index, 1);
+  }
 
-  // Если после удаления массив пуст, устанавливаем его в null
-  if (clinicData.value.certificates.length === 0) {
+  if (!clinicData.value.certificates || clinicData.value.certificates.length === 0) {
     clinicData.value.certificates = null;
   }
-};
+}
 
 const onBeforeSend = async (event) => {
   const xhr = event.xhr;
@@ -198,10 +199,18 @@ const onTemplatedUpload = (event, type) => {
   const response = JSON.parse(event.xhr.response);
   switch (type) {
     case "photos":
-      clinicData.value.photos = response.files
+      if (!clinicData.value.photos) {
+        clinicData.value.photos = [...response.files]
+      } else {
+        clinicData.value.photos = [...clinicData.value.photos, ...response.files]
+      }
       break;
     case "certificates":
-      clinicData.value.certificates = [...clinicData.value.certificates, ...response.files]
+      if (!clinicData.value.certificates) {
+        clinicData.value.certificates = [...response.files]
+      } else {
+        clinicData.value.certificates = [...clinicData.value.certificates, ...response.files]
+      }
       break;
     case "mainPhoto":
       clinicData.value.mainPhoto = response.files[0]
@@ -325,7 +334,7 @@ fetchClinicData()
         <Button label="Удалить услугу" icon="pi pi-times" class="p-button-danger" @click="removeService(index)"/>
       </div>
 
-      <Button label="Добавить услугу" icon="pi pi-plus" class="p-button-success" @click="addService"/>
+      <Button label="Добавить услугу" icon="pi pi-plus" class="w-full" @click="addService"/>
 
       <Divider/>
 
@@ -346,9 +355,17 @@ fetchClinicData()
           <ImageViewerModal v-if="clinicData.mainPhoto.url" :src="imgBase + clinicData.mainPhoto.url"/>
           <Button @click="deleteMainPhotoFromClinic()" label="Удалить" class="h-12 p-button-danger"/>
         </div>
+        <FileUpload name="files" :url="`${api}/files/upload`"
+                    @upload="($event) => onTemplatedUpload($event, 'mainPhoto')"
+                    @before-send="onBeforeSend($event)"
+                    :multiple="false" accept="image/*" :maxFileSize="1000000" pt:root:class="file-upload-desktop">
+          <template #empty>
+            <p>Перетащите файлы сюда для загрузки</p>
+          </template>
+        </FileUpload>
         <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
                     @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'mainPhoto')"
-                    :multiple="false" auto class="p-button-success"/>
+                    :multiple="false" auto class="p-button-success" pt:root:class="file-upload-mobile"/>
       </div>
 
       <div class="form-group">
@@ -358,9 +375,17 @@ fetchClinicData()
           <ImageViewerModal v-if="item.url" :src="useRuntimeConfig().public.imgBase + item.url"/>
           <Button @click="deletePhotosFromClinic(index)" label="Удалить" class="h-12 p-button-danger"/>
         </div>
+        <FileUpload name="files" :url="`${api}/files/upload`"
+                    @upload="($event) => onTemplatedUpload($event, 'photos')"
+                    @before-send="onBeforeSend($event)"
+                    :multiple="true" accept="image/*" :maxFileSize="1000000" pt:root:class="file-upload-desktop">
+          <template #empty>
+            <p>Перетащите файлы сюда для загрузки</p>
+          </template>
+        </FileUpload>
         <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
                     @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'photos')"
-                    :multiple="true" :fileLimit="30" auto class="p-button-success"/>
+                    :multiple="true" :fileLimit="30" auto class="p-button-success" pt:root:class="file-upload-mobile"/>
       </div>
 
       <div class="form-group">
@@ -370,10 +395,18 @@ fetchClinicData()
           <ImageViewerModal :src="useRuntimeConfig().public.imgBase + item.url"/>
           <Button @click="deleteCertificatesFromClinic(index)" label="Удалить" class="h-12 p-button-danger"/>
         </div>
+        <FileUpload name="files" :url="`${api}/files/upload`"
+                    @upload="($event) => onTemplatedUpload($event, 'certificates')"
+                    @before-send="onBeforeSend($event)"
+                    :multiple="true" accept="image/*" :maxFileSize="1000000" pt:root:class="file-upload-desktop">
+          <template #empty>
+            <p>Перетащите файлы сюда для загрузки</p>
+          </template>
+        </FileUpload>
         <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
                     @before-send="onBeforeSend($event)"
                     @upload="($event) => onTemplatedUpload($event, 'certificates')"
-                    :multiple="true" :fileLimit="30" auto class="p-button-success"/>
+                    :multiple="true" :fileLimit="30" auto class="p-button-success" pt:root:class="file-upload-mobile"/>
       </div>
 
       <Button label="Сохранить" icon="pi pi-save" class="p-button-success" @click="saveClinicData"/>
@@ -387,5 +420,19 @@ fetchClinicData()
   flex-direction: column;
   gap: 3px;
   margin-bottom: 20px;
+}
+
+.file-upload-mobile {
+  display: none; /* По умолчанию скрываем мобильный вариант */
+}
+
+@media screen and (max-width: 430px) {
+  .file-upload-desktop {
+    display: none; /* Скрываем десктопный вариант */
+  }
+
+  .file-upload-mobile {
+    display: flex; /* Показываем мобильный вариант */
+  }
 }
 </style>

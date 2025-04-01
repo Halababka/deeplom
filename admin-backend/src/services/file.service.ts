@@ -14,6 +14,7 @@ export class FileService {
                     url: fileUrl,            // URL файла
                 },
             });
+            await setTimeout(()=>{}, 3000)
             return savedFile; // Возвращаем сохраненный файл
         });
 

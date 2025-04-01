@@ -223,9 +223,12 @@ const confirmDeleteSelected = async () => {
 };
 
 const deleteCertificatesFromDoctor = (index) => {
-  delete newDoctor.value.certificates[index]
-  if (!newDoctor.value.certificates[0]) {
-    newDoctor.value.certificates = null
+  if (newDoctor.value.certificates && newDoctor.value.certificates.length > index) {
+    newDoctor.value.certificates.splice(index, 1);
+  }
+
+  if (!newDoctor.value.certificates || newDoctor.value.certificates.length === 0) {
+    newDoctor.value.certificates = null;
   }
 }
 
@@ -248,10 +251,18 @@ const onTemplatedUpload = (event, type) => {
       newDoctor.value.avatar = response.files[0]
       break;
     case "photos":
-      newDoctor.value.photos = response.files
+      if (!newDoctor.value.photos) {
+        newDoctor.value.photos = [...response.files]
+      } else {
+        newDoctor.value.photos = [...newDoctor.value.photos, ...response.files]
+      }
       break;
     case "certificates":
-      newDoctor.value.certificates = response.files
+      if (!newDoctor.value.certificates) {
+        newDoctor.value.certificates = [...response.files]
+      } else {
+        newDoctor.value.certificates = [...newDoctor.value.certificates, ...response.files]
+      }
       break;
   }
   // newDoctor.value.file[0].id = response.files[0].id;
@@ -401,21 +412,29 @@ onBeforeMount(() => {
           <ImageViewerModal :src="imgBase + newDoctor.avatar.url"/>
           <Button @click="deleteAvatarFromDoctor" label="Удалить" class="h-12"/>
         </div>
+        <FileUpload name="files" :url="`${api}/files/upload`"
+                    @upload="($event) => onTemplatedUpload($event, 'avatar')"
+                    @before-send="onBeforeSend($event)"
+                    :multiple="false" :fileLimit="1" accept="image/*" :maxFileSize="1000000" pt:root:class="file-upload-desktop">
+          <template #empty>
+            <p>Перетащите файлы сюда для загрузки</p>
+          </template>
+        </FileUpload>
         <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
                     @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'avatar')"
-                    :multiple="false" :fileLimit="1" auto/>
+                    :multiple="false" :fileLimit="1" auto pt:root:class="file-upload-mobile"/>
       </div>
-      <div class="space-y-2">
-        <label for="file" class="block font-bold mb-3">Фото</label>
-        <div v-if="newDoctor.photos && newDoctor.photos[0]" class="flex justify-between items-center"
-             v-for="(item, index) in newDoctor.photos">
-          <ImageViewerModal :src="imgBase + item.url"/>
-          <Button @click="deletePhotosFromDoctor(index)" label="Удалить" class="h-12"/>
-        </div>
-        <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
-                    @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'photos')"
-                    :multiple="true" :fileLimit="10" auto/>
-      </div>
+<!--      <div class="space-y-2">-->
+<!--        <label for="file" class="block font-bold mb-3">Фото</label>-->
+<!--        <div v-if="newDoctor.photos && newDoctor.photos[0]" class="flex justify-between items-center"-->
+<!--             v-for="(item, index) in newDoctor.photos">-->
+<!--          <ImageViewerModal :src="imgBase + item.url"/>-->
+<!--          <Button @click="deletePhotosFromDoctor(index)" label="Удалить" class="h-12"/>-->
+<!--        </div>-->
+<!--        <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"-->
+<!--                    @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'photos')"-->
+<!--                    :multiple="true" :fileLimit="10" auto/>-->
+<!--      </div>-->
       <div class="space-y-2">
         <label for="file" class="block font-bold mb-3">Сертификаты</label>
         <div v-if="newDoctor.certificates && newDoctor.certificates[0]" class="flex justify-between items-center"
@@ -423,10 +442,18 @@ onBeforeMount(() => {
           <ImageViewerModal :src="imgBase + item.url"/>
           <Button @click="deleteCertificatesFromDoctor(index)" label="Удалить" class="h-12"/>
         </div>
+        <FileUpload name="files" :url="`${api}/files/upload`"
+                    @upload="($event) => onTemplatedUpload($event, 'certificates')"
+                    @before-send="onBeforeSend($event)"
+                    :multiple="true" accept="image/*" :maxFileSize="1000000" pt:root:class="file-upload-desktop">
+          <template #empty>
+            <p>Перетащите файлы сюда для загрузки</p>
+          </template>
+        </FileUpload>
         <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
                     @before-send="onBeforeSend($event)"
                     @upload="($event) => onTemplatedUpload($event, 'certificates')"
-                    :multiple="true" :fileLimit="10" auto/>
+                    :multiple="true" :fileLimit="30" auto pt:root:class="file-upload-mobile"/>
       </div>
     </div>
 
@@ -438,5 +465,17 @@ onBeforeMount(() => {
 </template>
 
 <style scoped>
+.file-upload-mobile {
+  display: none; /* По умолчанию скрываем мобильный вариант */
+}
 
+@media screen and (max-width: 430px) {
+  .file-upload-desktop {
+    display: none; /* Скрываем десктопный вариант */
+  }
+
+  .file-upload-mobile {
+    display: flex; /* Показываем мобильный вариант */
+  }
+}
 </style>
