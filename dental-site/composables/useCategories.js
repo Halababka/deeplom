@@ -1,51 +1,54 @@
-export const useCategories = () => {
-    // Глобальное состояние для хранения категорий
-    const categoriesState = useState('categories', () => null);
+export const useCategoriesStore = async (force = false) => {
+    const categories = useState("categories", () => {
+    });
 
-    // Глобальное состояние для загрузки
-    const loadingState = useState('categoriesLoading', () => false);
+    if ((!categories.value) || force) {
+        categories.value = await initCategories();
+    }
 
-    // Глобальное состояние для ошибок
-    const errorState = useState('categoriesError', () => null);
+    return categories;
+};
 
-    // Метод для получения категорий
-    const fetchCategories = async (force = false) => {
-        try {
-            // Если данные уже есть и force не указан, возвращаем сохраненные данные
-            if (categoriesState.value && !force) {
-                return categoriesState.value;
+// Метод для получения данных о компании
+const initCategories = async () => {
+    try {
+
+        // Получаем базовый URL API из конфигурации
+        const runtimeConfig = useRuntimeConfig();
+        const apiBase = runtimeConfig.public.apiBase;
+
+        const company = {
+            data: [],
+            pending: [],
+            error: [],
+            refresh: []
+        };
+
+        // Делаем запрос на сервер
+        const {
+            data,
+            pending,
+            error,
+            refresh
+        } = useFetch(`${apiBase}/categories`, {
+            onRequest({request, options}) {
+                options.headers = {
+                    "Content-type": "application/json"
+                }
+
             }
+        });
 
-            // Устанавливаем флаг загрузки
-            loadingState.value = true;
+        company.data = data;
+        company.pending = pending;
+        company.error = error;
+        company.refresh = refresh;
 
-            // Получаем базовый URL API из конфигурации
-            const runtimeConfig = useRuntimeConfig();
-            const apiBase = runtimeConfig.public.apiBase;
+        return company;
+    } catch (err) {
+        // Обработка ошибки
+        console.error('Ошибка при загрузке категорий:', err);
+    } finally {
 
-            // Делаем запрос на сервер
-            const response = await $fetch(`${apiBase}/categories`, {
-                method: 'GET',
-            });
-
-            // Сохраняем полученные данные в глобальное состояние
-            categoriesState.value = response;
-            errorState.value = null; // Сбрасываем ошибку, если она была
-        } catch (err) {
-            // Обработка ошибки
-            errorState.value = err;
-            console.error('Ошибка при загрузке категорий:', err);
-        } finally {
-            // Сбрасываем флаг загрузки
-            loadingState.value = false;
-        }
-    };
-
-    // Возвращаем управляемые значения и методы
-    return {
-        categories: categoriesState,
-        isLoading: loadingState,
-        error: errorState,
-        fetchCategories,
-    };
+    }
 };

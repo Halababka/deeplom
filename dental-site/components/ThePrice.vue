@@ -1,9 +1,8 @@
 <script setup lang="ts">
 // Инициализируем composable для категорий
-const { categories, isLoading, error, fetchCategories } = useCategories();
+import {useCategoriesStore} from "~/composables/useCategories";
 
-// При монтировании компонента загружаем категории
-fetchCategories();
+const categoryStore = await useCategoriesStore()
 
 // Реактивное состояние для отслеживания активных категорий
 const activeCategoryIndex = ref<number | null>(0);
@@ -19,12 +18,12 @@ const toggleCategory = (index: number) => {
 </script>
 
 <template>
-  <div class="price">
+  <div class="price" v-if="!categoryStore.pending">
     <div class="price__container">
       <div class="price__content">
         <h2 class="price__title">Стоимость услуги, ₽</h2>
         <div class="spollers price__wrapper">
-          <template v-for="(category, index) in categories" :key="index">
+          <template v-for="(category, index) in categoryStore.data" :key="index">
             <p
                 v-if="category.parentId === null && !category.only"
                 class="price__subtitle"

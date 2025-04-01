@@ -4,6 +4,7 @@
 import {useCompanyStore} from "~/composables/useCompanyStore";
 import Swiper from "swiper";
 import {Navigation} from "swiper/modules";
+import {useCategoriesStore} from "~/composables/useCategories";
 
 useHead({
   script: [
@@ -16,6 +17,9 @@ useHead({
   ]
 })
 
+useDoctorsStore()
+useCategoriesStore()
+
 const company = (await useCompanyStore()).value // Загрузка данных клиники
 console.log(company)
 
@@ -23,8 +27,6 @@ const route = useRoute()
 
 // Функция для плавного скролла с учетом header'а
 const scrollToHash = () => {
-  useDoctorsStore()
-
   if (route.hash) {
     // Небольшая задержка для полной загрузки контента
     setTimeout(() => {
