@@ -9,7 +9,7 @@ const splitSchedule = computed(() => {
 <template>
   <div id="map" class="map__container">
     <div class="map">
-      <div class="map__content">
+      <div class="map__content" v-if="!companyStore.pending">
         <div class="map__header">
           <h1 class="map__title">Как нас найти</h1>
           <div class="footer-contacts__messengers contacts__messengers map__messengers" style="display: flex;">
@@ -28,6 +28,9 @@ const splitSchedule = computed(() => {
           </div>
           <span class="map__email"><a :href="`mailto:${companyStore.data.email}`">{{ companyStore.data.email }}</a></span>
         </div>
+      </div>
+      <div v-else class="map__content" style="padding: 2rem">
+        <div class="skeleton"></div>
       </div>
       <div class="map__map">
         <a

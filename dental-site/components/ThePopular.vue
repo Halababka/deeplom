@@ -8,7 +8,7 @@
       <div class="popular__content">
         <div class="popular__main">
           <div class="popular__title-wrapper">
-            <h1 class="popular__title">Популярные услуги Dental</h1>
+            <h1 class="popular__title">Популярные услуги Дентал</h1>
             <NuxtLink to="/services" class="popular__link">Все услуги</NuxtLink>
           </div>
           <div class="popular__image">

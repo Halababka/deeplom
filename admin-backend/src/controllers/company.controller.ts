@@ -41,6 +41,10 @@ export class CompanyController {
                 socialLinks: JSON.parse(company.socialLinks),
                 fullDescription: JSON.parse(company.fullDescription),
             };
+
+            await new Promise(res => {
+                setTimeout(()=>{res(true)}, 5000)
+            })
             res.status(200).json(formattedCompany);
         } catch (error) {
             console.log(error)

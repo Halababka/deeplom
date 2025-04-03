@@ -22,9 +22,9 @@ const loadImages = () => {
 };
 
 onMounted(async () => {
-  loadImages();
-  await nextTick();
-  lightGallery?.refresh(toRaw(images.value)); // Передаём чистый массив
+  // loadImages();
+  // await nextTick();
+  // lightGallery?.refresh(toRaw(images.value)); // Передаём чистый массив
 });
 
 // Следим за изменениями массива images и обновляем галерею
@@ -32,6 +32,13 @@ watch(images, async () => {
   await nextTick();
   lightGallery?.refresh(toRaw(images.value));
 });
+
+watchEffect(()=>{
+  if (!companyStore.pending) {
+    loadImages();
+    lightGallery?.refresh(toRaw(images.value)); // Передаём чистый массив
+  }
+})
 
 const settings = {
   plugins: [lgZoom, lgThumbnail],
@@ -69,11 +76,11 @@ const updateSlides = async () => {
     <div class="gallery__container">
       <h1 class="gallery__title">Галерея DENTAL</h1>
       <!--      <div class="gallery__content static-thumbnails justifiedgallery" id="static-thumbnails-1">-->
-      <lightgallery
-          :settings="settings"
-          :onInit="onInit"
-          :onBeforeSlide="onBeforeSlide"
-          class="justified-gallery gallery__content"
+      <lightgallery v-if="!companyStore.pending"
+                    :settings="settings"
+                    :onInit="onInit"
+                    :onBeforeSlide="onBeforeSlide"
+                    class="justified-gallery gallery__content"
       >
         <a
             v-for="item in images"
@@ -85,6 +92,9 @@ const updateSlides = async () => {
           <img className="img-responsive" :src="item.thumb" class="gallery__image"/>
         </a>
       </lightgallery>
+      <div v-else style="height: 15rem">
+        <div class="skeleton"></div>
+      </div>
     </div>
   </div>
   <!--  </div>-->

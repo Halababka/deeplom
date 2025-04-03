@@ -16,6 +16,16 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'Зубная клиника Дентал в Волгодонске',
+      // script: [
+      //   {
+      //     src: "https://lidrekon.ru/slep/js/jquery.js",
+      //     defer: true,
+      //   },
+      //   {
+      //     src: "https://lidrekon.ru/slep/js/uhpv-hover-full.min.js",
+      //     defer: true,
+      //   },
+      // ],
       meta: [
         {
           name: "description",
@@ -45,7 +55,7 @@ export default defineNuxtConfig({
         {
           name: 'og:url',
           property: 'og:url',
-          content: 'http://dental-volgodonsk.duckdns.org'  // Укажите свой URL
+          content: 'https://dental-volgodonsk.4de.run'  // Укажите свой URL
         },
       ],
     },

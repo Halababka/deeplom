@@ -30,7 +30,7 @@ const initCompany = async () => {
             pending,
             error,
             refresh
-        } = await useFetch(`${apiBase}/companies/1`, {
+        } = useFetch(`${apiBase}/companies/1`, {
             onRequest({request, options}) {
                 options.headers = {
                     "Content-type": "application/json"

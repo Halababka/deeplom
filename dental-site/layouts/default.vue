@@ -10,9 +10,11 @@ useHead({
   script: [
     {
       src: "https://lidrekon.ru/slep/js/jquery.js",
+      defer: true,
     },
     {
       src: "https://lidrekon.ru/slep/js/uhpv-hover-full.min.js",
+      defer: true,
     },
   ]
 })
@@ -106,9 +108,9 @@ onMounted(() => {
 
 <template>
   <div class="wrapper">
-    <div v-if="company.pending" class="loading-overlay">
-      <div class="spinner"></div>
-    </div>
+<!--    <div v-if="company.pending" class="loading-overlay">-->
+<!--      <div class="spinner"></div>-->
+<!--    </div>-->
     <TheHeader/>
     <main class="page">
       <NuxtPage/>
