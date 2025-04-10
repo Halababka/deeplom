@@ -8,17 +8,18 @@ datasource db {
 }
 
 model Doctor {
-  id              Int     @id @default(autoincrement())
+  id              Int        @id @default(autoincrement())
   name            String
   education       String?
   educationPlaces String?
   courses         String?
   specialty       String
   experience      Int?
-  avatar          File?   @relation("DoctorAvatar", fields: [avatarId], references: [id])
-  avatarId        Int?    @unique
-  photos          File[]  @relation("DoctorPhotos")
-  certificates    File[]  @relation("DoctorCertificates")
+  avatar          File?      @relation("DoctorAvatar", fields: [avatarId], references: [id])
+  avatarId        Int?       @unique
+  photos          File[]     @relation("DoctorPhotos")
+  certificates    File[]     @relation("DoctorCertificates")
+  categories      Category[]
 }
 
 model Category {
@@ -29,6 +30,7 @@ model Category {
   parent   Category?  @relation("CategoryParent", fields: [parentId], references: [id])
   children Category[] @relation("CategoryParent")
   services Service[]
+  doctors  Doctor[]
 }
 
 model Service {
