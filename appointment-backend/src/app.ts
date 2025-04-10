@@ -34,6 +34,6 @@ app.use((req, res, next) => {
 });
 
 // Запуск имитации запросов от IDENT
-// scheduleIdentRequests();
+scheduleIdentRequests();
 
 export default app;

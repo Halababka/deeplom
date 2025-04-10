@@ -44,6 +44,12 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
+
+const appointmentModal = ref(null)
+
+const openAppointmentModal = () => {
+  appointmentModal.value?.openModal()
+}
 </script>
 
 <template>
@@ -57,6 +63,7 @@ onBeforeUnmount(() => {
         <div class="header__info info">
           <img id="specialButton" class="header__specialButton" style="cursor:pointer;" src="https://lidrekon.ru/images/special.png"
                alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ"/>
+          <button class="header__appointmentButton desktop-only" @click="openAppointmentModal">Записаться</button>
           <div class="info__location">ул.Строителей 2е</div>
           <div class="info__number">
             <a href="tel:+74951234567">+7-938-130-3333</a>
@@ -68,14 +75,17 @@ onBeforeUnmount(() => {
         </div>
       </div>
       <div class="navbar">
-        <button
-            type="button"
-            class="icon-menu navbar__button"
-            :class="{ 'active': isMenuOpen }"
-            @click="toggleMenu"
-        >
-          <span></span>
-        </button>
+        <div class="navbar__controls">
+          <button class="header__appointmentButton mobile-only" @click="openAppointmentModal">Записаться</button>
+          <button
+              type="button"
+              class="icon-menu navbar__button"
+              :class="{ 'active': isMenuOpen }"
+              @click="toggleMenu"
+          >
+            <span></span>
+          </button>
+        </div>
         <nav class="navbar__body">
           <ul class="navbar__list">
             <li class="navbar__item" @click="handleMenuLinkClick">
@@ -100,8 +110,10 @@ onBeforeUnmount(() => {
         </nav>
       </div>
     </div>
+    <TheAppointment ref="appointmentModal" />
   </header>
 </template>
 
 <style scoped>
+/* Стили перенесены в header.scss */
 </style>

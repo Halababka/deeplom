@@ -3,14 +3,22 @@ import prisma from "../db";
 export class CategoryService {
     async getAllCategories() {
         return prisma.category.findMany({
-            include: { children: true, services: true },
+            include: {
+                children: true,
+                services: true,
+                doctors: true
+            }
         });
     }
 
     async getCategoryById(id: number) {
         return prisma.category.findUnique({
-            where: { id },
-            include: { children: true, parent: true },
+            where: {id},
+            include: {
+                children: true,
+                parent: true,
+                doctors: true
+            }
         });
     }
 
@@ -18,7 +26,8 @@ export class CategoryService {
         name: string;
         parentId?: number;
         only?: boolean;
-        services?: { id: number }[];
+        services?: {id: number}[];
+        doctorIds?: number[];
     }) {
         return prisma.category.create({
             data: {
@@ -27,48 +36,62 @@ export class CategoryService {
                 only: data.only,
                 services: data.services && data.services.length > 0
                     ? {
-                        connect: data.services.map(service => ({ id: service.id }))
+                        connect: data.services.map(service => ({id: service.id}))
+                    }
+                    : undefined,
+                doctors: data.doctorIds && data.doctorIds.length > 0
+                    ? {
+                        connect: data.doctorIds.map(id => ({id}))
                     }
                     : undefined
             },
             include: {
                 services: true,
-                children: true
+                children: true,
+                doctors: true
             }
         });
     }
 
     async updateCategory(
         id: number,
-        data: Partial<{ name: string; parentId?: number; only?: boolean }>,
-        services: { id: number }[] | null
+        data: Partial<{name: string; parentId?: number; only?: boolean}>,
+        services: {id: number}[] | null,
+        doctorIds: number[] | null
     ) {
         return prisma.$transaction(async (prisma) => {
-            // Обновляем категорию
             const updatedCategory = await prisma.category.update({
-                where: { id },
+                where: {id},
                 data: {
                     ...data,
                     services: services === null
-                        ? { set: [] } // Отвязываем все услуги
+                        ? {set: []}
                         : services && services.length > 0
                             ? {
-                                set: [], // Сначала отвязываем все
-                                connect: services.map(service => ({ id: service.id })) // Затем привязываем нужные
+                                set: [],
+                                connect: services.map(service => ({id: service.id}))
                             }
-                            : undefined // Не изменяем связи, если services не передан
+                            : undefined,
+                    doctors: doctorIds === null
+                        ? {set: []}
+                        : doctorIds && doctorIds.length > 0
+                            ? {
+                                set: [],
+                                connect: doctorIds.map(id => ({id}))
+                            }
+                            : undefined
                 },
                 include: {
                     services: true,
                     parent: true,
-                    children: true
+                    children: true,
+                    doctors: true
                 }
             });
 
             return updatedCategory;
         });
     }
-
 
     async deleteCategory(id: number) {
         return prisma.category.delete({

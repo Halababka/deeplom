@@ -2,11 +2,26 @@ import prisma from "../db";
 
 export class DoctorService {
     async getAllDoctors() {
-        return prisma.doctor.findMany({include: {avatar: true, photos: true, certificates: true}});
+        return prisma.doctor.findMany({
+            include: {
+                avatar: true,
+                photos: true,
+                certificates: true,
+                categories: true
+            }
+        });
     }
 
     async getDoctorById(id: number) {
-        return prisma.doctor.findUnique({where: {id}, include: {avatar: true, photos: true, certificates: true}});
+        return prisma.doctor.findUnique({
+            where: {id},
+            include: {
+                avatar: true,
+                photos: true,
+                certificates: true,
+                categories: true
+            }
+        });
     }
 
     async createDoctor(data: {
@@ -19,8 +34,9 @@ export class DoctorService {
         courses?: string;
         photoIds?: number[];
         certificateIds?: number[];
+        categoryIds?: number[];
     }) {
-        const {name, specialty, experience, education, educationPlaces, courses, avatarId, photoIds, certificateIds} = data;
+        const {name, specialty, experience, education, educationPlaces, courses, avatarId, photoIds, certificateIds, categoryIds} = data;
 
         return prisma.doctor.create({
             data: {
@@ -32,12 +48,14 @@ export class DoctorService {
                 experience,
                 avatar: avatarId ? {connect: {id: avatarId}} : undefined,
                 photos: photoIds ? {connect: photoIds.map(id => ({id}))} : undefined,
-                certificates: certificateIds ? {connect: certificateIds.map(id => ({id}))} : undefined
+                certificates: certificateIds ? {connect: certificateIds.map(id => ({id}))} : undefined,
+                categories: categoryIds ? {connect: categoryIds.map(id => ({id}))} : undefined
             },
             include: {
                 avatar: true,
                 photos: true,
-                certificates: true
+                certificates: true,
+                categories: true
             }
         });
     }
@@ -53,8 +71,9 @@ export class DoctorService {
         avatarId?: number | null;
         photoIds?: number[] | null;
         certificateIds?: number[] | null;
+        categoryIds?: number[] | null;
     }) {
-        const {name, experience,avatarId, education, educationPlaces, courses, specialty, photoIds, certificateIds} = data;
+        const {name, experience, avatarId, education, educationPlaces, courses, specialty, photoIds, certificateIds, categoryIds} = data;
 
         return prisma.doctor.update({
             where: {id},
@@ -79,12 +98,18 @@ export class DoctorService {
                     ? {set: []}
                     : certificateIds
                         ? {set: certificateIds.map(id => ({id}))}
+                        : undefined,
+                categories: categoryIds === null
+                    ? {set: []}
+                    : categoryIds
+                        ? {set: categoryIds.map(id => ({id}))}
                         : undefined
             },
             include: {
                 avatar: true,
                 photos: true,
-                certificates: true
+                certificates: true,
+                categories: true
             }
         });
     }

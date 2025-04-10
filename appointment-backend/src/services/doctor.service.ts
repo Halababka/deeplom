@@ -28,13 +28,15 @@ export class DoctorService {
                 });
 
                 // Форматируем дату в формат dd.mm.yy
-                const availableFrom = nearestSlot
-                    ? nearestSlot.startDateTime.toLocaleDateString('ru-RU', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    })
-                    : null;
+                const formatDate = (date: any) => {
+                    return new Intl.DateTimeFormat('ru-RU', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric'
+                    }).format(date);
+                  };
+
+                const availableFrom = nearestSlot ? formatDate(nearestSlot.startDateTime) : null;
 
                 // Добавляем поле availableFrom
                 return {

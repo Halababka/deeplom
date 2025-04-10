@@ -13,6 +13,7 @@ export class DoctorController {
                 educationPlaces: JSON.parse(<string>doctor.educationPlaces),
                 courses: JSON.parse(<string>doctor.courses)
             }));
+            await new Promise(resolve => setTimeout(resolve, 5000))
             res.json(formattedDoctors);
         } catch (error) {
             console.log(error)
@@ -45,12 +46,23 @@ export class DoctorController {
 
     async createDoctor(req: Request, res: Response) {
         try {
-            let {name, experience, avatarId, education, courses, specialty, photoIds, certificateIds, educationPlaces} = req.body;
+            let {name, experience, avatarId, education, courses, specialty, photoIds, certificateIds, educationPlaces, categoryIds} = req.body;
 
             if (educationPlaces) educationPlaces = JSON.stringify(educationPlaces)
-            if (specialty) courses = JSON.stringify(courses)
+            if (courses) courses = JSON.stringify(courses)
 
-            const newDoctor = await doctorService.createDoctor({name, experience, education, educationPlaces, courses, avatarId, specialty, photoIds, certificateIds});
+            const newDoctor = await doctorService.createDoctor({
+                name,
+                experience,
+                education,
+                educationPlaces,
+                courses,
+                avatarId,
+                specialty,
+                photoIds,
+                certificateIds,
+                categoryIds
+            });
             res.status(201).json(newDoctor);
         } catch (error) {
             console.error(error);
@@ -61,7 +73,7 @@ export class DoctorController {
     async updateDoctor(req: Request, res: Response) {
         try {
             const id = parseInt(req.params.id);
-            let {name, experience, education, educationPlaces, courses, specialty, avatarId, photoIds, certificateIds} = req.body;
+            let {name, experience, education, educationPlaces, courses, specialty, avatarId, photoIds, certificateIds, categoryIds} = req.body;
 
             if (educationPlaces) educationPlaces = JSON.stringify(educationPlaces)
             if (courses) courses = JSON.stringify(courses)
@@ -75,7 +87,8 @@ export class DoctorController {
                 courses,
                 avatarId,
                 photoIds,
-                certificateIds
+                certificateIds,
+                categoryIds
             });
             res.json(updatedDoctor);
         } catch (error) {

@@ -10,12 +10,14 @@ useHead({
   script: [
     {
       src: "https://lidrekon.ru/slep/js/jquery.js",
-      defer: true,
+      async: false,
+      defer: false
     },
     {
       src: "https://lidrekon.ru/slep/js/uhpv-hover-full.min.js",
-      defer: true,
-    },
+      async: false,
+      defer: true
+    }
   ]
 })
 
