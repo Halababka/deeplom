@@ -25,11 +25,11 @@ const onInit = (detail) => {
   lightGallery = detail.instance;
 }
 
-
+console.log("doctors", doctorsStore)
 </script>
 
 <template>
-  <div v-if="!doctorsStore.pending" class="cards">
+  <div v-if="!doctorsStore.pending && doctorsStore.data" class="cards">
     <div class="cards__container">
       <div class="cards__content">
         <div class="cards__card person" v-for="doctor in doctorsStore.data" :key="doctor.id" :id="'doctor-' + doctor.id">
@@ -78,6 +78,9 @@ const onInit = (detail) => {
       </div>
     </div>
   </div>
+  <div v-else class="skeleton__cards" style="padding: 2rem">
+    <div class="skeleton"></div>
+  </div>
 </template>
 
 <style scoped>
@@ -98,6 +101,11 @@ const onInit = (detail) => {
   width: 100%;
   height: 100%;
   object-fit: cover; /* Масштабирует изображение без искажений */
+}
+
+.skeleton__cards {
+  width: 100%;
+  height: 40rem;
 }
 
 </style>

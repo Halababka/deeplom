@@ -9,7 +9,7 @@ const splitSchedule = computed(() => {
 <template>
   <div id="map" class="map__container">
     <div class="map">
-      <div class="map__content" v-if="!companyStore.pending">
+      <div class="map__content" v-if="!companyStore.pending && companyStore.data">
         <div class="map__header">
           <h1 class="map__title">Как нас найти</h1>
           <div class="footer-contacts__messengers contacts__messengers map__messengers" style="display: flex;">

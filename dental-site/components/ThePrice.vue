@@ -18,7 +18,7 @@ const toggleCategory = (index: number) => {
 </script>
 
 <template>
-  <div class="price" v-if="!categoryStore.pending">
+  <div class="price" v-if="!categoryStore.pending && categoryStore.data">
     <div class="price__container">
       <div class="price__content">
         <h2 class="price__title">Стоимость услуги, ₽</h2>

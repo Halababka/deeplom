@@ -40,7 +40,7 @@ onMounted( () => {
 });
 </script>
 <template>
-  <div class="doctors" v-if="!doctorsStore.pending">
+  <div class="doctors" v-if="!doctorsStore.pending && doctorsStore.data">
     <div class="doctors__container">
       <div class="doctors__slider swiper-doctors">
         <div class="doctors__wrapper swiper-wrapper">

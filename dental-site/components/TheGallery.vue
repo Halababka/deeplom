@@ -76,7 +76,7 @@ const updateSlides = async () => {
     <div class="gallery__container">
       <h1 class="gallery__title">Галерея DENTAL</h1>
       <!--      <div class="gallery__content static-thumbnails justifiedgallery" id="static-thumbnails-1">-->
-      <lightgallery v-if="!companyStore.pending"
+      <lightgallery v-if="!companyStore.pending && companyStore.data"
                     :settings="settings"
                     :onInit="onInit"
                     :onBeforeSlide="onBeforeSlide"

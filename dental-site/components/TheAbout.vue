@@ -6,16 +6,16 @@ const companyStore = (await useCompanyStore()).value;
   <div class="about">
     <div class="about__container">
       <div class="about__content">
-        <div class="about__image" v-if="!companyStore.pending">
+        <div class="about__image" v-if="!companyStore.pending && companyStore.data">
           <img :src="useRuntimeConfig().public.imgBase + companyStore.data.mainPhoto.url" class="lazyload" alt="Приветственное фото">
         </div>
         <div v-else class="about__image" style="width: 50rem; height: 30rem;">
           <div class="skeleton"></div>
         </div>
         <div class="about__text">
-          <h1 v-if="!companyStore.pending" class="about__title">{{ companyStore.data.slogan }}</h1>
+          <h1 v-if="!companyStore.pending && companyStore.data" class="about__title">{{ companyStore.data.slogan }}</h1>
           <h1 v-else class="about__title">Откройте улыбку с Dental</h1>
-          <span v-if="!companyStore.pending" class="about__subtitle">
+          <span v-if="!companyStore.pending && companyStore.data" class="about__subtitle">
             {{ companyStore.data.description }}
           </span>
           <span v-else class="about__subtitle">Мы - профессиональный медицинский центр, специализирующийся на современных

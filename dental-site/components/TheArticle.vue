@@ -3,7 +3,7 @@ const companyStore = (await useCompanyStore()).value;
 </script>
 
 <template>
-  <div class="article__container" v-if="!companyStore.pending">
+  <div class="article__container" v-if="!companyStore.pending && companyStore.data">
     <div v-if="companyStore.data?.fullDescription" id="article-content" class="article">
       <span v-for="(item, index) in companyStore.data.fullDescription" class="article__text">{{item}}</span>
     </div>

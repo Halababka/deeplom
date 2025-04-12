@@ -58,7 +58,9 @@
 		width: 100%;
 		height: rem(324);
 		object-fit: cover;
+		background-color: #f0f0f0;
 		margin: auto;
+
 		@media (width < $mobileSmall) {
 			height: rem(290);
 		}

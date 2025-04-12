@@ -193,7 +193,7 @@ const onInit = (detail) => {
   <div class="license">
     <div class="license__container" id="license">
       <h1 class="license__title">Лицензии и сертификаты</h1>
-      <div class="license__content" v-if="!companyStore.pending">
+      <div class="license__content" v-if="!companyStore.pending && companyStore.data">
         <div class="license__slider swiper">
           <lightgallery
               :settings="settings"

@@ -4,7 +4,7 @@ const companyStore = (await useCompanyStore()).value
 
 <template>
   <div class="requisites__container">
-    <div class="requisites" v-if="!companyStore.pending">
+    <div class="requisites" v-if="!companyStore.pending && companyStore.data">
       <h1 class="requisites__title">Реквизиты {{ companyStore.data.fullName }}</h1>
       <p class="requisites__p"><b>ИНН:</b> {{ companyStore.data.inn }}</p>
       <p class="requisites__p"><b>ОГРН:</b> {{ companyStore.data.ogrn }}</p>
