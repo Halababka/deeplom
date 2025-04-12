@@ -31,8 +31,14 @@ export class CategoryController {
 
     async createCategory(req: Request, res: Response) {
         try {
-            const {name, parentId, only, services} = req.body;
-            const category = await categoryService.createCategory({name, parentId, only, services});
+            const {name, parentId, only, services, doctorIds} = req.body;
+            const category = await categoryService.createCategory({
+                name,
+                parentId,
+                only,
+                services,
+                doctorIds
+            });
             res.status(201).json(category);
         } catch (error) {
             res.status(500).json({error: "Failed to create category."});
@@ -41,20 +47,20 @@ export class CategoryController {
 
     async updateCategory(req: Request, res: Response) {
         try {
-            const { id } = req.params;
-            const { services, ...data } = req.body;
+            const {id} = req.params;
+            const {services, doctorIds, ...data} = req.body;
 
-            const category = await categoryService.updateCategory(Number(id), data, services);
+            const category = await categoryService.updateCategory(Number(id), data, services, doctorIds);
 
             if (!category) {
-                res.status(404).json({ error: "Category not found." });
+                res.status(404).json({error: "Category not found."});
                 return;
             }
 
             res.json(category);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Failed to update category." });
+            res.status(500).json({error: "Failed to update category."});
         }
     }
 

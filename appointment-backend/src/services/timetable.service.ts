@@ -13,8 +13,8 @@ export const saveTimeTable = async ({ branches, doctors, intervals }: TimeTableP
     for (const doctor of doctors) {
         await prisma.iDENT_Doctors.upsert({
             where: { id: doctor.id },
-            update: { name: doctor.name, specialty: doctor.specialty },
-            create: { id: doctor.id, name: doctor.name, specialty: doctor.specialty },
+            update: { name: doctor.name },
+            create: { id: doctor.id, name: doctor.name },
         });
     }
     for (const interval of intervals) {

@@ -1,4 +1,4 @@
-import { getTickets, postTimeTable } from "./services/identMock.service";
+import {getTickets, postTimeTable} from "./services/identMock.service";
 
 const scheduleIdentRequests = () => {
     // Пример временного диапазона для GetTickets
@@ -9,7 +9,7 @@ const scheduleIdentRequests = () => {
     setInterval(async () => {
         try {
             console.log("[Ident] Запрос заявок...");
-            const tickets = await getTickets({ dateTimeFrom, dateTimeTo });
+            const tickets = await getTickets({dateTimeFrom, dateTimeTo});
             console.log("[Ident] Полученные заявки:", tickets);
         } catch (error: any) {
             console.error("[Ident] Ошибка при запросе заявок:", error.message);
@@ -32,20 +32,28 @@ const scheduleIdentRequests = () => {
 // Генерация расписания
 // Генерация расписания
 const generateTimeTablePayload = (daysCount: number) => {
-    const branch = { id: 1, name: "Филиал в г. Волгодонск" };
+    const branch = {id: 1, name: "Филиал в г. Волгодонск"};
 
-    const doctors = Array.from({ length: 10 }, (_, index) => ({
+    const doctorNames = [
+        "Иванов Александр Олегович",
+        "Петров Петр Петрович",
+        "Сидоров Алексей Михайлович"
+    ];
+
+// Создаем массив врачей с именами из doctorNames
+    const doctors = Array.from({length: doctorNames.length}, (_, index) => ({
         id: index + 1,
-        name: `Доктор ${index + 1}`,
-        specialty: `Специальность ${index + 1}`,
+        name: doctorNames[index]
     }));
+
+    console.log(doctors);
 
     const intervals = [];
     const today = new Date(); // Сегодняшняя дата
     today.setHours(0, 0, 0, 0); // Устанавливаем время на начало дня
 
     // Генерируем дни, начиная с сегодняшнего и добавляем daysCount дней вперед
-    const days = Array.from({ length: daysCount }, (_, index) => {
+    const days = Array.from({length: daysCount}, (_, index) => {
         const date = new Date(today);
         date.setDate(today.getDate() + index);
         return date.toISOString().split('T')[0]; // Форматируем дату в YYYY-MM-DD
