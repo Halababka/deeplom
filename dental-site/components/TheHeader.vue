@@ -63,7 +63,7 @@ const openAppointmentModal = () => {
         <div class="header__info info">
           <img id="specialButton" class="header__specialButton" style="cursor:pointer;" src="https://lidrekon.ru/images/special.png"
                alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ"/>
-          <button class="header__appointmentButton desktop-only" @click="openAppointmentModal">Записаться</button>
+          <button class="header__appointmentButton desktop-only" @click="openAppointmentModal">Онлайн запись</button>
           <div class="info__location">ул.Строителей 2е</div>
           <div class="info__number">
             <a href="tel:+74951234567">+7-938-130-3333</a>
@@ -76,7 +76,7 @@ const openAppointmentModal = () => {
       </div>
       <div class="navbar">
         <div class="navbar__controls">
-          <button class="header__appointmentButton mobile-only" @click="openAppointmentModal">Записаться</button>
+          <button class="header__appointmentButton mobile-only" @click="openAppointmentModal">Онлайн запись</button>
           <button
               type="button"
               class="icon-menu navbar__button"

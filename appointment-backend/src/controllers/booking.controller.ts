@@ -27,13 +27,15 @@ export const getAvailableSlots = async (req: Request, res: Response) => {
 };
 
 export const requestBookingConfirmation = async (req: Request, res: Response) => {
+    console.log("Получен запрос на подтверждение записи на прием")
     const {clientPhone} = req.body;
-
+    
     if (!clientPhone) {
         res.status(400).json({error: "Не указан номер телефона"});
         return;
     }
 
+    console.log("Получен номер телефона",clientPhone)
     try {
         // Отправка Call Password запроса
         const response = await smsService.sendCallPassword(clientPhone);
@@ -46,13 +48,15 @@ export const requestBookingConfirmation = async (req: Request, res: Response) =>
             return
         }
 
-        console.log(response)
+        console.log("Получен ответ от Call Password", response)
 
         await smsService.saveVerificationCode(
             response.result!.id,
             clientPhone,
             response.result!.code
         );
+
+        console.log("Сохранен код подтверждения в базу данных")
 
         // Возвращаем requestId клиенту
         const requestId = response.result?.id;
@@ -83,6 +87,8 @@ export const cancelBooking = async (req: Request, res: Response) => {
 };
 
 export const confirmBooking = async (req: Request, res: Response) => {
+    console.log("Получен запрос на верификацию кода подтверждения")
+
     const {
         requestId,
         verificationCode,
@@ -90,42 +96,38 @@ export const confirmBooking = async (req: Request, res: Response) => {
         doctorId,
         doctorName,
         startDateTime,
-        clientName,
-        clientSurname,
-        clientPatronymic,
+        clientFullName,
         clientPhone,
         planStart,
-        planEnd,
         comment
     } = req.body;
 
     // Проверка обязательных параметров
-    if (!requestId || !verificationCode || !branchId || !doctorId || !startDateTime || !clientName || !clientPhone || !clientSurname) {
+    if (!requestId || !verificationCode || !branchId || !doctorId || !startDateTime || !clientFullName || !clientPhone) {
         res.status(400).json({error: "Не указаны обязательные параметры"});
         return;
     }
 
     try {
         // Проверяем requestId и verificationCode
-        await smsService.verifyCode(requestId, verificationCode);
+        console.log("Проверяем requestId и verificationCode")
+        await smsService.verifyCode(requestId, verificationCode, clientPhone);
 
+        console.log("Код подтверждения проверен, создаем запись")
         // Создание записи после успешной проверки
         const booking = await bookingService.createBooking(
             Number(branchId),
             Number(doctorId),
             startDateTime,
-            clientName,
-            clientSurname,
-            clientPatronymic,
+            clientFullName,
             clientPhone,
             comment,
-            planEnd,
             planStart,
             doctorName
         );
 
         res.status(201).json({
-            message: "Запись успешно создана",
+            message: "Вы успешно записались на прием. Ждем вас в клинику!",
             booking,
         });
     } catch (error: unknown) {

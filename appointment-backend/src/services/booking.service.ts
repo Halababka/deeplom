@@ -46,14 +46,11 @@ export const createBooking = async (
     branchId: number,
     doctorId: number,
     startDateTime: string,
-    doctorName: string,
-    clientName: string,
-    clientSurname: string,
-    clientPatronymic: string,
+    clientFullName: string,
     clientPhone: string,
+    comment: string,
     planStart: string,
-    planEnd: string,
-    comment: string
+    doctorName: string
 ) => {
     // Проверяем наличие слота
     const slot = await prisma.iDENT_Intervals.findUnique({
@@ -67,24 +64,21 @@ export const createBooking = async (
     });
 
     if (!slot || slot.isBusy) {
-        throw new Error("Слот недоступен для записи");
+        throw new Error("Выбранное время недоступно для записи. Попробуйте другое время");
     }
 
     // Создаем заявку
     const booking = await prisma.request.create({
         data: {
             dateAndTime: new Date(startDateTime),
-            clientName,
-            clientSurname,
-            clientPatronymic,
+            clientName: clientFullName,
+            clientSurname: '',
+            clientPatronymic: '',
             clientPhone,
             doctorId,
             doctorName,
             comment,
-            planEnd,
             planStart
-            // Здесь нужно указывать, если необходимо добавить дополнительные поля, например:
-            // clientSurname, clientPatronymic и другие
         },
     });
 
@@ -102,7 +96,7 @@ export const createBooking = async (
         },
     });
 
-    return booking;  // Возвращаем созданную запись
+    return booking;
 };
 
 

@@ -1,4 +1,7 @@
 <script setup>
+import { jsPDF } from 'jspdf'
+import html2canvas from 'html2canvas'
+
 const isOpen = ref(false)
 const currentStep = ref(1)
 const selectedType = ref(null)
@@ -12,14 +15,20 @@ const showSmsInput = ref(false)
 const currentWeekStart = ref(new Date())
 const currentWeekEnd = ref(new Date())
 const stepHistory = ref([])
+const requestId = ref(null)
+const smsMessage = ref('')
+const canRequestSms = ref(true)
+const timeLeft = ref(300) // 5 минут в секундах
+const confirmationMessage = ref('')
+const hasError = ref(false)
+const isBookingSuccess = ref(false)
+const isSendingSms = ref(false)
+const clientFullName = ref('')
+const timerId = ref(null) // Добавляем переменную для хранения ID таймера
 
 const imgBase = useRuntimeConfig().public.imgBase
 
-const categories = ref([
-  { id: 1, name: 'Терапия' },
-  { id: 2, name: 'Хирургия' },
-  { id: 3, name: 'Ортодонтия' }
-])
+const categories = ref(new Set())
 
 let doctorsStore = ref({data: [], pending: true})
 
@@ -43,6 +52,17 @@ const fetchDoctors = async () => {
       })
       
       doctorsStore.value.data = updatedDoctors
+      
+      // Обновляем Set категорий из данных врачей
+      const categoriesSet = new Set()
+      updatedDoctors.forEach(doctor => {
+        if (doctor.categories) {
+          doctor.categories.forEach(category => {
+            categoriesSet.add(category)
+          })
+        }
+      })
+      categories.value = categoriesSet
     }
   } catch (error) {
     console.error('Ошибка при загрузке данных о врачах:', error)
@@ -73,15 +93,20 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (timerId.value) {
+    clearInterval(timerId.value)
+    timerId.value = null
+  }
   window.removeEventListener('keydown', handleEscape)
   bodyUnlock()
 })
 
 const timeSlots = ref([])
 const doctorSchedule = ref({})
-
+const schedulePending = ref(false)
 const fetchDoctorSchedule = async (doctorId) => {
   try {
+    schedulePending.value = true
     const data = await $fetch(`${useRuntimeConfig().public.appointmentBase}/booking/slots?branchId=1&doctorId=${doctorId}`)
     doctorSchedule.value = data
     // Преобразуем расписание в формат для отображения
@@ -93,8 +118,21 @@ const fetchDoctorSchedule = async (doctorId) => {
         lengthInMinutes: slot.lengthInMinutes
       }))
     }))
+
+    // Находим первую дату с доступными слотами
+    if (timeSlots.value.length > 0) {
+      const firstAvailableDate = new Date(timeSlots.value[0].date)
+      // Устанавливаем начало недели на понедельник
+      const day = firstAvailableDate.getDay()
+      const diff = firstAvailableDate.getDate() - day + (day === 0 ? -6 : 1)
+      firstAvailableDate.setDate(diff)
+      currentWeekStart.value = firstAvailableDate
+      updateWeekDates()
+    }
   } catch (error) {
     console.error('Ошибка при загрузке расписания врача:', error)
+  } finally {
+    schedulePending.value = false
   }
 }
 
@@ -196,7 +234,12 @@ const isPhoneValid = computed(() => {
 const filteredDoctors = computed(() => {
   if (!selectedCategory.value) return []
   return doctors.value
-    .filter(doctor => doctor.category === selectedCategory.value.id && doctor.availableFrom !== null)
+    .filter(doctor => {
+      // Проверяем, есть ли у врача категории и содержит ли массив категорий выбранную категорию
+      return doctor.categories && 
+             doctor.categories.some(category => category.id === selectedCategory.value.id) && 
+             doctor.availableFrom !== null
+    })
 })
 
 const bodyLock = () => {
@@ -229,15 +272,31 @@ const handleEscape = (e) => {
 }
 
 const resetForm = () => {
+  // Очищаем таймер при сбросе формы
+  if (timerId.value) {
+    clearInterval(timerId.value)
+    timerId.value = null
+  }
+  
   currentStep.value = 1
   selectedType.value = null
   selectedCategory.value = null
   selectedDoctor.value = null
   selectedTime.value = null
   phoneNumber.value = '+7 ('
+  phoneDigits.value = ''
   smsCode.value = ''
   showSmsInput.value = false
   stepHistory.value = [1]
+  requestId.value = null
+  smsMessage.value = ''
+  canRequestSms.value = true
+  timeLeft.value = 300
+  confirmationMessage.value = ''
+  hasError.value = false
+  isBookingSuccess.value = false
+  isSendingSms.value = false
+  clientFullName.value = ''
 }
 
 const selectAppointmentType = (type) => {
@@ -254,8 +313,8 @@ const selectCategory = (category) => {
 
 const selectDoctor = async (doctor) => {
   selectedDoctor.value = doctor
-  await fetchDoctorSchedule(doctor.id)
   currentStep.value = 4
+  await fetchDoctorSchedule(doctor.id)
   stepHistory.value.push(4)
 }
 
@@ -267,6 +326,7 @@ const selectTime = (slot) => {
 
 const goBack = () => {
   if (stepHistory.value.length > 1) {
+    const step = stepHistory.value[stepHistory.value.length - 1]
     stepHistory.value.pop()
     const prevStep = stepHistory.value[stepHistory.value.length - 1]
     
@@ -280,6 +340,31 @@ const goBack = () => {
       selectedDoctor.value = null
     } else if (prevStep === 4) {
       selectedTime.value = null
+    } 
+
+    if (step === 5) {
+      // Очищаем форму подтверждения
+      clientFullName.value = ''
+      phoneNumber.value = '+7 ('
+      phoneDigits.value = ''
+      smsCode.value = ''
+      showSmsInput.value = false
+      requestId.value = null
+      smsMessage.value = ''
+      canRequestSms.value = true
+      timeLeft.value = 300
+      confirmationMessage.value = ''
+      hasError.value = false
+      isBookingSuccess.value = false
+      isSendingSms.value = false
+      
+      // Очищаем таймер при возврате с шага подтверждения
+      if (timerId.value) {
+        clearInterval(timerId.value)
+        timerId.value = null
+      }
+
+      fetchDoctorSchedule(selectedDoctor.value.id)
     }
     
     currentStep.value = prevStep
@@ -298,18 +383,6 @@ const updateWeekDates = () => {
   currentWeekEnd.value = end
 }
 
-const canGoPrevWeek = computed(() => {
-  if (!timeSlots.value.length) return false
-  const firstDate = new Date(timeSlots.value[0].date)
-  return firstDate < currentWeekStart.value
-})
-
-const canGoNextWeek = computed(() => {
-  if (!timeSlots.value.length) return false
-  const lastDate = new Date(timeSlots.value[timeSlots.value.length - 1].date)
-  return lastDate > currentWeekEnd.value
-})
-
 const currentWeekSlots = computed(() => {
   if (!timeSlots.value.length) return []
   
@@ -325,7 +398,7 @@ const currentWeekSlots = computed(() => {
   }
   
   // Создаем слоты для всех дней недели, даже если они пустые
-  return weekDates.map(date => {
+  const weekSlots = weekDates.map(date => {
     const dateStr = date.toISOString().split('T')[0]
     const existingDay = timeSlots.value.find(day => day.date === dateStr)
     
@@ -335,6 +408,28 @@ const currentWeekSlots = computed(() => {
       isEmpty: !existingDay
     }
   })
+
+  // Проверяем, есть ли хотя бы один день с доступными слотами
+  const hasAvailableSlots = weekSlots.some(day => day.slots.length > 0)
+  
+  // Если нет доступных слотов, возвращаем пустой массив
+  if (!hasAvailableSlots) {
+    return []
+  }
+
+  return weekSlots
+})
+
+const canGoPrevWeek = computed(() => {
+  if (!timeSlots.value.length) return false
+  const firstDate = new Date(timeSlots.value[0].date)
+  return firstDate < currentWeekStart.value
+})
+
+const canGoNextWeek = computed(() => {
+  if (!timeSlots.value.length) return false
+  const lastDate = new Date(timeSlots.value[timeSlots.value.length - 1].date)
+  return lastDate > currentWeekEnd.value
 })
 
 const prevWeek = () => {
@@ -342,6 +437,12 @@ const prevWeek = () => {
   date.setDate(date.getDate() - 7)
   currentWeekStart.value = date
   updateWeekDates()
+  
+  // Если после переключения на предыдущую неделю нет доступных слотов,
+  // продолжаем переключаться, пока не найдем неделю со слотами
+  if (currentWeekSlots.value.length === 0 && canGoPrevWeek.value) {
+    prevWeek()
+  }
 }
 
 const nextWeek = () => {
@@ -349,12 +450,151 @@ const nextWeek = () => {
   date.setDate(date.getDate() + 7)
   currentWeekStart.value = date
   updateWeekDates()
+  
+  // Если после переключения на следующую неделю нет доступных слотов,
+  // продолжаем переключаться, пока не найдем неделю со слотами
+  if (currentWeekSlots.value.length === 0 && canGoNextWeek.value) {
+    nextWeek()
+  }
 }
 
-const sendSmsCode = () => {
-  if (isPhoneValid.value) {
-    // Здесь будет логика отправки SMS
-    showSmsInput.value = true
+const startTimer = () => {
+  // Очищаем предыдущий таймер, если он существует
+  if (timerId.value) {
+    clearInterval(timerId.value)
+  }
+  
+  canRequestSms.value = false
+  timeLeft.value = 300
+  
+  timerId.value = setInterval(() => {
+    timeLeft.value--
+    if (timeLeft.value <= 0) {
+      clearInterval(timerId.value)
+      timerId.value = null
+      canRequestSms.value = true
+    }
+  }, 1000)
+}
+
+const formatTime = (seconds) => {
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+}
+
+const isFullNameValid = computed(() => {
+  const words = clientFullName.value.split(/\s+/).filter(word => word.length > 0)
+  return words.length >= 2 && words.length <= 5 && words.every(word => word.length > 1)
+})
+
+const validateFullName = () => {
+  const words = clientFullName.value.split(/\s+/).filter(word => word.length > 0)
+  
+  if (words.length < 2 || words.length > 5 || words.some(word => word.length <= 1)) {
+    return 'Некорректное ФИО'
+  }
+
+  return null
+}
+
+const sendSmsCode = async () => {
+  if (!isPhoneValid.value || !canRequestSms.value) return
+  
+  const validationError = validateFullName()
+  if (validationError) {
+    smsMessage.value = validationError
+    return
+  }
+  
+  try {
+    isSendingSms.value = true
+    const response = await $fetch(`${useRuntimeConfig().public.appointmentBase}/booking/request-confirmation`, {
+      method: 'POST',
+      body: {
+        clientPhone: phoneDigits.value
+      }
+    })
+    
+    if (response) {
+      requestId.value = response.requestId
+      smsMessage.value = response.message
+      showSmsInput.value = true
+      startTimer()
+    }
+  } catch (error) {
+    console.error('Ошибка при отправке SMS:', error)
+    smsMessage.value = 'Произошла ошибка при отправке SMS. Попробуйте позже.'
+  } finally {
+    isSendingSms.value = false
+  }
+}
+
+const handleFullNameInput = (event) => {
+  // Удаляем только цифры и числа
+  clientFullName.value = event.target.value.replace(/[0-9]/g, '')
+}
+
+const confirmBooking = async () => {
+  if (!smsCode.value || !requestId.value || !isFullNameValid.value) return
+  
+  try {
+    const response = await $fetch(`${useRuntimeConfig().public.appointmentBase}/booking/confirm`, {
+      method: 'POST',
+      body: {
+        requestId: requestId.value,
+        verificationCode: smsCode.value,
+        branchId: 1,
+        doctorId: selectedDoctor.value.id,
+        doctorName: selectedDoctor.value.name,
+        startDateTime: selectedTime.value.startDateTime,
+        clientFullName: clientFullName.value.trim(),
+        clientPhone: phoneDigits.value,
+        planStart: selectedTime.value.startDateTime,
+        comment: ''
+      }
+    })
+    
+    if (response) {
+      confirmationMessage.value = response.message
+      hasError.value = false
+      isBookingSuccess.value = true
+      smsCode.value = ''
+    }
+  } catch (error) {
+    console.error('Ошибка при подтверждении записи:', error)
+    confirmationMessage.value = error.data?.error || 'Произошла ошибка при подтверждении записи. Попробуйте позже.'
+    hasError.value = true
+  }
+}
+
+const downloadAppointmentPDF = async () => {
+  const appointmentInfo = document.querySelector('.confirmation-info')
+  if (!appointmentInfo) return
+
+  try {
+    const canvas = await html2canvas(appointmentInfo, {
+      scale: 2,
+      useCORS: true,
+      logging: false
+    })
+
+    const imgData = canvas.toDataURL('image/png')
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    })
+
+    const imgWidth = 210 // A4 width in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight)
+    const date = new Date(selectedTime.value.startDateTime)
+    const formattedDate = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getFullYear()).slice(-2)}`
+    pdf.save(`Запись на ${formattedDate} в Дентал.pdf`)
+  } catch (error) {
+    console.error('Ошибка при создании PDF:', error)
   }
 }
 
@@ -398,11 +638,11 @@ defineExpose({
           </div>
 
           <!-- Шаг 2: Выбор категории -->
-          <div v-if="currentStep === 2 && selectedType === 'category'" class="appointment-step">
+          <div v-else-if="currentStep === 2 && selectedType === 'category'" class="appointment-step">
             <button class="appointment-back" @click="goBack">← Назад</button>
             <div class="categories-list">
               <div 
-                v-for="category in categories" 
+                v-for="category in Array.from(categories)" 
                 :key="category.id"
                 class="category-item"
                 @click="selectCategory(category)"
@@ -413,7 +653,7 @@ defineExpose({
           </div>
 
           <!-- Шаг 2: Выбор врача -->
-          <div v-if="currentStep === 2 && selectedType === 'doctor'" class="appointment-step">
+          <div v-else-if="currentStep === 2 && selectedType === 'doctor'" class="appointment-step">
             <button class="appointment-back" @click="goBack">← Назад</button>
             <div class="doctors-list">
               <div 
@@ -428,6 +668,9 @@ defineExpose({
                 <div class="doctor-info">
                   <div class="doctor-name">{{ doctor.name }}</div>
                   <div class="doctor-specialty">{{ doctor.specialty }}</div>
+                  <div class="doctor-categories" v-if="doctor.categories && doctor.categories.length">
+                    {{ doctor.categories.map(cat => cat.name).join(', ') }}
+                  </div>
                   <div class="doctor-available" v-if="doctor.availableFrom">
                     Доступен с {{ doctor.availableFrom }}
                   </div>
@@ -437,7 +680,7 @@ defineExpose({
           </div>
 
           <!-- Шаг 3: Выбор врача по категории -->
-          <div v-if="currentStep === 3" class="appointment-step">
+          <div v-else-if="currentStep === 3" class="appointment-step">
             <button class="appointment-back" @click="goBack">← Назад</button>
             <div class="doctors-list">
               <div 
@@ -452,8 +695,11 @@ defineExpose({
                 <div class="doctor-info">
                   <div class="doctor-name">{{ doctor.name }}</div>
                   <div class="doctor-specialty">{{ doctor.specialty }}</div>
+                  <div class="doctor-categories" v-if="doctor.categories && doctor.categories.length">
+                    {{ doctor.categories.map(cat => cat.name).join(', ') }}
+                  </div>
                   <div class="doctor-available" v-if="doctor.availableFrom">
-                    Доступен с {{ new Date(doctor.availableFrom).toLocaleDateString() }}
+                    Доступен с {{ doctor.availableFrom }}
                   </div>
                 </div>
               </div>
@@ -461,7 +707,7 @@ defineExpose({
           </div>
 
           <!-- Шаг 4: Выбор времени -->
-          <div v-if="currentStep === 4" class="appointment-step">
+          <div v-else-if="currentStep === 4" class="appointment-step">
             <button class="appointment-back" @click="goBack">← Назад</button>
             <div class="selected-doctor">
               <div class="doctor-avatar">
@@ -470,19 +716,22 @@ defineExpose({
               <div class="doctor-info">
                 <div class="doctor-name">{{ selectedDoctor.name }}</div>
                 <div class="doctor-specialty">{{ selectedDoctor.specialty }}</div>
+                <div class="doctor-categories" v-if="selectedDoctor.categories && selectedDoctor.categories.length">
+                  {{ selectedDoctor.categories.map(cat => cat.name).join(', ') }}
+                </div>
                 <div class="doctor-category" v-if="selectedCategory">
                   {{ selectedCategory.name }}
                 </div>
               </div>
             </div>
-            <div class="schedule">
+            <div class="schedule" v-if="!schedulePending">
               <div class="schedule-header">
                 <button 
                   v-if="canGoPrevWeek" 
                   @click="prevWeek"
                   class="schedule-nav-btn"
                 >←</button>
-                <span class="schedule-month">{{ new Date(timeSlots[0]?.date).toLocaleDateString('ru-RU', { month: 'long' }) }} {{ new Date(timeSlots[0]?.date).getFullYear() }}</span>
+                <span class="schedule-month">{{ new Date(currentWeekStart).toLocaleDateString('ru-RU', { month: 'long' }) }} {{ new Date(currentWeekStart).getFullYear() }}</span>
                 <button 
                   v-if="canGoNextWeek" 
                   @click="nextWeek"
@@ -509,10 +758,14 @@ defineExpose({
                 </div>
               </div>
             </div>
+            <div v-else class="loading-spinner">
+              <div class="spinner"></div>
+              <p>Загрузка данных...</p>
+            </div>
           </div>
 
           <!-- Шаг 5: Подтверждение записи -->
-          <div v-if="currentStep === 5" class="appointment-step">
+          <div v-else-if="currentStep === 5" class="appointment-step">
             <button class="appointment-back" @click="goBack">← Назад</button>
             <div class="confirmation-info">
               <div class="selected-doctor">
@@ -522,6 +775,9 @@ defineExpose({
                 <div class="doctor-info">
                   <div class="doctor-name">{{ selectedDoctor.name }}</div>
                   <div class="doctor-specialty">{{ selectedDoctor.specialty }}</div>
+                  <div class="doctor-categories" v-if="selectedDoctor.categories && selectedDoctor.categories.length">
+                    {{ selectedDoctor.categories.map(cat => cat.name).join(', ') }}
+                  </div>
                 </div>
               </div>
               <div class="selected-time">
@@ -530,15 +786,30 @@ defineExpose({
                 <div class="time-value">{{ new Date(selectedTime.startDateTime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) }}</div>
               </div>
             </div>
-            <div class="confirmation-text">
+            <div v-if="!isBookingSuccess" class="confirmation-text">
               Заполните форму для подтверждения Вашего номера. На ваш номер будет выслан код подтверждения.
             </div>
-            <div class="confirmation-form">
+            <div v-if="!isBookingSuccess" class="confirmation-form">
+              <div class="form-group">
+                <label for="full-name">ФИО пациента</label>
+                <input 
+                  type="text" 
+                  id="full-name" 
+                  name="full-name"
+                  autocomplete="name"
+                  v-model="clientFullName"
+                  @input="handleFullNameInput"
+                  placeholder="Введите ФИО пациента"
+                  autofocus
+                >
+              </div>
               <div class="form-group">
                 <label for="phone">Номер телефона</label>
                 <input 
                   type="tel" 
                   id="phone" 
+                  name="phone"
+                  autocomplete="tel"
                   :value="phoneNumber"
                   @input="handlePhoneInput"
                   @keydown="handlePhoneKeyDown"
@@ -546,25 +817,45 @@ defineExpose({
                   maxlength="18"
                   pattern="[0-9]*"
                   inputmode="numeric"
-                  autofocus
                 >
+              </div>
+              <div v-if="smsMessage" class="sms-message" :class="{ 'error': !requestId }">
+                {{ smsMessage }}
               </div>
               <button 
                 class="send-sms-btn" 
                 @click="sendSmsCode"
-                :disabled="!isPhoneValid"
+                :disabled="!isPhoneValid || !canRequestSms || !isFullNameValid || isSendingSms"
               >
-                Получить SMS-код
+                <span v-if="isSendingSms" class="loading-spinner-small"></span>
+                {{ canRequestSms ? 'Получить код подтверждения' : `Повторная отправка доступна через ${formatTime(timeLeft)}` }}
               </button>
               <div v-if="showSmsInput" class="form-group">
-                <label for="sms-code">SMS-код</label>
+                <label for="sms-code">Код подтверждения</label>
                 <input 
                   type="text" 
                   id="sms-code" 
                   v-model="smsCode"
-                  placeholder="Введите код из SMS"
+                  placeholder="Введите последние 4 цифры"
                 >
+                <div v-if="confirmationMessage && hasError" class="confirmation-message error">
+                  {{ confirmationMessage }}
+                </div>
+                <button 
+                  class="confirm-btn" 
+                  @click="confirmBooking"
+                  :disabled="!smsCode || !isFullNameValid"
+                >
+                  Подтвердить запись
+                </button>
               </div>
+            </div>
+            <div v-if="isBookingSuccess" class="success-message">
+              <div class="success-icon">✓</div>
+              <div class="success-text">{{ confirmationMessage }}</div>
+              <button class="download-btn" @click="downloadAppointmentPDF">
+                Скачать запись
+              </button>
             </div>
           </div>
         </div>
@@ -625,7 +916,24 @@ defineExpose({
   max-height: 90vh;
   overflow-y: auto;
   z-index: 1001;
+  scrollbar-width: thin;
 }
+
+/* Стили для скроллбара в Chrome/Safari */
+.appointment-modal__content::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.appointment-modal__content::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 3px;
+}
+
+.appointment-modal__content::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+}
+
 
 .appointment-modal__header {
   display: flex;
@@ -798,6 +1106,31 @@ defineExpose({
   border-radius: 4px;
 }
 
+.form-group input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Стили только для поля ФИО */
+#full-name:invalid {
+  border-color: #dc3545;
+}
+
+#full-name:invalid:focus {
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+}
+
+/* Стили для поля телефона */
+#phone {
+  border-color: #ddd;
+}
+
+#phone:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
 .send-sms-btn {
   width: 100%;
   padding: 10px;
@@ -806,11 +1139,19 @@ defineExpose({
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .send-sms-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.send-sms-btn:disabled .loading-spinner-small {
+  border-top-color: #666;
 }
 
 .doctors-list {
@@ -859,6 +1200,8 @@ defineExpose({
 .doctor-avatar {
   width: 70px;
   height: 70px;
+  min-width: 70px;
+  min-height: 70px;
   border-radius: 50%;
   overflow: hidden;
   margin-right: 20px;
@@ -867,6 +1210,7 @@ defineExpose({
   z-index: 1;
   border: 2px solid transparent;
   transition: all 0.3s ease;
+  aspect-ratio: 1/1;
 }
 
 .doctor-item:hover .doctor-avatar {
@@ -877,6 +1221,7 @@ defineExpose({
   width: 100%;
   height: 100%;
   object-fit: cover;
+  aspect-ratio: 1/1;
 }
 
 .doctor-name {
@@ -998,6 +1343,8 @@ defineExpose({
   .doctor-avatar {
     width: 60px;
     height: 60px;
+    min-width: 60px;
+    min-height: 60px;
     margin-right: 15px;
   }
   
@@ -1008,6 +1355,8 @@ defineExpose({
   .selected-doctor .doctor-avatar {
     width: 60px;
     height: 60px;
+    min-width: 60px;
+    min-height: 60px;
   }
   
   .schedule-days {
@@ -1092,7 +1441,6 @@ defineExpose({
 .doctor-specialty {
   font-size: 0.9rem;
   color: #666;
-  margin-bottom: 5px;
 }
 
 .doctor-available {
@@ -1154,5 +1502,104 @@ defineExpose({
 
 .schedule-day--empty {
   opacity: 0.6;
+}
+
+.doctor-categories {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.sms-message {
+  margin: 15px 0;
+  color: #666;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.sms-message.error {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.confirm-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.confirm-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.confirmation-message {
+  margin-top: 20px;
+  color: #28a745;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 10px;
+  background-color: rgba(40, 167, 69, 0.1);
+  border-radius: 4px;
+}
+
+.confirmation-message.error {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.success-message {
+  text-align: center;
+  padding: 30px;
+  background-color: rgba(40, 167, 69, 0.1);
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.success-icon {
+  font-size: 48px;
+  color: #28a745;
+  margin-bottom: 15px;
+}
+
+.success-text {
+  font-size: 1.1rem;
+  color: #28a745;
+  line-height: 1.4;
+}
+
+.download-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.download-btn:hover {
+  background-color: #218838;
+}
+
+.loading-spinner-small {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
 }
 </style> 

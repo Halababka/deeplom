@@ -46,7 +46,7 @@ const initDoctors = async () => {
         return doctors;
     } catch (err) {
         // Обработка ошибки
-        console.error('Ошибка при загрузке данных о компании:', err);
+        console.error('Ошибка при загрузке данных о докторах:', err);
     } finally {
 
     }

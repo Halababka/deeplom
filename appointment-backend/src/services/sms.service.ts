@@ -42,9 +42,14 @@ export const saveVerificationCode = async (
 };
 
 // Проверка кода подтверждения
-export const verifyCode = async (requestId: string, code: string) => {
-    const verification = await prisma.smsVerification.findUnique({
-        where: { requestId },
+export const verifyCode = async (requestId: string, code: string, phoneNumber: string) => {
+    const verification = await prisma.smsVerification.findFirst({
+        where: {
+            AND: [
+                { requestId },
+                { phoneNumber }
+            ]
+        },
     });
 
     if (!verification) {
@@ -56,8 +61,13 @@ export const verifyCode = async (requestId: string, code: string) => {
     }
 
     if (new Date() > verification.expiresAt) {
-        throw new Error("Срок действия кода подтверждения истёк");
+        throw new Error("Срок действия кода подтверждения истёк. Запросите новый код");
     }
+
+    // Удаляем использованный код подтверждения
+    await prisma.smsVerification.delete({
+        where: { requestId }
+    });
 
     return verification;
 };

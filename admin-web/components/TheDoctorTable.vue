@@ -20,7 +20,8 @@ const newDoctor = ref({
   courses: [],
   avatar: null,
   photos: null,
-  certificates: null
+  certificates: null,
+  categories: []
 });
 const toast = useToast();
 const token = useCookie('auth_token'); // Токен сохраняется в cookie
@@ -29,6 +30,15 @@ const filters = ref({
   'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
 const submitted = ref(false);
+
+const allCategories = ref([]);
+
+const formatCategories = (categories) => {
+  return categories.map(category => ({
+    id: category.id,
+    name: category.name
+  }));
+};
 
 const fetchDoctors = async () => {
   loadingTable.value = true
@@ -46,6 +56,20 @@ const fetchDoctors = async () => {
   }
 };
 
+const fetchCategories = async () => {
+  try {
+    const response = await fetch(api + '/categories', {
+      headers: {
+        "Authorization": token.value
+      }
+    });
+    const categories = await response.json();
+    allCategories.value = formatCategories(categories);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+  }
+};
+
 const openNewDoctor = () => {
   newDoctor.value = {
     id: null,
@@ -57,13 +81,13 @@ const openNewDoctor = () => {
     courses: [],
     avatar: null,
     photos: null,
-    certificates: null
+    certificates: null,
+    categories: []
   };
   doctorDialog.value = true;
 };
 
 const editDoctor = (doctor) => {
-
   // Создаем глубокую копию объекта doctor
   newDoctor.value = JSON.parse(JSON.stringify({
     id: doctor.id,
@@ -75,7 +99,8 @@ const editDoctor = (doctor) => {
     specialty: doctor.specialty,
     avatar: doctor.avatar,
     photos: doctor.photos,
-    certificates: doctor.certificates
+    certificates: doctor.certificates,
+    categories: formatCategories(doctor.categories || [])
   }));
   doctorDialog.value = true;
 };
@@ -113,6 +138,7 @@ const saveDoctor = async () => {
     formData.avatarId = newDoctor.value.avatar?.id ?? null
     formData.photoIds = newDoctor.value.photos?.map(item => item.id) ?? null
     formData.certificateIds = newDoctor.value.certificates?.map(item => item.id) ?? null
+    formData.categoryIds = newDoctor.value.categories?.map(item => item.id) ?? null
 
     console.log(newDoctor.value)
     const method = newDoctor.value.id ? 'PUT' : 'POST';
@@ -314,6 +340,7 @@ const coursesText = computed({
 
 onBeforeMount(() => {
   fetchDoctors();
+  fetchCategories();
 });
 </script>
 
@@ -405,6 +432,20 @@ onBeforeMount(() => {
       <div>
         <label for="courses" class="block font-bold mb-3">Курсы повышения квалификации</label>
         <Textarea id="courses" v-model="coursesText" rows="5" fluid/>
+      </div>
+      <div>
+        <label for="categories" class="block font-bold mb-3">Категории</label>
+        <MultiSelect
+            v-model="newDoctor.categories"
+            :options="allCategories"
+            optionLabel="name"
+            filter
+            placeholder="Выберите категории"
+            class="w-full"
+            pt:overlay:style="overflow-x: auto; white-space: nowrap;"
+            pt:overlay:class="max-w-[50px]"
+        >
+        </MultiSelect>
       </div>
       <div class="space-y-2">
         <label for="file" class="block font-bold mb-3">Аватар</label>

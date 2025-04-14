@@ -13,7 +13,7 @@ export class DoctorController {
                 educationPlaces: JSON.parse(<string>doctor.educationPlaces),
                 courses: JSON.parse(<string>doctor.courses)
             }));
-            await new Promise(resolve => setTimeout(resolve, 5000))
+            // await new Promise(resolve => setTimeout(resolve, 5000))
             res.json(formattedDoctors);
         } catch (error) {
             console.log(error)

@@ -57,7 +57,7 @@ console.log("doctors", doctorsStore)
               </div>
             </div>
           </div>
-          <div class="person__sertificates sertificates">
+          <div class="person__sertificates sertificates" v-if="doctor.certificates.length">
             <h1 class="sertificates__title">Сертификаты и грамоты</h1>
             <lightgallery
                 :settings="settingsLightGallery"

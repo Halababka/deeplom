@@ -1,4 +1,10 @@
 import {getTickets, postTimeTable} from "./services/identMock.service";
+import axios from 'axios';
+
+interface Doctor {
+    id: number;
+    name: string;
+}
 
 const scheduleIdentRequests = () => {
     // Пример временного диапазона для GetTickets
@@ -20,7 +26,7 @@ const scheduleIdentRequests = () => {
     setInterval(async () => {
         try {
             console.log("[Ident] Отправка расписания...");
-            const payload = generateTimeTablePayload(7);
+            const payload = await generateTimeTablePayload(31);
             await postTimeTable(payload);
             console.log("[Ident] Расписание успешно отправлено");
         } catch (error: any) {
@@ -30,71 +36,70 @@ const scheduleIdentRequests = () => {
 };
 
 // Генерация расписания
-// Генерация расписания
-const generateTimeTablePayload = (daysCount: number) => {
+const generateTimeTablePayload = async (daysCount: number) => {
     const branch = {id: 1, name: "Филиал в г. Волгодонск"};
 
-    const doctorNames = [
-        "Иванов Александр Олегович",
-        "Петров Петр Петрович",
-        "Сидоров Алексей Михайлович"
-    ];
+    try {
+        // Получаем список всех врачей через API
+        const response = await axios.get(`${process.env.ADMIN_PANEL_API_URL}/doctors`);
+        const doctors: Doctor[] = response.data;
+        
+        // Создаем массив имен врачей
+        const doctorNames = doctors.map((doctor: Doctor) => doctor.name);
 
-// Создаем массив врачей с именами из doctorNames
-    const doctors = Array.from({length: doctorNames.length}, (_, index) => ({
-        id: index + 1,
-        name: doctorNames[index]
-    }));
+        console.log("[Ident] Получены имена врачей:", doctorNames);
 
-    console.log(doctors);
+        const intervals = [];
+        const today = new Date(); // Сегодняшняя дата
+        today.setHours(0, 0, 0, 0); // Устанавливаем время на начало дня
 
-    const intervals = [];
-    const today = new Date(); // Сегодняшняя дата
-    today.setHours(0, 0, 0, 0); // Устанавливаем время на начало дня
+        // Генерируем дни, начиная с сегодняшнего и добавляем daysCount дней вперед
+        const days = Array.from({length: daysCount}, (_, index) => {
+            const date = new Date(today);
+            date.setDate(today.getDate() + index);
+            return date.toISOString().split('T')[0]; // Форматируем дату в YYYY-MM-DD
+        });
 
-    // Генерируем дни, начиная с сегодняшнего и добавляем daysCount дней вперед
-    const days = Array.from({length: daysCount}, (_, index) => {
-        const date = new Date(today);
-        date.setDate(today.getDate() + index);
-        return date.toISOString().split('T')[0]; // Форматируем дату в YYYY-MM-DD
-    });
+        for (const doctor of doctors) {
+            for (const day of days) {
+                let currentTime = new Date(`${day}T09:00:00`);
+                const endTime = new Date(`${day}T19:00:00`);
 
-    for (const doctor of doctors) {
-        for (const day of days) {
-            let currentTime = new Date(`${day}T09:00:00`);
-            const endTime = new Date(`${day}T19:00:00`);
+                while (currentTime < endTime) {
+                    const timeString = currentTime.toISOString();
 
-            while (currentTime < endTime) {
-                const timeString = currentTime.toISOString();
+                    // Пропускаем обед с 12:00 до 13:00
+                    if (
+                        currentTime.getHours() >= 12 &&
+                        currentTime.getHours() < 13
+                    ) {
+                        currentTime.setMinutes(currentTime.getMinutes() + 30);
+                        continue;
+                    }
 
-                // Пропускаем обед с 12:00 до 13:00
-                if (
-                    currentTime.getHours() >= 12 &&
-                    currentTime.getHours() < 13
-                ) {
+                    intervals.push({
+                        branchId: branch.id,
+                        doctorId: doctor.id,
+                        startDateTime: timeString,
+                        lengthInMinutes: 30,
+                        isBusy: Math.random() < 0.3, // Примерно 30% интервалов заняты
+                    });
+
+                    // Увеличиваем время на 30 минут
                     currentTime.setMinutes(currentTime.getMinutes() + 30);
-                    continue;
                 }
-
-                intervals.push({
-                    branchId: branch.id,
-                    doctorId: doctor.id,
-                    startDateTime: timeString,
-                    lengthInMinutes: 30,
-                    isBusy: Math.random() < 0.3, // Примерно 30% интервалов заняты
-                });
-
-                // Увеличиваем время на 30 минут
-                currentTime.setMinutes(currentTime.getMinutes() + 30);
             }
         }
-    }
 
-    return {
-        branches: [branch], // Массив филиалов
-        doctors, // Массив врачей
-        intervals, // Массив интервалов
-    };
+        return {
+            branches: [branch], // Массив филиалов
+            doctors, // Массив врачей
+            intervals, // Массив интервалов
+        };
+    } catch (error) {
+        console.error("[Ident] Ошибка при получении списка врачей:", error);
+        throw error;
+    }
 };
 
 export default scheduleIdentRequests;
