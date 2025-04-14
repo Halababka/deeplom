@@ -62,7 +62,6 @@ const scrollToHash = () => {
         modules: [Navigation],
         slidesPerView: 4,
         spaceBetween: 50,
-        centeredSlides: true,
         navigation: {
           nextEl: ".swiper-button-next",
           prevEl: ".swiper-button-prev",
