@@ -27,7 +27,20 @@ services:
       - ./admin-web:/app
       - /app/node_modules
     env_file:
-      - ./admin-web/.env # Указываем путь к .env файлу (если есть)
+      - ./admin-web/.env.production # Указываем путь к .env файлу (если есть)
+    restart: unless-stopped
+
+  appointment-backend:
+    build:
+      context: ./appointment-backend
+      dockerfile: Dockerfile
+    ports:
+      - "54455:8090"
+    volumes:
+      - ./appointment-backend:/app
+      - /app/node_modules
+    env_file:
+      - ./appointment-backend/.env.production # Указываем путь к .env файлу (если есть)
     restart: unless-stopped
 
   dental-site:
@@ -40,5 +53,5 @@ services:
       - ./dental-site:/app
       - /app/node_modules
     env_file:
-      - ./dental-site/.env # Указываем путь к .env файлу (если есть)
+      - ./dental-site/.env.production # Указываем путь к .env файлу (если есть)
     restart: unless-stopped
