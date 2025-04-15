@@ -21,8 +21,6 @@ services:
     build:
       context: ./admin-web
       dockerfile: Dockerfile
-      args:
-        PRISMA_BINARY_TARGETS: '["native", "debian-openssl-3.0.x"]'
     ports:
       - "54453:80" # Локальный порт 3000 → порт 80 в контейнере
     volumes:
@@ -36,6 +34,8 @@ services:
     build:
       context: ./appointment-backend
       dockerfile: Dockerfile
+      args:
+        PRISMA_BINARY_TARGETS: '["native", "debian-openssl-3.0.x"]'
     ports:
       - "54455:8090"
     volumes:
