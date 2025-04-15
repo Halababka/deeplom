@@ -1,9 +1,39 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 
+interface Service {
+  id: number
+  name: string
+  price: number | null
+}
+
+const popularServices = ref<Service[]>([])
+const isLoading = ref(true)
+const error = ref<string | null>(null)
+
+const fetchPopularServices = async () => {
+  try {
+    const response = await fetch(useRuntimeConfig().public.apiBase + '/services/popular')
+
+    if (!response.ok) {
+      throw new Error('Ошибка при получении популярных услуг')
+    }
+    popularServices.value = await response.json()
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Произошла ошибка'
+    console.error('Ошибка при загрузке популярных услуг:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchPopularServices()
+})
 </script>
 
 <template>
-  <div class="popular">
+  <div class="popular" v-if="!error">
     <div class="popular__container">
       <div class="popular__content">
         <div class="popular__main">
@@ -15,58 +45,13 @@
             <img src="~/assets/img/cartoon.png" alt="">
           </div>
         </div>
-        <table class="popular__table">
-          <tr class="popular__stroke">
-            <th class="popular__item">Профессиональная чистка зубов</th>
-            <th class="popular__price">7000 руб.</th>
-          </tr>
-          <tr class="popular__stroke">
-            <th class="popular__item">Отбеливание зубов системой Zoom 4</th>
-            <th class="popular__price">7000 руб.</th>
-          </tr>
-          <tr class="popular__stroke">
-            <th class="popular__item">Лечение кариеса зубов</th>
-            <th class="popular__price">7000 руб.</th>
-          </tr>
-          <tr class="popular__stroke">
-            <th class="popular__item">Удаление зубов</th>
-            <th class="popular__price">7000 руб.</th>
-          </tr>
-          <tr class="popular__stroke">
-            <th class="popular__item">Протезирование на имплантах</th>
-            <th class="popular__price">7000 руб.</th>
-          </tr>
-          <tr class="popular__stroke">
-            <th class="popular__item">Безметалловые коронки</th>
-            <th class="popular__price">7000 руб.</th>
-          </tr>
-          <tr class="popular__stroke">
-            <th class="popular__item">Керамические коронки</th>
-            <th class="popular__price">7000 руб.</th>
-          </tr>
-          <tr class="popular__stroke">
-            <th class="popular__item">Установка брекетов</th>
-            <th class="popular__price">7000 руб.</th>
-          </tr>
-          <tr class="popular__stroke">
-            <th class="popular__item">Каппы INVISALIGN</th>
-            <th class="popular__price">7000 руб.</th>
-          </tr>
-          <tr class="popular__stroke">
-            <th class="popular__item">Лечение зубов под общим наркозом</th>
-            <th class="popular__price">7000 руб.</th>
-          </tr>
-          <tr class="popular__stroke">
-            <th class="popular__item">Одномоментная имплантация зубов</th>
-            <th class="popular__price">7000 руб.</th>
-          </tr>
-          <tr class="popular__stroke">
-            <th class="popular__item">Костная пластика</th>
-            <th class="popular__price">7000 руб.</th>
-          </tr>
-          <tr class="popular__stroke">
-            <th class="popular__item">Профессиональная чистка зубов</th>
-            <th class="popular__price">7000 руб.</th>
+        <div v-if="isLoading" class="popular__table__loading">
+          <div class="skeleton"></div>
+        </div>
+        <table v-else class="popular__table">
+          <tr v-for="service in popularServices" :key="service.id" class="popular__stroke">
+            <th class="popular__item">{{ service.name }}</th>
+            <th class="popular__price">{{ service.price ? `${service.price} руб.` : 'Цена по запросу' }}</th>
           </tr>
         </table>
       </div>

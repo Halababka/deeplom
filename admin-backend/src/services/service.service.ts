@@ -26,9 +26,17 @@ export class ServiceService {
         return prisma.service.deleteMany({
             where: {
                 id: {
-                    in: ids, // Указываем массив идентификаторов для удаления
-                },
-            },
+                    in: ids
+                }
+            }
+        });
+    }
+
+    async getPopularServices() {
+        return prisma.service.findMany({
+            where: {
+                popular: true
+            }
         });
     }
 }

@@ -6,6 +6,7 @@ const router = express.Router();
 const serviceController = new ServiceController();
 
 router.get('/', serviceController.getAllServices);
+router.get('/popular', serviceController.getPopularServices);
 router.get('/:id', serviceController.getServiceById);
 router.post('/', authenticateJWT, checkAdmin, serviceController.createService);
 router.put('/:id', authenticateJWT, checkAdmin, serviceController.updateService);

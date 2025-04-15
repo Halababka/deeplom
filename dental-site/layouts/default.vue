@@ -1,4 +1,11 @@
 <script setup lang="ts">
+// Объявление типа для jQuery
+declare global {
+  interface Window {
+    jQuery: any;
+  }
+}
+
 // Подключение стороннего плагина "Версия для слабовидящих", не переносить в nuxt.config, т.к. порядок загрузки скриптов
 // изменится, плагин начнет грузиться первым, что приведет к его авто-включению
 import {useCompanyStore} from "~/composables/useCompanyStore";
@@ -11,12 +18,35 @@ useHead({
     {
       src: "https://lidrekon.ru/slep/js/jquery.js",
       async: false,
-      defer: false
-    },
-    {
-      src: "https://lidrekon.ru/slep/js/uhpv-hover-full.min.js",
-      async: false,
-      defer: true
+      defer: false,
+      onload: () => {
+        // Функция для проверки готовности jQuery
+        const checkJQuery = () => {
+          if (window.jQuery && window.jQuery.fn && window.jQuery.fn.jquery) {
+            // jQuery полностью инициализирован
+            // Сначала загружаем jQuery Cookie
+            const cookieScript = document.createElement('script')
+            cookieScript.src = "https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"
+            cookieScript.async = false
+            cookieScript.defer = true
+            cookieScript.onload = () => {
+              // После загрузки jQuery Cookie загружаем основной скрипт
+              const script = document.createElement('script')
+              script.src = "https://lidrekon.ru/slep/js/uhpv-hover-full.min.js"
+              script.async = false
+              script.defer = true
+              document.head.appendChild(script)
+            }
+            document.head.appendChild(cookieScript)
+          } else {
+            // Пробуем снова через небольшую задержку
+            setTimeout(checkJQuery, 100)
+          }
+        }
+        
+        // Начинаем проверку
+        checkJQuery()
+      }
     }
   ]
 })
@@ -41,7 +71,7 @@ const scrollToHash = () => {
 
       if (target) {
         const targetPosition = target.getBoundingClientRect().top
-        const scroll = window.scrollY || window.pageYOffSet
+        const scroll = window.scrollY || window.pageYOffset
         const offsetPosition = targetPosition + scroll - headerHeight
 
         window.scrollTo({
@@ -85,7 +115,7 @@ const scrollToHash = () => {
           },
         },
         on: {
-          init: function() {
+          init: function(this: Swiper) {
             this.update();
             setTimeout(() => this.update(), 100);
           }

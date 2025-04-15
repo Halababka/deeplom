@@ -91,6 +91,14 @@
 		@media (width < $tablet) {
 			font-size: rem(15);
 		}
+
+		// .popular__table__loading
+		&__loading {
+			flex: 1;
+			@media (width < $tablet) {
+				height: rem(100);
+			}
+		}
 	}
 
 	// .popular__stroke
