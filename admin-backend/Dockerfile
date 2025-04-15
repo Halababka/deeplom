@@ -24,9 +24,10 @@ RUN npm install
 COPY . .
 
 # Генерируем Prisma клиент
-RUN npx prisma generate
+RUN npx prisma db pull
+# RUN npx prisma generate
 
-RUN npx prisma migrate deploy
+# RUN npx prisma migrate deploy
 
 # Открываем порт
 EXPOSE 8080
