@@ -12,9 +12,9 @@ dist/
 .output/
 
 # Database
-*.db
-*.sqlite
-*.sqlite3
+# *.db
+# *.sqlite
+# *.sqlite3
 
 # Prisma
 **/prisma/migrations/
@@ -71,7 +71,7 @@ pids/
 # dotenv environment variables file
 .env
 .env.test
-.env.production
+# .env.production
 
 # parcel-bundler cache
 .cache/

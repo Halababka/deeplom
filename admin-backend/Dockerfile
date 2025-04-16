@@ -25,7 +25,7 @@ COPY . .
 
 # Генерируем Prisma клиент
 RUN npx prisma db pull
-# RUN npx prisma generate
+RUN npx prisma generate
 
 # RUN npx prisma migrate deploy
 
