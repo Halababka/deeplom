@@ -12,6 +12,8 @@ onMounted( () => {
   new Swiper(".swiper-doctors", {
     modules: [Navigation],
     slidesPerView: 4,
+    centerInsufficientSlides: true,
+    rewind: true,
     spaceBetween: 50,
     navigation: {
       nextEl: ".swiper-button-next",
@@ -60,6 +62,7 @@ onMounted( () => {
     </div>
   </div>
 </template>
+
 <style scoped>
 
 </style>

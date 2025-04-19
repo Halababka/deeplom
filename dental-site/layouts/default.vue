@@ -8,10 +8,12 @@ declare global {
 
 // Подключение стороннего плагина "Версия для слабовидящих", не переносить в nuxt.config, т.к. порядок загрузки скриптов
 // изменится, плагин начнет грузиться первым, что приведет к его авто-включению
-import {useCompanyStore} from "~/composables/useCompanyStore";
+import { useCompanyStore } from "~/composables/useCompanyStore";
 import Swiper from "swiper";
-import {Navigation} from "swiper/modules";
-import {useCategoriesStore} from "~/composables/useCategories";
+import { Navigation } from "swiper/modules";
+import { useCategoriesStore } from "~/composables/useCategories";
+import "~/assets/scss/base/swiper.scss";
+
 
 useHead({
   script: [
@@ -43,7 +45,7 @@ useHead({
             setTimeout(checkJQuery, 100)
           }
         }
-        
+
         // Начинаем проверку
         checkJQuery()
       }
@@ -81,73 +83,77 @@ const scrollToHash = () => {
       }
     }, 100)
   }
-
-  let swiperInstance = null;
-  let initAttempts = 0;
-  const maxAttempts = 5;
-
-  const initSwiper = () => {
-    if (document.querySelector('.swiper-doctors .swiper-slide')) {
-      swiperInstance = new Swiper(".swiper-doctors", {
-        modules: [Navigation],
-        slidesPerView: 4,
-        spaceBetween: 50,
-        navigation: {
-          nextEl: ".swiper-button-next",
-          prevEl: ".swiper-button-prev",
-        },
-        breakpoints: {
-          200: {
-            slidesPerView: 1,
-            spaceBetween: 40,
-          },
-          660: {
-            slidesPerView: 2,
-            spaceBetween: 30,
-          },
-          950: {
-            slidesPerView: 3,
-            spaceBetween: 40,
-          },
-          1350: {
-            slidesPerView: 4,
-            spaceBetween: 50,
-          },
-        },
-        on: {
-          init: function(this: Swiper) {
-            this.update();
-            setTimeout(() => this.update(), 100);
-          }
-        }
-      });
-    } else if (initAttempts < maxAttempts) {
-      initAttempts++;
-      setTimeout(initSwiper, 200);
-    }
-  };
-
-  initSwiper();
 }
+
+
+
+let swiperInstance = null;
+let initAttempts = 0;
+const maxAttempts = 5;
+
+const initSwiper = () => {
+  if (document.querySelector('.swiper-doctors .swiper-slide')) {
+    swiperInstance = new Swiper(".swiper-doctors", {
+      modules: [Navigation],
+      slidesPerView: 4,
+      spaceBetween: 50,
+      rewind: true,
+      centerInsufficientSlides: true,
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      breakpoints: {
+        200: {
+          slidesPerView: 1,
+          spaceBetween: 40,
+        },
+        660: {
+          slidesPerView: 2,
+          spaceBetween: 30,
+        },
+        950: {
+          slidesPerView: 3,
+          spaceBetween: 40,
+        },
+        1350: {
+          slidesPerView: 4,
+          spaceBetween: 50,
+        },
+      },
+      on: {
+        init: function(this: Swiper) {
+          this.update();
+          setTimeout(() => this.update(), 100);
+        }
+      }
+    });
+  } else if (initAttempts < maxAttempts) {
+    initAttempts++;
+    setTimeout(initSwiper, 200);
+  }
+};
 
 // Обработка при монтировании и изменении маршрута
 onMounted(() => {
   scrollToHash()
   watch(() => route.hash, scrollToHash)
+
+  initSwiper();
 })
 </script>
 
 <template>
   <div class="wrapper">
-<!--    <div v-if="company.pending" class="loading-overlay">-->
-<!--      <div class="spinner"></div>-->
-<!--    </div>-->
-    <TheHeader/>
+    <!--    <div v-if="company.pending" class="loading-overlay">-->
+    <!--      <div class="spinner"></div>-->
+    <!--    </div>-->
+    <TheHeader />
     <main class="page">
-      <NuxtPage/>
-      <TheMap/>
+      <NuxtPage />
+      <TheMap />
     </main>
-    <TheFooter/>
+    <TheFooter />
   </div>
 </template>
 
@@ -167,12 +173,17 @@ onMounted(() => {
 
 /* Стили для спиннера */
 .spinner {
-  border: 4px solid #f3f3f3; /* Цвет фона круга */
-  border-top: 4px solid #3b8070; /* Акцентный цвет для анимации */
-  border-radius: 50%; /* Создаем круг */
-  width: 50px; /* Размер спиннера */
+  border: 4px solid #f3f3f3;
+  /* Цвет фона круга */
+  border-top: 4px solid #3b8070;
+  /* Акцентный цвет для анимации */
+  border-radius: 50%;
+  /* Создаем круг */
+  width: 50px;
+  /* Размер спиннера */
   height: 50px;
-  animation: spin 1s linear infinite; /* Запускаем анимацию */
+  animation: spin 1s linear infinite;
+  /* Запускаем анимацию */
 }
 
 /* Ключевые кадры для анимации вращения */
@@ -180,6 +191,7 @@ onMounted(() => {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
