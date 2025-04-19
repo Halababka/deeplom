@@ -24,7 +24,10 @@ RUN npm install
 COPY . .
 
 # Генерируем Prisma клиент
-RUN npx prisma db pull
+RUN npx prisma db push --force-reset
+RUN npx prisma generate
+RUN node ./prisma/parseCsv.js
+RUN npm run prisma:seed
 RUN npx prisma generate
 
 # RUN npx prisma migrate deploy

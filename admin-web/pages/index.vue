@@ -25,7 +25,7 @@ onMounted(()=>{
 </script>
 
 <template>
-    <div class="mb-5 flex flex-wrap items-center justify-center gap-4 w-auto p-2">
+    <div class="mb-5 flex flex-wrap items-center justify-center gap-4 p-2 w-[100%]">
       <Button @click="changeSlide(1)" label="Доктора"/>
       <Button @click="changeSlide(2)" label="Категории"/>
       <Button @click="changeSlide(3)" label="Клиника"/>

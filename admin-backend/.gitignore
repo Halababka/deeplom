@@ -1,4 +1,31 @@
-node_modules
-dist
-.idea
-uploads
+# Игнорируем папку с загружаемыми файлами
+uploads/
+# Игнорируем все файлы в папке uploads, кроме .gitkeep
+uploads/*
+!uploads/.gitkeep
+
+# Игнорируем node_modules
+node_modules/
+
+# Игнорируем файлы окружения
+# .env
+.env.local
+.env.*.local
+
+# Игнорируем логи
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Игнорируем скомпилированные файлы
+dist/
+build/
+*.tsbuildinfo
+
+# Игнорируем IDE файлы
+.idea/
+.vscode/
+*.swp
+*.swo

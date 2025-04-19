@@ -23,6 +23,7 @@ app.use(cors(corsOptions));
 
 // Middleware для статической раздачи файлов http://localhost:8090/uploads/<имя_файла>
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use("/seed-files", express.static(path.join(__dirname, "../seed-files")));
 
 // Подключение маршрутов
 app.use("/api/doctors", doctorRoutes);

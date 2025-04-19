@@ -7,7 +7,7 @@ export class DoctorController {
     async getAllDoctors(req: Request, res: Response) {
         try {
             const doctors = await doctorService.getAllDoctors();
-            console.log(doctors)
+            
             const formattedDoctors = doctors.map(doctor => ({
                 ...doctor,
                 educationPlaces: JSON.parse(<string>doctor.educationPlaces),

@@ -48,6 +48,15 @@ async function parseAndSeedDatabase() {
             .on('error', reject);
     });
 
+    // Устанавливаем популярность для услуг
+    for (let i = 0; i < 6; i++) {
+        for (const category of categories) {
+            if (category.services && category.services[0]) {
+                category.services[0].popular = true
+            }
+        }
+    }
+
     console.log('Parsing complete. Seeding database...');
 
     // Функция для рекурсивного создания категорий и услуг

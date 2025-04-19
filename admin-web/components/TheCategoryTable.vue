@@ -248,6 +248,10 @@ onBeforeMount(() => {
         </div>
       </template>
 
+      <template #empty>
+        Данные не найдены
+      </template>
+      
       <Column selectionMode="multiple" style="width: 3rem"></Column>
       <Column field="name" header="Название" sortable frozen></Column>
       <Column field="parentId" header="Родительская категория">
