@@ -4,7 +4,7 @@ const csvParser = require('csv-parser');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
-const csvFilePath = path.resolve(__dirname, 'E:/Dental/src/files/price2.csv');
+const csvFilePath = path.resolve(__dirname, './price2.csv');
 
 async function parseAndSeedDatabase() {
     const categories = [];
