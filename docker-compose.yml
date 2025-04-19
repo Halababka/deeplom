@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   admin-backend:
     build:
@@ -16,6 +14,11 @@ services:
     env_file:
       - ./admin-backend/.env # Указываем путь к .env файлу
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 128M
 
   admin-web:
     build:
@@ -29,6 +32,11 @@ services:
     env_file:
       - ./admin-web/.env.production # Указываем путь к .env файлу (если есть)
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 32M
 
   appointment-backend:
     build:
@@ -44,6 +52,11 @@ services:
     env_file:
       - ./appointment-backend/.env.production # Указываем путь к .env файлу (если есть)
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
 
   dental-site:
     build:
@@ -57,3 +70,8 @@ services:
     env_file:
       - ./dental-site/.env.production # Указываем путь к .env файлу (если есть)
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 32M
