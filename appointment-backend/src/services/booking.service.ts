@@ -6,7 +6,7 @@ export const getAvailableSlots = async (
     doctorId: number,
 ) => {
     const currentDateTime = new Date(Date.now() + (3 * 60 * 60 * 1000)); // UTC+3 // Текущая дата и время
-    console.log(currentDateTime)
+    
     // Получаем доступные слоты, начиная с текущего момента
     const slots = await prisma.iDENT_Intervals.findMany({
         where: {

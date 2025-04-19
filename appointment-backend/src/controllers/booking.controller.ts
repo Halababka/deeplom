@@ -35,7 +35,7 @@ export const requestBookingConfirmation = async (req: Request, res: Response) =>
         return;
     }
 
-    console.log("Получен номер телефона",clientPhone)
+    console.log("Получен номер телефона")
     try {
         // Отправка Call Password запроса
         const response = await smsService.sendCallPassword(clientPhone);
@@ -48,7 +48,7 @@ export const requestBookingConfirmation = async (req: Request, res: Response) =>
             return
         }
 
-        console.log("Получен ответ от Call Password", response)
+        console.log("Получен ответ от Call Password")
 
         await smsService.saveVerificationCode(
             response.result!.id,

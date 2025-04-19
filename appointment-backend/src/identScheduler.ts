@@ -22,7 +22,8 @@ const syncDoctors = async (apiDoctors: Doctor[]) => {
 
         // Удаляем врачей, которых нет в API
         if (doctorsToDelete.length > 0) {
-            console.log("[Ident] Удаление отсутствующих врачей:", doctorsToDelete.map(d => d.name));
+            // console.log("[Ident] Удаление отсутствующих врачей:", doctorsToDelete.map(d => d.name));
+            console.log("[Ident] Удаление отсутствующих врачей");
             await prisma.iDENT_Doctors.deleteMany({
                 where: {
                     id: {
@@ -38,7 +39,8 @@ const syncDoctors = async (apiDoctors: Doctor[]) => {
         );
 
         if (doctorsToAdd.length > 0) {
-            console.log("[Ident] Добавление новых врачей:", doctorsToAdd.map(d => d.name));
+            // console.log("[Ident] Добавление новых врачей:", doctorsToAdd.map(d => d.name));
+            console.log("[Ident] Добавление новых врачей:");
             await prisma.iDENT_Doctors.createMany({
                 data: doctorsToAdd.map(doctor => ({
                     id: doctor.id,
@@ -65,7 +67,7 @@ const scheduleIdentRequests = () => {
         try {
             console.log("[Ident] Запрос заявок...");
             const tickets = await getTickets({dateTimeFrom, dateTimeTo});
-            console.log("[Ident] Полученные заявки:", tickets);
+            console.log("[Ident] Получены заявки");
         } catch (error: any) {
             console.error("[Ident] Ошибка при запросе заявок:", error.message);
         }
@@ -99,7 +101,7 @@ const generateTimeTablePayload = async (daysCount: number) => {
         // Создаем массив имен врачей
         const doctorNames = doctors.map(doctor => doctor.name);
 
-        console.log("[Ident] Получены имена врачей:", doctorNames);
+        console.log("[Ident] Получены имена врачей");
 
         const intervals = [];
         const today = new Date(); // Сегодняшняя дата
