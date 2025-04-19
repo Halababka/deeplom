@@ -246,177 +246,182 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="dataPending" class="loading-overlay">
-    <div class="spinner"></div>
-  </div>
-  <div class="flex flex-col w-[800px]" v-if="!dataPending && clinicData">
-    <div class="clinic-card">
+  <div class="relative flex flex-col items-center justify-center w-[800px]">
+    <div v-if="dataPending" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Загрузка данных...</p>
+    </div>
 
-      <div class="form-group">
-        <label for="name">Название клиники</label>
-        <InputText id="name" v-model="clinicData.name" />
-      </div>
+    <div v-if="!dataPending && clinicData" class="flex flex-col w-[800px]">
+      <div class="clinic-card">
 
-      <div class="form-group">
-        <label for="fullName">Полное название</label>
-        <InputText id="fullName" v-model="clinicData.fullName" />
-      </div>
-
-      <div class="form-group">
-        <label for="fullName">Слоган</label>
-        <InputText id="fullName" v-model="clinicData.slogan" />
-      </div>
-
-      <div class="form-group">
-        <label for="description">Описание</label>
-        <Textarea id="description" v-model="clinicData.description" rows="5" />
-      </div>
-
-      <div class="form-group">
-        <label for="fullDescription">Полное описание</label>
-        <Textarea id="fullDescription" v-model="fullDescriptionText" rows="5" />
-      </div>
-
-      <div class="form-group">
-        <label for="address">Адрес</label>
-        <InputText id="address" v-model="clinicData.address" />
-      </div>
-
-      <div class="form-group">
-        <label for="phone">Телефон</label>
-        <InputText id="phone" v-model="clinicData.phone" />
-      </div>
-
-      <div class="form-group">
-        <label for="email">Email</label>
-        <InputText id="email" v-model="clinicData.email" />
-      </div>
-
-      <div class="form-group">
-        <label for="schedule">График работы</label>
-        <InputText id="schedule" v-model="clinicData.schedule" />
-      </div>
-
-      <div class="form-group">
-        <label for="legalAddress">Юридический адрес</label>
-        <InputText id="legalAddress" v-model="clinicData.legalAddress" />
-      </div>
-
-      <div class="form-group">
-        <label for="ogrnDetails">Сведения о регистрации</label>
-        <Textarea id="ogrnDetails" v-model="clinicData.ogrnDetails" rows="3" />
-      </div>
-
-      <div class="form-group">
-        <label for="ogrn">ОГРН</label>
-        <InputText id="ogrn" v-model="clinicData.ogrn" />
-      </div>
-
-      <div class="form-group">
-        <label for="inn">ИНН</label>
-        <InputText id="inn" v-model="clinicData.inn" />
-      </div>
-
-      <div class="form-group">
-        <label for="legalInn">Юридический ИНН</label>
-        <InputText id="legalInn" v-model="clinicData.legalInn" />
-      </div>
-
-      <div class="form-group">
-        <label for="licence">Лицензия</label>
-        <InputText id="licence" v-model="clinicData.licence" />
-      </div>
-
-      <Divider />
-
-      <section>
-        <label class="mb-3 font-bold block">Услуги</label>
-        <div v-for="(service, index) in clinicData.services" :key="index" class="form-group space-y-1">
-          <label :for="'service-name-' + index">Название услуги</label>
-          <InputText :id="'service-name-' + index" v-model="service.name" />
-
-          <label :for="'service-description-' + index">Описание услуги</label>
-          <Textarea :id="'service-description-' + index" v-model="service.description" rows="4" />
-
-          <Button label="Удалить услугу" icon="pi pi-times" class="p-button-danger" @click="removeService(index)" />
-        </div>
-
-        <Button label="Добавить услугу" icon="pi pi-plus" class="w-full" @click="addService" />
-      </section>
-
-      <Divider />
-
-      <section>
-        <label class="mb-3 font-bold block">Социальные сети</label>
         <div class="form-group">
-          <label for="whatsapp">WhatsApp</label>
-          <InputText id="whatsapp" v-model="clinicData.socialLinks.whatsapp" />
+          <label for="name">Название клиники</label>
+          <InputText id="name" v-model="clinicData.name" />
         </div>
 
         <div class="form-group">
-          <label for="telegram">Telegram</label>
-          <InputText id="telegram" v-model="clinicData.socialLinks.telegram" />
+          <label for="fullName">Полное название</label>
+          <InputText id="fullName" v-model="clinicData.fullName" />
         </div>
-      </section>
 
-      <div class="form-group">
-        <label for="file" class="block font-bold mb-3">Приветственное фото</label>
-        <div v-if="clinicData.mainPhoto && clinicData.mainPhoto.hasOwnProperty('url')" class="flex justify-between items-center">
-          <ImageViewerModal v-if="clinicData.mainPhoto.url" :src="imgBase + clinicData.mainPhoto.url"
-            :alt="clinicData.mainPhoto.name" />
-          <Button @click="deleteMainPhotoFromClinic()" label="Удалить" class="h-12 p-button-danger" />
+        <div class="form-group">
+          <label for="fullName">Слоган</label>
+          <InputText id="fullName" v-model="clinicData.slogan" />
         </div>
-        <FileUpload name="files" :url="`${api}/files/upload`"
-          @upload="($event) => onTemplatedUpload($event, 'mainPhoto')" @before-send="onBeforeSend($event)"
-          :multiple="false" accept="image/*" :maxFileSize="1000000" pt:root:class="file-upload-desktop">
-          <template #empty>
-            <p>Перетащите файлы сюда для загрузки</p>
-          </template>
-        </FileUpload>
-        <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
-          @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'mainPhoto')"
-          :multiple="false" auto class="p-button-success" pt:root:class="file-upload-mobile" />
+
+        <div class="form-group">
+          <label for="description">Описание</label>
+          <Textarea id="description" v-model="clinicData.description" rows="5" />
+        </div>
+
+        <div class="form-group">
+          <label for="fullDescription">Полное описание</label>
+          <Textarea id="fullDescription" v-model="fullDescriptionText" rows="5" />
+        </div>
+
+        <div class="form-group">
+          <label for="address">Адрес</label>
+          <InputText id="address" v-model="clinicData.address" />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Телефон</label>
+          <InputText id="phone" v-model="clinicData.phone" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <InputText id="email" v-model="clinicData.email" />
+        </div>
+
+        <div class="form-group">
+          <label for="schedule">График работы</label>
+          <InputText id="schedule" v-model="clinicData.schedule" />
+        </div>
+
+        <div class="form-group">
+          <label for="legalAddress">Юридический адрес</label>
+          <InputText id="legalAddress" v-model="clinicData.legalAddress" />
+        </div>
+
+        <div class="form-group">
+          <label for="ogrnDetails">Сведения о регистрации</label>
+          <Textarea id="ogrnDetails" v-model="clinicData.ogrnDetails" rows="3" />
+        </div>
+
+        <div class="form-group">
+          <label for="ogrn">ОГРН</label>
+          <InputText id="ogrn" v-model="clinicData.ogrn" />
+        </div>
+
+        <div class="form-group">
+          <label for="inn">ИНН</label>
+          <InputText id="inn" v-model="clinicData.inn" />
+        </div>
+
+        <div class="form-group">
+          <label for="legalInn">Юридический ИНН</label>
+          <InputText id="legalInn" v-model="clinicData.legalInn" />
+        </div>
+
+        <div class="form-group">
+          <label for="licence">Лицензия</label>
+          <InputText id="licence" v-model="clinicData.licence" />
+        </div>
+
+        <Divider />
+
+        <section>
+          <label class="mb-3 font-bold block">Услуги</label>
+          <div v-for="(service, index) in clinicData.services" :key="index" class="form-group space-y-1">
+            <label :for="'service-name-' + index">Название услуги</label>
+            <InputText :id="'service-name-' + index" v-model="service.name" />
+
+            <label :for="'service-description-' + index">Описание услуги</label>
+            <Textarea :id="'service-description-' + index" v-model="service.description" rows="4" />
+
+            <Button label="Удалить услугу" icon="pi pi-times" class="p-button-danger" @click="removeService(index)" />
+          </div>
+
+          <Button label="Добавить услугу" icon="pi pi-plus" class="w-full" @click="addService" />
+        </section>
+
+        <Divider />
+
+        <section>
+          <label class="mb-3 font-bold block">Социальные сети</label>
+          <div class="form-group">
+            <label for="whatsapp">WhatsApp</label>
+            <InputText id="whatsapp" v-model="clinicData.socialLinks.whatsapp" />
+          </div>
+
+          <div class="form-group">
+            <label for="telegram">Telegram</label>
+            <InputText id="telegram" v-model="clinicData.socialLinks.telegram" />
+          </div>
+        </section>
+
+        <div class="form-group">
+          <label for="file" class="block font-bold mb-3">Приветственное фото</label>
+          <div v-if="clinicData.mainPhoto && clinicData.mainPhoto.hasOwnProperty('url')"
+            class="flex justify-between items-center">
+            <ImageViewerModal v-if="clinicData.mainPhoto.url" :src="imgBase + clinicData.mainPhoto.url"
+              :alt="clinicData.mainPhoto.name" />
+            <Button @click="deleteMainPhotoFromClinic()" label="Удалить" class="h-12 p-button-danger" />
+          </div>
+          <FileUpload name="files" :url="`${api}/files/upload`"
+            @upload="($event) => onTemplatedUpload($event, 'mainPhoto')" @before-send="onBeforeSend($event)"
+            :multiple="false" accept="image/*" :maxFileSize="1000000" pt:root:class="file-upload-desktop">
+            <template #empty>
+              <p>Перетащите файлы сюда для загрузки</p>
+            </template>
+          </FileUpload>
+          <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
+            @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'mainPhoto')"
+            :multiple="false" auto class="p-button-success" pt:root:class="file-upload-mobile" />
+        </div>
+
+        <div class="form-group">
+          <label for="file" class="block font-bold mb-3">Фото</label>
+          <div v-if="clinicData.photos && clinicData.photos.length !== 0" class="flex justify-between items-center"
+            v-for="(item, index) in clinicData.photos">
+            <ImageViewerModal v-if="item.url" :src="useRuntimeConfig().public.imgBase + item.url" :alt="item.name" />
+            <Button @click="deletePhotosFromClinic(index)" label="Удалить" class="h-12 p-button-danger" />
+          </div>
+          <FileUpload name="files" :url="`${api}/files/upload`"
+            @upload="($event) => onTemplatedUpload($event, 'photos')" @before-send="onBeforeSend($event)"
+            :multiple="true" accept="image/*" :maxFileSize="1000000" pt:root:class="file-upload-desktop">
+            <template #empty>
+              <p>Перетащите файлы сюда для загрузки</p>
+            </template>
+          </FileUpload>
+          <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
+            @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'photos')"
+            :multiple="true" :fileLimit="30" auto class="p-button-success" pt:root:class="file-upload-mobile" />
+        </div>
+
+        <div class="form-group">
+          <label for="file" class="block font-bold mb-3">Сертификаты</label>
+          <div v-if="clinicData.certificates && clinicData.certificates[0]" class="flex justify-between items-center"
+            v-for="(item, index) in clinicData.certificates">
+            <ImageViewerModal :src="useRuntimeConfig().public.imgBase + item.url" :alt="item.name" />
+            <Button @click="deleteCertificatesFromClinic(index)" label="Удалить" class="h-12 p-button-danger" />
+          </div>
+          <FileUpload name="files" :url="`${api}/files/upload`"
+            @upload="($event) => onTemplatedUpload($event, 'certificates')" @before-send="onBeforeSend($event)"
+            :multiple="true" accept="image/*" :maxFileSize="1000000" pt:root:class="file-upload-desktop">
+            <template #empty>
+              <p>Перетащите файлы сюда для загрузки</p>
+            </template>
+          </FileUpload>
+          <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
+            @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'certificates')"
+            :multiple="true" :fileLimit="30" auto class="p-button-success" pt:root:class="file-upload-mobile" />
+        </div>
+
+        <Button label="Сохранить" icon="pi pi-save" class="p-button-success" @click="saveClinicData" />
       </div>
-
-      <div class="form-group">
-        <label for="file" class="block font-bold mb-3">Фото</label>
-        <div v-if="clinicData.photos && clinicData.photos.length !== 0" class="flex justify-between items-center"
-          v-for="(item, index) in clinicData.photos">
-          <ImageViewerModal v-if="item.url" :src="useRuntimeConfig().public.imgBase + item.url" :alt="item.name" />
-          <Button @click="deletePhotosFromClinic(index)" label="Удалить" class="h-12 p-button-danger" />
-        </div>
-        <FileUpload name="files" :url="`${api}/files/upload`" @upload="($event) => onTemplatedUpload($event, 'photos')"
-          @before-send="onBeforeSend($event)" :multiple="true" accept="image/*" :maxFileSize="1000000"
-          pt:root:class="file-upload-desktop">
-          <template #empty>
-            <p>Перетащите файлы сюда для загрузки</p>
-          </template>
-        </FileUpload>
-        <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
-          @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'photos')" :multiple="true"
-          :fileLimit="30" auto class="p-button-success" pt:root:class="file-upload-mobile" />
-      </div>
-
-      <div class="form-group">
-        <label for="file" class="block font-bold mb-3">Сертификаты</label>
-        <div v-if="clinicData.certificates && clinicData.certificates[0]" class="flex justify-between items-center"
-          v-for="(item, index) in clinicData.certificates">
-          <ImageViewerModal :src="useRuntimeConfig().public.imgBase + item.url" :alt="item.name" />
-          <Button @click="deleteCertificatesFromClinic(index)" label="Удалить" class="h-12 p-button-danger" />
-        </div>
-        <FileUpload name="files" :url="`${api}/files/upload`"
-          @upload="($event) => onTemplatedUpload($event, 'certificates')" @before-send="onBeforeSend($event)"
-          :multiple="true" accept="image/*" :maxFileSize="1000000" pt:root:class="file-upload-desktop">
-          <template #empty>
-            <p>Перетащите файлы сюда для загрузки</p>
-          </template>
-        </FileUpload>
-        <FileUpload mode="basic" name="files" :url="`${api}/files/upload`" accept="image/*" :maxFileSize="10000000"
-          @before-send="onBeforeSend($event)" @upload="($event) => onTemplatedUpload($event, 'certificates')"
-          :multiple="true" :fileLimit="30" auto class="p-button-success" pt:root:class="file-upload-mobile" />
-      </div>
-
-      <Button label="Сохранить" icon="pi pi-save" class="p-button-success" @click="saveClinicData" />
     </div>
   </div>
 </template>
