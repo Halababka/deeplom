@@ -8,6 +8,8 @@ RUN npm install
 
 COPY . .
 
+RUN cp .env.production .env
+
 RUN npm run generate
 
 FROM nginx:alpine
