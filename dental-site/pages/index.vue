@@ -2,8 +2,11 @@
 import ThePopular from "~/components/ThePopular.vue";
 
 useHead({
-  title: "Зубная клиника Дентал в Волгодонске"
-})
+  title: "Зубная клиника Дентал в Волгодонске",
+  meta: [
+    { name: "yandex-verification", content: "381fd7ebe8890386" },
+  ],
+});
 </script>
 
 <template>
@@ -29,11 +32,9 @@ useHead({
       </div>
     </div>
   </div>
-  <TheAbout/>
-  <ThePopular/>
-  <TheDoctors/>
+  <TheAbout />
+  <ThePopular />
+  <TheDoctors />
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -22,8 +22,18 @@ const syncDoctors = async (apiDoctors: Doctor[]) => {
 
         // Удаляем врачей, которых нет в API
         if (doctorsToDelete.length > 0) {
-            // console.log("[Ident] Удаление отсутствующих врачей:", doctorsToDelete.map(d => d.name));
             console.log("[Ident] Удаление отсутствующих врачей");
+            
+            // Сначала удаляем все связанные записи в IDENT_Intervals
+            await prisma.iDENT_Intervals.deleteMany({
+                where: {
+                    doctorId: {
+                        in: doctorsToDelete.map(d => d.id)
+                    }
+                }
+            });
+
+            // Затем удаляем самих врачей
             await prisma.iDENT_Doctors.deleteMany({
                 where: {
                     id: {
@@ -39,7 +49,6 @@ const syncDoctors = async (apiDoctors: Doctor[]) => {
         );
 
         if (doctorsToAdd.length > 0) {
-            // console.log("[Ident] Добавление новых врачей:", doctorsToAdd.map(d => d.name));
             console.log("[Ident] Добавление новых врачей:");
             await prisma.iDENT_Doctors.createMany({
                 data: doctorsToAdd.map(doctor => ({

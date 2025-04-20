@@ -25,8 +25,8 @@ const handleClickOutside = (event) => {
   const menu = document.querySelector('.navbar__body')
 
   if (isMenuOpen.value &&
-      !event.target.closest('.navbar__body') &&
-      !event.target.closest('.icon-menu')) {
+    !event.target.closest('.navbar__body') &&
+    !event.target.closest('.icon-menu')) {
     closeMenu()
   }
 }
@@ -61,28 +61,29 @@ const openAppointmentModal = () => {
         </NuxtLink>
 
         <div class="header__info info">
-          <img id="specialButton" class="header__specialButton" style="cursor:pointer;" src="https://lidrekon.ru/images/special.png"
-               alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ"/>
+          <div class="header__specialButton desktop-only" style="cursor:pointer;">
+            <img id="specialButton" style="cursor:pointer;"
+              src="https://lidrekon.ru/images/special.png" alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ"
+              title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" />
+          </div>
           <button class="header__appointmentButton desktop-only" @click="openAppointmentModal">Онлайн запись</button>
           <div class="info__location">ул.Строителей 2е</div>
           <div class="info__number">
             <a href="tel:+74951234567">+7-938-130-3333</a>
           </div>
-          <div class="info__hours">
-            <span>Пн-Пт с 9:00 до 19:00</span>
-            <span>Сб с 9:00 до 14:00</span>
-          </div>
+          <div class="info__hours info__hours--weekdays">Пн-Пт с 9:00 до 19:00</div>
+          <div class="info__hours info__hours--saturday">Сб с 9:00 до 14:00</div>
         </div>
       </div>
       <div class="navbar">
         <div class="navbar__controls">
           <button class="header__appointmentButton mobile-only" @click="openAppointmentModal">Онлайн запись</button>
-          <button
-              type="button"
-              class="icon-menu navbar__button"
-              :class="{ 'active': isMenuOpen }"
-              @click="toggleMenu"
-          >
+          <div class="header__specialButton mobile-only" style="cursor:pointer;">
+            <img id="specialButton" class="header__specialButton" style="cursor:pointer;"
+              src="https://lidrekon.ru/images/special.png" alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ"
+              title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" />
+          </div>
+          <button type="button" class="icon-menu navbar__button" :class="{ 'active': isMenuOpen }" @click="toggleMenu">
             <span></span>
           </button>
         </div>

@@ -8,6 +8,10 @@
 
 .header.sticky {
 	top: rem(-120);
+
+	@media (width < $mobile) {
+		top: rem(-90);
+	}
 }
 
 .header {
@@ -32,10 +36,14 @@
 		z-index: 2;
 		height: rem(120);
 		display: flex;
-      gap: rem(20);
+		gap: rem(20);
 		justify-content: space-between;
 		align-items: center;
 		background-color: $white;
+
+		@media (width < $mobile) {
+			height: rem(90);
+		}
 	}
 
 	// .header__logo
@@ -50,6 +58,7 @@
 		@media (width < $tablet) {
 			width: rem(250);
 		}
+
 		@media (width < $mobileSmall) {
 			width: rem(155);
 		}
@@ -63,6 +72,7 @@
 		@media (width < $tablet) {
 			width: rem(40);
 		}
+
 		@media (width < $mobileSmall) {
 			width: rem(30);
 		}
@@ -112,8 +122,21 @@
 	grid-column-gap: rem(43);
 	grid-row-gap: rem(12);
 	grid-template-areas:
-		"header__specialButton info__location info__hours"
-		"header__specialButton info__number info__hours";
+		"header__specialButton info__location info__hours--weekdays"
+		"header__appointmentButton info__number info__hours--saturday";
+
+	@media (width < $tablet) {
+		grid-template-areas:
+			"header__specialButton info__location"
+			"header__appointmentButton info__number";
+	}
+
+	@media (width < $mobile) {
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			"info__location"
+			"info__number";
+	}
 
 	// .info__location
 	&__location {
@@ -132,6 +155,7 @@
 		}
 
 	}
+
 
 	// .info__number
 	&__number {
@@ -157,38 +181,45 @@
 		}
 	}
 
-	// .info__hours
-	&__hours {
-		text-align: right;
-		grid-area: info__hours;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		height: 100%;
+	// .info__hours--weekdays
+	&__hours--weekdays {
+		@extend .info__hours;
 
-		@media (width < $mobile) {
-			display: none;
-		}
-		&>span {
-			display: flex;
-			justify-content: end;
-			align-items: center;
-		}
+		grid-area: info__hours--weekdays;
 
-		&>span:first-of-type {
-			&::before {
-				font-family: 'dentalicons';
-				content: '\e909';
-				font-size: rem(18);
-				font-weight: 400;
-				padding-right: rem(8);
-				width: auto;
-			}
+		&::before {
+			font-family: 'dentalicons';
+			content: '\e909';
+			font-size: rem(18);
+			font-weight: 400;
+			padding-right: rem(8);
+			width: auto;
 		}
 	}
+
+	// .info__hours--saturday
+	&__hours--saturday {
+		@extend .info__hours;
+
+		grid-area: info__hours--saturday;
+	}
+
+	// .info__hours
+	&__hours {
+		display: flex;
+		align-items: center;
+		justify-content: end;
+
+		@media (width < $tablet) {
+			display: none;
+		}
+
+	}
+
 	@media (width < 500px) {
 		font-size: rem(14);
 	}
+
 	@media (width < 700px) {
 		grid-column-gap: rem(14);
 	}
@@ -207,6 +238,7 @@
 	z-index: 1;
 	padding: rem(10) 0;
 	position: relative;
+
 	@media (width < $mobile) {
 		width: 110%;
 		left: rem(-15);
@@ -215,10 +247,12 @@
 	// .navbar__controls
 	&__controls {
 		display: none;
+
 		@media (width < $mobile) {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
+			gap: rem(20);
 			padding: 0 rem(15);
 			box-sizing: border-box;
 			width: 100%;
@@ -228,6 +262,7 @@
 	// .navbar__body
 	&__body {
 		transition: all 1s ease;
+
 		@media (width < $mobile) {
 			background-color: $white;
 			position: absolute;
@@ -245,9 +280,11 @@
 		justify-content: space-between;
 		font-family: 'Open Sans', sans-serif;
 		font-weight: 600;
+
 		@media (width < $tablet) {
 			font-size: rem(16);
 		}
+
 		@media (width < $mobile) {
 			display: block;
 			margin: rem(20) 0 0 rem(20);
@@ -292,6 +329,7 @@
 
 .icon-menu {
 	display: none;
+
 	@media (max-width: $mobile) {
 		display: block;
 		margin-left: auto;
@@ -301,7 +339,7 @@
 		height: rem(18);
 		cursor: pointer;
 		z-index: 5;
-		margin-top: rem(5);
+
 		span,
 		&::before,
 		&::after {

@@ -52,6 +52,8 @@ const fetchDoctors = async () => {
       })
       
       doctorsStore.value.data = updatedDoctors
+      // Обновляем реактивные данные doctors
+      doctors.value = updatedDoctors
       
       // Обновляем Set категорий из данных врачей
       const categoriesSet = new Set()
@@ -66,6 +68,11 @@ const fetchDoctors = async () => {
     }
   } catch (error) {
     console.error('Ошибка при загрузке данных о врачах:', error)
+    // Повторный запрос через 2,5 минуты
+    setTimeout(() => {
+      console.debug('Повторная попытка загрузки данных о врачах...')
+      fetchDoctors()
+    }, 150000) // 2,5 минуты = 150000 миллисекунд
   }
 }
 
