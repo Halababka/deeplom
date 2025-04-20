@@ -23,7 +23,7 @@ export default defineNuxtConfig({
           type: 'application/ld+json',
           innerHTML: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "DentalClinic",
+            "@type": "Organization",
             "name": "Стоматологическая клиника Дентал",
             "description": "Стоматологическая клиника Дентал в Волгодонске. Безболезненное лечение, протезирование, детский врач. Запись онлайн.",
             "url": "https://dental-volgodonsk.4de.run",
