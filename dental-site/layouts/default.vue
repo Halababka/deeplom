@@ -122,7 +122,7 @@ const initSwiper = () => {
         },
       },
       on: {
-        init: function(this: Swiper) {
+        init: function (this: Swiper) {
           this.update();
           setTimeout(() => this.update(), 100);
         }

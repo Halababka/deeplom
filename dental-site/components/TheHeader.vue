@@ -3,6 +3,13 @@
 import "~/js/files/sticky.js";
 
 const isMenuOpen = ref(false)
+const isMobile = ref(false)
+
+// Функция проверки размера экрана, нужна здесь для того, чтобы при переходе на мобильную версию, кнопка "ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" не отображалась.
+// Так как скрипт отслеживает первую кнопку в верстке.
+const checkScreenSize = () => {
+  isMobile.value = window.innerWidth <= 850
+}
 
 // Функции управления меню
 const toggleMenu = () => {
@@ -38,10 +45,13 @@ const handleMenuLinkClick = () => {
 
 // Хуки жизненного цикла
 onMounted(() => {
+  checkScreenSize()
+  window.addEventListener('resize', checkScreenSize)
   document.addEventListener('click', handleClickOutside)
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', checkScreenSize)
   document.removeEventListener('click', handleClickOutside)
 })
 
@@ -61,10 +71,9 @@ const openAppointmentModal = () => {
         </NuxtLink>
 
         <div class="header__info info">
-          <div class="header__specialButton desktop-only" style="cursor:pointer;">
-            <img id="specialButton" style="cursor:pointer;"
-              src="https://lidrekon.ru/images/special.png" alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ"
-              title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" />
+          <div v-if="!isMobile" class="header__specialButton" style="cursor:pointer;">
+            <img id="specialButton" class="header__specialButton" style="cursor:pointer;" src="https://lidrekon.ru/images/special.png"
+              alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" />
           </div>
           <button class="header__appointmentButton desktop-only" @click="openAppointmentModal">Онлайн запись</button>
           <div class="info__location">ул.Строителей 2е</div>
@@ -78,10 +87,9 @@ const openAppointmentModal = () => {
       <div class="navbar">
         <div class="navbar__controls">
           <button class="header__appointmentButton mobile-only" @click="openAppointmentModal">Онлайн запись</button>
-          <div class="header__specialButton mobile-only" style="cursor:pointer;">
-            <img id="specialButton" class="header__specialButton" style="cursor:pointer;"
-              src="https://lidrekon.ru/images/special.png" alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ"
-              title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" />
+          <div v-if="isMobile" class="header__specialButton" style="cursor:pointer;">
+            <img id="specialButton" class="header__specialButton" style="cursor:pointer;" src="https://lidrekon.ru/images/special.png"
+              alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" />
           </div>
           <button type="button" class="icon-menu navbar__button" :class="{ 'active': isMenuOpen }" @click="toggleMenu">
             <span></span>
