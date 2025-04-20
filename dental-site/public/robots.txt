@@ -1,1 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_nuxt/
+Disallow: /node_modules/
 
+User-agent: Yandex
+Allow: /
+Host: dental-volgodonsk.4de.run
+
+Sitemap: https://dental-volgodonsk.4de.run/sitemap.xml
