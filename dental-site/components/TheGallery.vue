@@ -75,7 +75,6 @@ const updateSlides = async () => {
   <div class="gallery">
     <div class="gallery__container">
       <h1 class="gallery__title">Галерея DENTAL</h1>
-      <!--      <div class="gallery__content static-thumbnails justifiedgallery" id="static-thumbnails-1">-->
       <lightgallery v-if="!companyStore.pending && companyStore.data"
                     :settings="settings"
                     :onInit="onInit"
@@ -97,7 +96,6 @@ const updateSlides = async () => {
       </div>
     </div>
   </div>
-  <!--  </div>-->
 </template>
 <style lang="css" scoped>
 @import 'lightgallery/css/lightgallery.css';

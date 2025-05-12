@@ -1,8 +1,22 @@
+/**
+ * Контроллер аутентификации
+ * Обрабатывает запросы на регистрацию и вход пользователей
+ */
 import { Request, Response } from 'express';
 import prisma from "../db";
 import {AuthService} from '../services/auth.service';
 
 export class AuthController {
+    /**
+     * Регистрация нового пользователя
+     * @param req - Express запрос
+     * @param res - Express ответ
+     * 
+     * Процесс:
+     * 1. Проверяет существование пользователя
+     * 2. Хэширует пароль
+     * 3. Создает нового пользователя в базе данных
+     */
     static async register(req: Request, res: Response) {
         try {
             const {username, password} = req.body;
@@ -26,6 +40,17 @@ export class AuthController {
         }
     }
 
+    /**
+     * Авторизация пользователя
+     * @param req - Express запрос
+     * @param res - Express ответ
+     * 
+     * Процесс:
+     * 1. Проверяет существование пользователя
+     * 2. Проверяет соответствие пароля
+     * 3. Генерирует JWT токен
+     * 4. Возвращает токен и информацию о пользователе
+     */
     static async login(req: Request, res: Response) {
         try {
             const {username, password} = req.body;

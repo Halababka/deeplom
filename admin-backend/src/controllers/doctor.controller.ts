@@ -1,9 +1,20 @@
+/**
+ * Контроллер для работы с врачами
+ * Обрабатывает HTTP запросы и взаимодействует с сервисом врачей
+ */
 import {Request, Response} from "express";
 import {DoctorService} from "../services/doctor.service";
 
 const doctorService = new DoctorService();
 
 export class DoctorController {
+    /**
+     * Получение списка всех врачей
+     * @param req - Express запрос
+     * @param res - Express ответ
+     * 
+     * Преобразует JSON строки в объекты для educationPlaces и courses
+     */
     async getAllDoctors(req: Request, res: Response) {
         try {
             const doctors = await doctorService.getAllDoctors();
@@ -21,6 +32,13 @@ export class DoctorController {
         }
     }
 
+    /**
+     * Получение информации о конкретном враче по ID
+     * @param req - Express запрос
+     * @param res - Express ответ
+     * 
+     * Преобразует JSON строки в объекты для educationPlaces и courses
+     */
     async getDoctorById(req: Request, res: Response) {
         try {
             const id = parseInt(req.params.id);
@@ -44,6 +62,13 @@ export class DoctorController {
         }
     }
 
+    /**
+     * Создание нового врача
+     * @param req - Express запрос
+     * @param res - Express ответ
+     * 
+     * Преобразует объекты educationPlaces и courses в JSON строки для хранения
+     */
     async createDoctor(req: Request, res: Response) {
         try {
             let {name, experience, avatarId, education, courses, specialty, photoIds, certificateIds, educationPlaces, categoryIds} = req.body;
@@ -70,6 +95,13 @@ export class DoctorController {
         }
     }
 
+    /**
+     * Обновление информации о враче
+     * @param req - Express запрос
+     * @param res - Express ответ
+     * 
+     * Преобразует объекты educationPlaces и courses в JSON строки для хранения
+     */
     async updateDoctor(req: Request, res: Response) {
         try {
             const id = parseInt(req.params.id);
@@ -97,6 +129,11 @@ export class DoctorController {
         }
     }
 
+    /**
+     * Удаление врача по ID
+     * @param req - Express запрос
+     * @param res - Express ответ
+     */
     async deleteDoctor(req: Request, res: Response) {
         try {
             const id = parseInt(req.params.id);
@@ -107,6 +144,13 @@ export class DoctorController {
         }
     }
 
+    /**
+     * Массовое удаление врачей
+     * @param req - Express запрос
+     * @param res - Express ответ
+     * 
+     * Ожидает массив ID врачей в теле запроса
+     */
     async deleteDoctors(req: Request, res: Response) {
         const {ids} = req.body; // Ожидаем массив идентификаторов в теле запроса
 

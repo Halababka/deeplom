@@ -1,8 +1,24 @@
+/**
+ * Контроллер для работы с бронированиями
+ * Обрабатывает HTTP запросы, связанные с управлением записями к врачам
+ */
 import {Request, Response} from "express";
 import * as bookingService from "../services/booking.service";
 import * as smsService from "../services/sms.service";
 
-// Получение доступных временных слотов
+/**
+ * Получение доступных временных слотов для записи
+ * @param req - Express запрос с параметрами branchId и doctorId
+ * @param res - Express ответ
+ * 
+ * Параметры запроса:
+ * - branchId: ID филиала (обязательный)
+ * - doctorId: ID врача (обязательный)
+ * 
+ * @returns 200 OK с массивом доступных слотов
+ * @returns 400 Bad Request если не указаны обязательные параметры
+ * @returns 500 Internal Server Error при ошибке сервера
+ */
 export const getAvailableSlots = async (req: Request, res: Response) => {
     const {branchId, doctorId} = req.query;
 
@@ -26,6 +42,23 @@ export const getAvailableSlots = async (req: Request, res: Response) => {
     }
 };
 
+/**
+ * Запрос на подтверждение бронирования через SMS
+ * @param req - Express запрос с номером телефона клиента
+ * @param res - Express ответ
+ * 
+ * Тело запроса:
+ * - clientPhone: номер телефона клиента (обязательный)
+ * 
+ * Процесс:
+ * 1. Отправляет запрос на звонок с кодом подтверждения
+ * 2. Сохраняет код подтверждения в базе данных
+ * 3. Возвращает requestId для последующей верификации
+ * 
+ * @returns 200 OK с requestId при успешной отправке
+ * @returns 400 Bad Request если не указан номер телефона
+ * @returns 500 Internal Server Error при ошибке отправки
+ */
 export const requestBookingConfirmation = async (req: Request, res: Response) => {
     console.log("Получен запрос на подтверждение записи на прием")
     const {clientPhone} = req.body;
@@ -70,7 +103,17 @@ export const requestBookingConfirmation = async (req: Request, res: Response) =>
     }
 };
 
-// Отмена записи
+/**
+ * Отмена существующей записи
+ * @param req - Express запрос с ID записи
+ * @param res - Express ответ
+ * 
+ * Параметры URL:
+ * - bookingId: ID записи для отмены
+ * 
+ * @returns 200 OK при успешной отмене
+ * @returns 500 Internal Server Error при ошибке
+ */
 export const cancelBooking = async (req: Request, res: Response) => {
     const {bookingId} = req.params;
 
@@ -86,6 +129,31 @@ export const cancelBooking = async (req: Request, res: Response) => {
     }
 };
 
+/**
+ * Подтверждение и создание записи после верификации кода
+ * @param req - Express запрос с данными записи и кодом подтверждения
+ * @param res - Express ответ
+ * 
+ * Тело запроса:
+ * - requestId: ID запроса на подтверждение (обязательный)
+ * - verificationCode: код подтверждения (обязательный)
+ * - branchId: ID филиала (обязательный)
+ * - doctorId: ID врача (обязательный)
+ * - doctorName: имя врача
+ * - startDateTime: дата и время приема (обязательный)
+ * - clientFullName: ФИО клиента (обязательный)
+ * - clientPhone: телефон клиента (обязательный)
+ * - planStart: план начала приема
+ * - comment: комментарий к записи
+ * 
+ * Процесс:
+ * 1. Проверяет код подтверждения
+ * 2. Создает запись в базе данных
+ * 
+ * @returns 201 Created при успешном создании записи
+ * @returns 400 Bad Request если не указаны обязательные параметры
+ * @returns 500 Internal Server Error при ошибке
+ */
 export const confirmBooking = async (req: Request, res: Response) => {
     console.log("Получен запрос на верификацию кода подтверждения")
 

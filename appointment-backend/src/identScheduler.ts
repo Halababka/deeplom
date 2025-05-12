@@ -1,15 +1,31 @@
+/**
+ * Модуль для работы с системой IDENT
+ * Обеспечивает синхронизацию данных и периодическую отправку расписания
+ */
 import {getTickets, postTimeTable} from "./services/identMock.service";
 import axios from 'axios';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+/**
+ * Интерфейс для данных врача
+ */
 interface Doctor {
     id: number;
     name: string;
 }
 
-// Функция для синхронизации врачей
+/**
+ * Синхронизирует список врачей между API и базой данных
+ * @param apiDoctors - Список врачей из API
+ * @returns Promise с обновленным списком врачей из БД
+ * 
+ * Процесс:
+ * 1. Удаляет врачей, которых нет в API
+ * 2. Добавляет новых врачей из API
+ * 3. Возвращает актуальный список врачей
+ */
 const syncDoctors = async (apiDoctors: Doctor[]) => {
     try {
         // Получаем всех врачей из БД
@@ -66,6 +82,11 @@ const syncDoctors = async (apiDoctors: Doctor[]) => {
     }
 };
 
+/**
+ * Запускает периодические запросы к системе
+ * - Запрашивает заявки каждую минуту
+ * - Отправляет расписание каждые 5 минут
+ */
 const scheduleIdentRequests = () => {
     // Пример временного диапазона для GetTickets
     const dateTimeFrom = new Date().toISOString();
@@ -92,10 +113,20 @@ const scheduleIdentRequests = () => {
         } catch (error: any) {
             console.error("[Ident] Ошибка при отправке расписания:", error.message);
         }
-    }, 300000); // Каждые 5 минут 300000
+    }, 300000); // Каждые 5 минут
 };
 
-// Генерация расписания
+/**
+ * Генерирует данные расписания для отправки
+ * @param daysCount - Количество дней для генерации расписания
+ * @returns Promise с данными расписания
+ * 
+ * Процесс:
+ * 1. Получает список врачей из API
+ * 2. Синхронизирует врачей с БД
+ * 3. Генерирует интервалы времени для каждого врача
+ * 4. Возвращает структуру данных для IDENT
+ */
 const generateTimeTablePayload = async (daysCount: number) => {
     const branch = {id: 1, name: "Филиал в г. Волгодонск"};
 
@@ -123,6 +154,7 @@ const generateTimeTablePayload = async (daysCount: number) => {
             return date.toISOString().split('T')[0]; // Форматируем дату в YYYY-MM-DD
         });
 
+        // Генерируем интервалы для каждого врача и дня
         for (const doctor of doctors) {
             for (const day of days) {
                 let currentTime = new Date(`${day}T09:00:00`);

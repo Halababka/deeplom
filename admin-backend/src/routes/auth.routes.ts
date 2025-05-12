@@ -1,3 +1,7 @@
+/**
+ * Маршруты аутентификации
+ * Содержит эндпоинты для регистрации, входа и проверки защищенных маршрутов
+ */
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { AuthController } from '../controllers/auth.controller';
@@ -5,7 +9,14 @@ import { authenticateJWT } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Регистрация
+/**
+ * Маршрут регистрации нового пользователя
+ * POST /api/auth/register
+ * 
+ * Валидация:
+ * - username: должно быть строкой
+ * - password: минимум 6 символов
+ */
 router.post(
     '/register',
     [
@@ -15,7 +26,14 @@ router.post(
     AuthController.register
 );
 
-// Авторизация
+/**
+ * Маршрут авторизации пользователя
+ * POST /api/auth/login
+ * 
+ * Валидация:
+ * - username: должно быть строкой
+ * - password: обязательное поле
+ */
 router.post(
     '/login',
     [
@@ -25,7 +43,13 @@ router.post(
     AuthController.login
 );
 
-// Защищённый маршрут
+/**
+ * Защищённый маршрут для проверки JWT токена
+ * GET /api/auth/protected
+ * 
+ * Требует валидный JWT токен в заголовке Authorization
+ * Возвращает информацию о текущем пользователе
+ */
 router.get('/protected', authenticateJWT, (req, res) => {
     res.json({ message: 'Доступ разрешён', user: req.user });
 });

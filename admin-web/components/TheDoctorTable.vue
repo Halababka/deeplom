@@ -1,16 +1,28 @@
+/**
+ * Компонент таблицы врачей
+ * Предоставляет интерфейс для управления данными врачей:
+ * - Просмотр списка врачей
+ * - Добавление новых врачей
+ * - Редактирование существующих врачей
+ * - Удаление врачей
+ * - Фильтрация и поиск
+ */
 <script setup>
-
 import {useToast} from "primevue/usetoast";
 import {useCookie} from "#app";
 import {FilterMatchMode} from "@primevue/core/api";
 
+// Состояние загрузки таблицы
 const loadingTable = ref(false)
+
+// Базовый URL для изображений
 const imgBase = useRuntimeConfig().public.imgBase
 
-const doctors = ref([]);
-const selectedDoctors = ref([]);
-const doctorDialog = ref(false);
-const newDoctor = ref({
+// Состояние компонента
+const doctors = ref([]);                    // Список врачей
+const selectedDoctors = ref([]);            // Выбранные врачи для массовых операций
+const doctorDialog = ref(false);            // Видимость диалога редактирования
+const newDoctor = ref({                     // Данные нового/редактируемого врача
   id: null,
   name: '',
   experience: null,
@@ -23,16 +35,30 @@ const newDoctor = ref({
   certificates: null,
   categories: []
 });
+
+// Инициализация уведомлений и токена авторизации
 const toast = useToast();
-const token = useCookie('auth_token'); // Токен сохраняется в cookie
+const token = useCookie('auth_token');
+
+// Базовый URL API
 const api = useRuntimeConfig().public.apiBase
+
+// Настройки фильтрации
 const filters = ref({
   'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
+
+// Флаг отправки формы
 const submitted = ref(false);
 
+// Список всех категорий
 const allCategories = ref([]);
 
+/**
+ * Форматирует список категорий для отображения
+ * @param categories - Массив категорий
+ * @returns Отформатированный массив категорий
+ */
 const formatCategories = (categories) => {
   return categories.map(category => ({
     id: category.id,
@@ -40,6 +66,9 @@ const formatCategories = (categories) => {
   }));
 };
 
+/**
+ * Загружает список врачей с сервера
+ */
 const fetchDoctors = async () => {
   loadingTable.value = true
   try {
@@ -56,6 +85,9 @@ const fetchDoctors = async () => {
   }
 };
 
+/**
+ * Загружает список категорий с сервера
+ */
 const fetchCategories = async () => {
   try {
     const response = await fetch(api + '/categories', {
@@ -70,6 +102,9 @@ const fetchCategories = async () => {
   }
 };
 
+/**
+ * Открывает диалог для создания нового врача
+ */
 const openNewDoctor = () => {
   newDoctor.value = {
     id: null,
@@ -87,6 +122,10 @@ const openNewDoctor = () => {
   doctorDialog.value = true;
 };
 
+/**
+ * Открывает диалог для редактирования существующего врача
+ * @param doctor - Данные врача для редактирования
+ */
 const editDoctor = (doctor) => {
   // Создаем глубокую копию объекта doctor
   newDoctor.value = JSON.parse(JSON.stringify({
@@ -105,16 +144,24 @@ const editDoctor = (doctor) => {
   doctorDialog.value = true;
 };
 
+/**
+ * Закрывает диалог редактирования
+ */
 const closeDialog = () => {
   doctorDialog.value = false;
 };
 
+/**
+ * Сохраняет данные врача (создание или обновление)
+ * Обрабатывает различные форматы данных и отправляет их на сервер
+ */
 const saveDoctor = async () => {
   try {
     let formData = {};
     formData.name = newDoctor.value.name
     formData.specialty = newDoctor.value.specialty
     formData.education = newDoctor.value.education
+    
     // Обработка educationPlaces (массив или строка)
     formData.educationPlaces = Array.isArray(newDoctor.value.educationPlaces)
         ? newDoctor.value.educationPlaces
@@ -134,16 +181,17 @@ const saveDoctor = async () => {
                     : [newDoctor.value.courses.trim()]
                 : newDoctor.value.courses
             : null;
+            
     formData.experience = newDoctor.value.experience
     formData.avatarId = newDoctor.value.avatar?.id ?? null
     formData.photoIds = newDoctor.value.photos?.map(item => item.id) ?? null
     formData.certificateIds = newDoctor.value.certificates?.map(item => item.id) ?? null
     formData.categoryIds = newDoctor.value.categories?.map(item => item.id) ?? null
 
-    console.log(newDoctor.value)
+    // Определяем метод и URL в зависимости от наличия ID
     const method = newDoctor.value.id ? 'PUT' : 'POST';
     const url = newDoctor.value.id ? `${api}/doctors/${newDoctor.value.id}` : `${api}/doctors`;
-    console.log("method", method, "\n", "formData", formData)
+    
     const response = await fetch(url, {
       method: method,
       headers: {
@@ -153,7 +201,7 @@ const saveDoctor = async () => {
       body: JSON.stringify(formData)
     });
 
-    // Если ответ не успешный, пробрасываем весь response
+    // Обработка ошибок
     if (!response.ok) {
       throw response;
     }
@@ -164,7 +212,7 @@ const saveDoctor = async () => {
   } catch (error) {
     console.error('Error saving doctor:', error);
     if (error instanceof Response) {
-      // Ошибка от сервера с HTTP статусом
+      // Обработка различных HTTP ошибок
       switch (error.status) {
         case 403:
           toast.add({
@@ -206,6 +254,10 @@ const saveDoctor = async () => {
   }
 };
 
+/**
+ * Подтверждает и выполняет удаление врача
+ * @param doctor - Врач для удаления
+ */
 const confirmDeleteDoctor = async (doctor) => {
   if (confirm(`Are you sure you want to delete ${doctor.name}?`)) {
     try {
@@ -224,6 +276,9 @@ const confirmDeleteDoctor = async (doctor) => {
   }
 };
 
+/**
+ * Подтверждает и выполняет удаление выбранных врачей
+ */
 const confirmDeleteSelected = async () => {
   if (selectedDoctors.value.length === 0) return;
 
