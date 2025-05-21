@@ -5,7 +5,6 @@
 <script setup>
 import TheDoctorTable from "~/components/TheDoctorTable.vue";
 import TheCompany from "~/components/TheCompany.vue";
-
 // Установка заголовка страницы
 useHead({
   title: 'Dental - главная'

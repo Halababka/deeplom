@@ -74,4 +74,53 @@ export class AuthController {
             res.status(500).json({message: 'Ошибка сервера', error: error.message});
         }
     }
+
+    /**
+     * Смена пароля пользователя
+     * @param req - Express запрос
+     * @param res - Express ответ
+     * 
+     * Процесс:
+     * 1. Проверяет текущий пароль
+     * 2. Хэширует новый пароль
+     * 3. Обновляет пароль в базе данных
+     */
+    static async changePassword(req: Request, res: Response) {
+        try {
+            const { currentPassword, newPassword } = req.body;
+            const userId = req.user?.id;
+
+            if (!userId) {
+                res.status(401).json({ message: 'Пользователь не авторизован' });
+                return;
+            }
+
+            // Получаем пользователя
+            const user = await prisma.user.findUnique({ where: { id: userId } });
+            if (!user) {
+                res.status(404).json({ message: 'Пользователь не найден' });
+                return;
+            }
+
+            // Проверяем текущий пароль
+            const isPasswordValid = await AuthService.comparePasswords(currentPassword, user.password);
+            if (!isPasswordValid) {
+                res.status(400).json({ message: 'Неверный текущий пароль' });
+                return;
+            }
+
+            // Хэшируем новый пароль
+            const hashedPassword = await AuthService.hashPassword(newPassword);
+
+            // Обновляем пароль
+            await prisma.user.update({
+                where: { id: userId },
+                data: { password: hashedPassword }
+            });
+
+            res.status(200).json({ message: 'Пароль успешно изменен' });
+        } catch (error: any) {
+            res.status(500).json({ message: 'Ошибка сервера', error: error.message });
+        }
+    }
 }

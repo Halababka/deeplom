@@ -54,4 +54,7 @@ router.get('/protected', authenticateJWT, (req, res) => {
     res.json({ message: 'Доступ разрешён', user: req.user });
 });
 
+// Защищенные маршруты
+router.post('/change-password', authenticateJWT, AuthController.changePassword);
+
 export default router;

@@ -14,26 +14,37 @@ import { AuthService } from '../services/auth.service';
  * @param next - Функция для передачи управления следующему middleware
  */
 export const authenticateJWT = (req: Request, res: Response, next: NextFunction): void => {
-    const authHeader = req.headers.authorization;
+    try {
+        const authHeader = req.headers.authorization;
 
-    // Проверяем наличие заголовка Authorization и его формат
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        res.status(401).json({ message: 'Неавторизованный доступ' });
+        // Проверяем наличие заголовка Authorization и его формат
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            res.status(401).json({ message: 'Неавторизованный доступ' });
+            return;
+        }
+
+        // Извлекаем токен из заголовка
+        const token = authHeader.split(' ')[1];
+        
+        try {
+            const user = AuthService.verifyToken(token);
+            
+            // Проверяем валидность токена
+            if (!user) {
+                res.status(403).json({ message: 'Неверный токен' });
+                return;
+            }
+
+            req.user = user; // Присваиваем декодированного пользователя в req.user
+            next(); // Передача управления следующему middleware
+        } catch (error) {
+            res.status(403).json({ message: 'Неверный токен' });
+            return;
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Ошибка сервера при проверке токена' });
         return;
     }
-
-    // Извлекаем токен из заголовка
-    const token = authHeader.split(' ')[1];
-    const user = AuthService.verifyToken(token);
-
-    // Проверяем валидность токена
-    if (!user) {
-        res.status(403).json({ message: 'Неверный токен' });
-        return;
-    }
-
-    req.user = user; // Присваиваем декодированного пользователя в req.user
-    next(); // Передача управления следующему middleware
 };
 
 /**
