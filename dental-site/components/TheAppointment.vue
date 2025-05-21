@@ -1,41 +1,30 @@
-/**
- * Компонент записи на прием
- * Предоставляет пошаговый интерфейс для записи к врачу:
- * 1. Выбор типа записи (по категории или врачу)
- * 2. Выбор категории/врача
- * 3. Выбор времени приема
- * 4. Подтверждение записи
- */
 <script setup>
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
 
-// Состояние модального окна и шага записи
 const isOpen = ref(false)
 const currentStep = ref(1)
-const selectedType = ref(null)        // Тип записи (категория/врач)
-const selectedCategory = ref(null)    // Выбранная категория
-const selectedDoctor = ref(null)      // Выбранный врач
-const selectedTime = ref(null)        // Выбранное время
-
-// Состояние формы контактных данных
-const phoneNumber = ref('+7 (')       // Номер телефона в формате
-const phoneDigits = ref('')           // Только цифры номера
-const smsCode = ref('')               // Код подтверждения
-const showSmsInput = ref(false)       // Видимость поля ввода кода
+const selectedType = ref(null)
+const selectedCategory = ref(null)
+const selectedDoctor = ref(null)
+const selectedTime = ref(null)
+const phoneNumber = ref('+7 (')
+const phoneDigits = ref('')
+const smsCode = ref('')
+const showSmsInput = ref(false)
 const currentWeekStart = ref(new Date())
 const currentWeekEnd = ref(new Date())
 const stepHistory = ref([])
-const requestId = ref(null)           // ID заявки на запись
-const smsMessage = ref('')            // Сообщение с кодом
-const canRequestSms = ref(true)       // Возможность запросить код
-const timeLeft = ref(300)             // Время до истечения кода (5 минут)
-const confirmationMessage = ref('')   // Сообщение подтверждения
-const hasError = ref(false)           // Наличие ошибки
-const isBookingSuccess = ref(false)   // Успешность записи
-const isSendingSms = ref(false)       // Процесс отправки SMS
-const clientFullName = ref('')        // ФИО клиента
-const timerId = ref(null)             // Добавляем переменную для хранения ID таймера
+const requestId = ref(null)
+const smsMessage = ref('')
+const canRequestSms = ref(true)
+const timeLeft = ref(300) // 5 минут в секундах
+const confirmationMessage = ref('')
+const hasError = ref(false)
+const isBookingSuccess = ref(false)
+const isSendingSms = ref(false)
+const clientFullName = ref('')
+const timerId = ref(null) // Добавляем переменную для хранения ID таймера
 
 const imgBase = useRuntimeConfig().public.imgBase
 
@@ -45,10 +34,6 @@ let doctorsStore = ref({data: [], pending: true})
 
 const doctors = ref([])
 
-/**
- * Загружает список врачей с сервера
- * Обновляет данные в хранилище и категории
- */
 const fetchDoctors = async () => {
   try {
     const data = await $fetch(`${useRuntimeConfig().public.appointmentBase}/doctors`)
@@ -67,6 +52,7 @@ const fetchDoctors = async () => {
       })
       
       doctorsStore.value.data = updatedDoctors
+      // Обновляем реактивные данные doctors
       doctors.value = updatedDoctors
       
       // Обновляем Set категорий из данных врачей
@@ -86,7 +72,7 @@ const fetchDoctors = async () => {
     setTimeout(() => {
       console.debug('Повторная попытка загрузки данных о врачах...')
       fetchDoctors()
-    }, 150000)
+    }, 150000) // 2,5 минуты = 150000 миллисекунд
   }
 }
 
@@ -106,6 +92,7 @@ onMounted(() => {
     if (!doctorsStore.value.pending) {
       await fetchDoctors()
       doctors.value = doctorsStore.value.data
+      console.log(doctors.value)
     }
   })
   
@@ -124,17 +111,11 @@ onUnmounted(() => {
 const timeSlots = ref([])
 const doctorSchedule = ref({})
 const schedulePending = ref(false)
-
-/**
- * Загружает расписание врача
- * @param doctorId - ID врача
- */
 const fetchDoctorSchedule = async (doctorId) => {
   try {
     schedulePending.value = true
     const data = await $fetch(`${useRuntimeConfig().public.appointmentBase}/booking/slots?branchId=1&doctorId=${doctorId}`)
     doctorSchedule.value = data
-    
     // Преобразуем расписание в формат для отображения
     timeSlots.value = Object.entries(data).map(([date, slots]) => ({
       date,
@@ -180,11 +161,6 @@ const currentWeekDates = computed(() => {
   return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`
 })
 
-/**
- * Форматирует номер телефона
- * @param value - Введенное значение
- * @returns Отформатированный номер телефона
- */
 const formatPhoneNumber = (value) => {
   // Оставляем только цифры и убираем первую 7, если она есть
   const digits = value.replace(/\D/g, '').replace(/^7/, '')
@@ -234,21 +210,12 @@ const formatPhoneNumber = (value) => {
   return formatted
 }
 
-/**
- * Обработчик ввода номера телефона
- * @param event - Событие ввода
- */
 const handlePhoneInput = (event) => {
   const value = event.target.value
   const formatted = formatPhoneNumber(value)
   phoneNumber.value = formatted
 }
 
-/**
- * Обработчик нажатия клавиш при вводе телефона
- * @param event - Событие нажатия клавиши
- * @returns {boolean} - Разрешить ввод или нет
- */
 const handlePhoneKeyDown = (event) => {
   // Разрешаем: цифры, Backspace, Delete, стрелки, Tab
   if (
@@ -267,16 +234,15 @@ const handlePhoneKeyDown = (event) => {
   return false
 }
 
-// Проверка валидности номера телефона
 const isPhoneValid = computed(() => {
   return phoneDigits.value.length === 10
 })
 
-// Фильтрация врачей по выбранной категории
 const filteredDoctors = computed(() => {
   if (!selectedCategory.value) return []
   return doctors.value
     .filter(doctor => {
+      // Проверяем, есть ли у врача категории и содержит ли массив категорий выбранную категорию
       return doctor.categories && 
              doctor.categories.some(category => category.id === selectedCategory.value.id) && 
              doctor.availableFrom !== null
@@ -643,539 +609,1004 @@ defineExpose({
   openModal
 })
 </script>
-
-/**
- * Шаблон компонента записи на прием
- * Содержит модальное окно с пошаговым интерфейсом записи
- */
 <template>
-  <!-- Кнопка открытия модального окна -->
-  <button 
-    class="appointment-button" 
-    @click="isOpen = true"
-  >
-    Записаться на прием
-  </button>
-
-  <!-- Модальное окно записи -->
-  <div 
-    v-if="isOpen" 
-    class="appointment-modal"
-    @click.self="closeModal"
-  >
-    <div class="appointment-content">
-      <!-- Заголовок и кнопка закрытия -->
-      <div class="appointment-header">
-        <h2>{{ currentStepTitle }}</h2>
-        <button 
-          class="close-button"
-          @click="closeModal"
-        >
-          ×
-        </button>
-      </div>
-
-      <!-- Шаги записи -->
-      <div class="appointment-steps">
-        <!-- Шаг 1: Выбор типа записи -->
-        <div v-if="currentStep === 1" class="step-content">
-          <div class="type-selection">
-            <button 
-              class="type-button"
-              @click="selectType('category')"
-            >
-              <span class="icon">📋</span>
-              <span>По категории</span>
-            </button>
-            <button 
-              class="type-button"
-              @click="selectType('doctor')"
-            >
-              <span class="icon">👨‍⚕️</span>
-              <span>По врачу</span>
-            </button>
-          </div>
+  <Transition name="modal">
+    <div class="appointment-modal" v-if="isOpen">
+      <div class="appointment-modal__overlay" @click="closeModal"></div>
+      <div class="appointment-modal__content">
+        <div class="appointment-modal__header">
+          <h2 class="appointment-modal__title">{{ currentStepTitle }}</h2>
+          <button class="appointment-modal__close" @click="closeModal">×</button>
         </div>
 
-        <!-- Шаг 2: Выбор категории или врача -->
-        <div v-if="currentStep === 2" class="step-content">
-          <!-- Выбор категории -->
-          <div v-if="selectedType === 'category'" class="categories-list">
-            <button 
-              v-for="category in categories"
-              :key="category.id"
-              class="category-button"
-              @click="selectCategory(category)"
-            >
-              {{ category.name }}
-            </button>
+        <div class="appointment-modal__body">
+          <!-- Спиннер загрузки -->
+          <div v-if="doctorsStore.pending" class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Загрузка данных...</p>
           </div>
 
-          <!-- Выбор врача -->
-          <div v-else class="doctors-list">
-            <div 
-              v-for="doctor in doctors"
-              :key="doctor.id"
-              class="doctor-card"
-              @click="selectDoctor(doctor)"
-            >
-              <img 
-                :src="`${imgBase}${doctor.photo}`"
-                :alt="doctor.name"
-                class="doctor-photo"
-              >
-              <div class="doctor-info">
-                <h3>{{ doctor.name }}</h3>
-                <p>{{ doctor.speciality }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Шаг 3: Выбор врача (если выбрана категория) -->
-        <div v-if="currentStep === 3" class="step-content">
-          <div class="doctors-list">
-            <div 
-              v-for="doctor in filteredDoctors"
-              :key="doctor.id"
-              class="doctor-card"
-              @click="selectDoctor(doctor)"
-            >
-              <img 
-                :src="`${imgBase}${doctor.photo}`"
-                :alt="doctor.name"
-                class="doctor-photo"
-              >
-              <div class="doctor-info">
-                <h3>{{ doctor.name }}</h3>
-                <p>{{ doctor.speciality }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Шаг 4: Выбор времени -->
-        <div v-if="currentStep === 4" class="step-content">
-          <div class="schedule-container">
-            <!-- Навигация по неделям -->
-            <div class="week-navigation">
+          <!-- Шаг 1: Выбор типа записи -->
+          <div v-else-if="currentStep === 1" class="appointment-step">
+            <div class="appointment-options">
               <button 
-                @click="previousWeek"
-                :disabled="!canGoPrevious"
+                class="appointment-option" 
+                @click="selectAppointmentType('category')"
               >
-                ←
+                Запись по категории
               </button>
-              <span>{{ currentWeekDates }}</span>
               <button 
-                @click="nextWeek"
-                :disabled="!canGoNext"
+                class="appointment-option" 
+                @click="selectAppointmentType('doctor')"
               >
-                →
+                Выбрать врача
               </button>
             </div>
+          </div>
 
-            <!-- Сетка расписания -->
-            <div class="schedule-grid">
+          <!-- Шаг 2: Выбор категории -->
+          <div v-else-if="currentStep === 2 && selectedType === 'category'" class="appointment-step">
+            <button class="appointment-back" @click="goBack">← Назад</button>
+            <div class="categories-list">
               <div 
-                v-for="slot in timeSlots"
-                :key="slot.date"
-                class="time-slot"
-                :class="{ 'available': slot.slots.length > 0 }"
-                @click="selectTime(slot)"
+                v-for="category in Array.from(categories)" 
+                :key="category.id"
+                class="category-item"
+                @click="selectCategory(category)"
               >
-                <span class="date">{{ formatDate(slot.date) }}</span>
-                <span class="time">{{ slot.slots[0]?.time }}</span>
+                {{ category.name }}
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Шаг 5: Подтверждение записи -->
-        <div v-if="currentStep === 5" class="step-content">
-          <div class="confirmation-form">
-            <!-- Поле ввода ФИО -->
-            <div class="form-group">
-              <label>ФИО</label>
-              <input 
-                v-model="clientFullName"
-                type="text"
-                placeholder="Введите ваше полное имя"
+          <!-- Шаг 2: Выбор врача -->
+          <div v-else-if="currentStep === 2 && selectedType === 'doctor'" class="appointment-step">
+            <button class="appointment-back" @click="goBack">← Назад</button>
+            <div class="doctors-list">
+              <div 
+                v-for="doctor in doctors.filter(d => d.availableFrom !== null)" 
+                :key="doctor.id"
+                class="doctor-item"
+                @click="selectDoctor(doctor)"
               >
-            </div>
-
-            <!-- Поле ввода телефона -->
-            <div class="form-group">
-              <label>Телефон</label>
-              <input 
-                v-model="phoneNumber"
-                type="tel"
-                @input="handlePhoneInput"
-                @keydown="handlePhoneKeyDown"
-                placeholder="+7 (___) ___-__-__"
-              >
-            </div>
-
-            <!-- Поле ввода кода подтверждения -->
-            <div v-if="showSmsInput" class="form-group">
-              <label>Код подтверждения</label>
-              <input 
-                v-model="smsCode"
-                type="text"
-                placeholder="Введите код из SMS"
-              >
-              <div class="sms-timer" v-if="timeLeft > 0">
-                Повторная отправка через {{ formatTimeLeft }}
+                <div class="doctor-avatar">
+                  <img :src="imgBase + doctor.avatar.url" :alt="doctor.name" onerror="this.src='/images/doctors/default-avatar.jpg'">
+                </div>
+                <div class="doctor-info">
+                  <div class="doctor-name">{{ doctor.name }}</div>
+                  <div class="doctor-specialty">{{ doctor.specialty }}</div>
+                  <div class="doctor-categories" v-if="doctor.categories && doctor.categories.length">
+                    {{ doctor.categories.map(cat => cat.name).join(', ') }}
+                  </div>
+                  <div class="doctor-available" v-if="doctor.availableFrom">
+                    Доступен с {{ doctor.availableFrom }}
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
 
-            <!-- Кнопки действий -->
-            <div class="form-actions">
-              <button 
-                v-if="!showSmsInput"
-                @click="requestSmsCode"
-                :disabled="!isPhoneValid || isSendingSms"
+          <!-- Шаг 3: Выбор врача по категории -->
+          <div v-else-if="currentStep === 3" class="appointment-step">
+            <button class="appointment-back" @click="goBack">← Назад</button>
+            <div class="doctors-list">
+              <div 
+                v-for="doctor in filteredDoctors" 
+                :key="doctor.id"
+                class="doctor-item"
+                @click="selectDoctor(doctor)"
               >
-                Получить код
+                <div class="doctor-avatar">
+                  <img :src="imgBase + doctor.avatar.url" :alt="doctor.name" onerror="this.src='/images/doctors/default-avatar.jpg'">
+                </div>
+                <div class="doctor-info">
+                  <div class="doctor-name">{{ doctor.name }}</div>
+                  <div class="doctor-specialty">{{ doctor.specialty }}</div>
+                  <div class="doctor-categories" v-if="doctor.categories && doctor.categories.length">
+                    {{ doctor.categories.map(cat => cat.name).join(', ') }}
+                  </div>
+                  <div class="doctor-available" v-if="doctor.availableFrom">
+                    Доступен с {{ doctor.availableFrom }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Шаг 4: Выбор времени -->
+          <div v-else-if="currentStep === 4" class="appointment-step">
+            <button class="appointment-back" @click="goBack">← Назад</button>
+            <div class="selected-doctor">
+              <div class="doctor-avatar">
+                <img :src="imgBase + selectedDoctor.avatar.url" :alt="selectedDoctor.name" onerror="this.src='/images/doctors/default-avatar.jpg'">
+              </div>
+              <div class="doctor-info">
+                <div class="doctor-name">{{ selectedDoctor.name }}</div>
+                <div class="doctor-specialty">{{ selectedDoctor.specialty }}</div>
+                <div class="doctor-categories" v-if="selectedDoctor.categories && selectedDoctor.categories.length">
+                  {{ selectedDoctor.categories.map(cat => cat.name).join(', ') }}
+                </div>
+                <div class="doctor-category" v-if="selectedCategory">
+                  {{ selectedCategory.name }}
+                </div>
+              </div>
+            </div>
+            <div class="schedule" v-if="!schedulePending">
+              <div class="schedule-header">
+                <button 
+                  v-if="canGoPrevWeek" 
+                  @click="prevWeek"
+                  class="schedule-nav-btn"
+                >←</button>
+                <span class="schedule-month">{{ new Date(currentWeekStart).toLocaleDateString('ru-RU', { month: 'long' }) }} {{ new Date(currentWeekStart).getFullYear() }}</span>
+                <button 
+                  v-if="canGoNextWeek" 
+                  @click="nextWeek"
+                  class="schedule-nav-btn"
+                >→</button>
+              </div>
+              <div class="schedule-days">
+                <div v-for="day in currentWeekSlots" :key="day.date" class="schedule-day" :class="{ 'schedule-day--empty': day.isEmpty }">
+                  <div class="schedule-date">
+                    <div class="day-name">{{ new Date(day.date).toLocaleDateString('ru-RU', { weekday: 'short' }) }}</div>
+                    <div class="day-number">{{ new Date(day.date).getDate() }}</div>
+                  </div>
+                  <div class="schedule-slots">
+                    <div 
+                      v-for="slot in day.slots" 
+                      :key="slot.startDateTime"
+                      class="time-slot"
+                      @click="selectTime(slot)"
+                    >
+                      {{ slot.time }}
+                    </div>
+                    <div v-if="day.isEmpty || day.slots.length === 0" class="no-slots"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="loading-spinner">
+              <div class="spinner"></div>
+              <p>Загрузка данных...</p>
+            </div>
+          </div>
+
+          <!-- Шаг 5: Подтверждение записи -->
+          <div v-else-if="currentStep === 5" class="appointment-step">
+            <button class="appointment-back" @click="goBack">← Назад</button>
+            <div class="confirmation-info">
+              <div class="selected-doctor">
+                <div class="doctor-avatar">
+                  <img :src="imgBase + selectedDoctor.avatar.url" :alt="selectedDoctor.name" onerror="this.src='/images/doctors/default-avatar.jpg'">
+                </div>
+                <div class="doctor-info">
+                  <div class="doctor-name">{{ selectedDoctor.name }}</div>
+                  <div class="doctor-specialty">{{ selectedDoctor.specialty }}</div>
+                  <div class="doctor-categories" v-if="selectedDoctor.categories && selectedDoctor.categories.length">
+                    {{ selectedDoctor.categories.map(cat => cat.name).join(', ') }}
+                  </div>
+                </div>
+              </div>
+              <div class="selected-time">
+                <div class="time-label">Выбранное время:</div>
+                <div class="time-value">{{ new Date(selectedTime.startDateTime).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' }) }}</div>
+                <div class="time-value">{{ new Date(selectedTime.startDateTime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) }}</div>
+              </div>
+            </div>
+            <div v-if="!isBookingSuccess" class="confirmation-text">
+              Заполните форму для подтверждения Вашего номера. На ваш номер будет выслан код подтверждения.
+            </div>
+            <div v-if="!isBookingSuccess" class="confirmation-form">
+              <div class="form-group">
+                <label for="full-name">ФИО пациента</label>
+                <input 
+                  type="text" 
+                  id="full-name" 
+                  name="full-name"
+                  autocomplete="name"
+                  v-model="clientFullName"
+                  @input="handleFullNameInput"
+                  placeholder="Введите ФИО пациента"
+                  autofocus
+                >
+              </div>
+              <div class="form-group">
+                <label for="phone">Номер телефона</label>
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  name="phone"
+                  autocomplete="tel"
+                  :value="phoneNumber"
+                  @input="handlePhoneInput"
+                  @keydown="handlePhoneKeyDown"
+                  placeholder="+7 (___) ___-__-__"
+                  maxlength="18"
+                  pattern="[0-9]*"
+                  inputmode="numeric"
+                >
+              </div>
+              <div v-if="smsMessage" class="sms-message" :class="{ 'error': !requestId }">
+                {{ smsMessage }}
+              </div>
+              <button 
+                class="send-sms-btn" 
+                @click="sendSmsCode"
+                :disabled="!isPhoneValid || !canRequestSms || !isFullNameValid || isSendingSms"
+              >
+                <span v-if="isSendingSms" class="loading-spinner-small"></span>
+                {{ canRequestSms ? 'Получить код подтверждения' : `Повторная отправка доступна через ${formatTime(timeLeft)}` }}
               </button>
-              <button 
-                v-else
-                @click="confirmBooking"
-                :disabled="!isFormValid"
-              >
-                Подтвердить запись
+              <div v-if="showSmsInput" class="form-group">
+                <label for="sms-code">Код подтверждения</label>
+                <input 
+                  type="text" 
+                  id="sms-code" 
+                  v-model="smsCode"
+                  placeholder="Введите последние 4 цифры"
+                >
+                <div v-if="confirmationMessage && hasError" class="confirmation-message error">
+                  {{ confirmationMessage }}
+                </div>
+                <button 
+                  class="confirm-btn" 
+                  @click="confirmBooking"
+                  :disabled="!smsCode || !isFullNameValid"
+                >
+                  Подтвердить запись
+                </button>
+              </div>
+            </div>
+            <div v-if="isBookingSuccess" class="success-message">
+              <div class="success-icon">✓</div>
+              <div class="success-text">{{ confirmationMessage }}</div>
+              <button class="download-btn" @click="downloadAppointmentPDF">
+                Скачать запись
               </button>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Навигация между шагами -->
-      <div class="step-navigation">
-        <button 
-          v-if="currentStep > 1"
-          @click="previousStep"
-          class="back-button"
-        >
-          Назад
-        </button>
       </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
-/**
- * Стили компонента записи на прием
- * Определяют внешний вид модального окна и его элементов
- */
-<style lang="scss" scoped>
-// Кнопка открытия модального окна
-.appointment-button {
-  padding: 12px 24px;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
-
-  &:hover {
-    background-color: var(--primary-color-dark);
-  }
+<style scoped>
+/* Анимации для модального окна */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
 }
 
-// Модальное окно
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .appointment-modal__content,
+.modal-leave-active .appointment-modal__content {
+  transition: transform 0.2s ease;
+}
+
+.modal-enter-from .appointment-modal__content,
+.modal-leave-to .appointment-modal__content {
+  transform: scale(0.95);
+}
+
 .appointment-modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
 
-// Контент модального окна
-.appointment-content {
+.appointment-modal__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.appointment-modal__content {
+  position: relative;
   background-color: white;
   border-radius: 8px;
   width: 90%;
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  padding: 24px;
+  z-index: 1001;
+  scrollbar-width: thin;
 }
 
-// Заголовок модального окна
-.appointment-header {
+/* Стили для скроллбара в Chrome/Safari */
+.appointment-modal__content::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.appointment-modal__content::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 3px;
+}
+
+.appointment-modal__content::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+}
+
+
+.appointment-modal__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-
-  h2 {
-    margin: 0;
-    font-size: 24px;
-    color: var(--text-color);
-  }
+  padding: 20px;
+  border-bottom: 1px solid #eee;
 }
 
-// Кнопка закрытия
-.close-button {
+.appointment-modal__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.appointment-modal__close {
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 2rem;
   cursor: pointer;
-  color: var(--text-color-light);
-  padding: 4px;
-  line-height: 1;
-
-  &:hover {
-    color: var(--text-color);
-  }
 }
 
-// Шаги записи
-.appointment-steps {
-  margin-bottom: 24px;
+.appointment-modal__body {
+  padding: 20px;
 }
 
-// Контент шага
-.step-content {
-  padding: 16px 0;
-}
-
-// Выбор типа записи
-.type-selection {
+.appointment-options {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
-.type-button {
+.appointment-option {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.appointment-option:hover {
+  background: #f5f5f5;
+}
+
+.appointment-back {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.schedule {
+  margin-top: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.schedule-month {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #333;
+  text-transform: capitalize;
+}
+
+.schedule-month::after {
+  content: " г.";
+  text-transform: lowercase;
+}
+
+.schedule-days {
+  display: flex;
+  width: 100%;
+}
+
+.schedule-day {
+  flex: 1;
+  min-width: 0;
+  border-right: 1px solid #f0f0f0;
+  padding: 0;
+  background: white;
+  border-radius: 0;
+  border: none;
+}
+
+.schedule-day:last-child {
+  border-right: none;
+}
+
+.schedule-date {
+  padding: 10px;
+  text-align: center;
+  font-weight: 500;
+  margin-bottom: 0;
+  border-bottom: 1px solid #f0f0f0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  background: none;
-  cursor: pointer;
-  transition: all 0.3s;
-
-  &:hover {
-    border-color: var(--primary-color);
-    background-color: var(--background-color-light);
-  }
-
-  .icon {
-    font-size: 32px;
-    margin-bottom: 12px;
-  }
 }
 
-// Список категорий
-.categories-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
+.day-name {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+  text-transform: capitalize;
 }
 
-.category-button {
-  padding: 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: none;
-  cursor: pointer;
-  transition: all 0.3s;
-
-  &:hover {
-    border-color: var(--primary-color);
-    background-color: var(--background-color-light);
-  }
+.day-number {
+  font-size: 1.1rem;
+  color: #333;
 }
 
-// Список врачей
-.doctors-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px;
-}
-
-.doctor-card {
+.schedule-slots {
   display: flex;
-  align-items: center;
-  padding: 16px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s;
-
-  &:hover {
-    border-color: var(--primary-color);
-    background-color: var(--background-color-light);
-  }
-}
-
-.doctor-photo {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-right: 16px;
-}
-
-.doctor-info {
-  h3 {
-    margin: 0 0 4px;
-    font-size: 18px;
-  }
-
-  p {
-    margin: 0;
-    color: var(--text-color-light);
-  }
-}
-
-// Расписание
-.schedule-container {
-  margin-top: 16px;
-}
-
-.week-navigation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-
-  button {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: var(--text-color);
-
-    &:disabled {
-      color: var(--text-color-light);
-      cursor: not-allowed;
-    }
-  }
-}
-
-.schedule-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 12px;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
 }
 
 .time-slot {
-  padding: 12px;
-  border: 1px solid var(--border-color);
+  padding: 8px;
+  border: none;
   border-radius: 4px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s;
-
-  &.available {
-    &:hover {
-      border-color: var(--primary-color);
-      background-color: var(--background-color-light);
-    }
-  }
-
-  .date {
-    display: block;
-    font-size: 14px;
-    color: var(--text-color-light);
-    margin-bottom: 4px;
-  }
-
-  .time {
-    display: block;
-    font-size: 16px;
-    font-weight: 500;
-  }
+  background: white;
+  transition: all 0.2s ease;
+  color: #007bff;
+  font-weight: 500;
 }
 
-// Форма подтверждения
-.confirmation-form {
-  max-width: 400px;
-  margin: 0 auto;
+.time-slot:hover {
+  background: #f8f9fa;
+}
+
+.time-slot.selected {
+  background: #007bff;
+  color: white;
+}
+
+.no-slots {
+  text-align: center;
+  color: #999;
+  font-size: 0.85rem;
+  padding: 15px 10px;
 }
 
 .form-group {
-  margin-bottom: 16px;
-
-  label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-color);
-  }
-
-  input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 16px;
-
-    &:focus {
-      outline: none;
-      border-color: var(--primary-color);
-    }
-  }
+  margin-bottom: 20px;
 }
 
-.sms-timer {
-  margin-top: 8px;
-  font-size: 14px;
-  color: var(--text-color-light);
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
 }
 
-.form-actions {
-  margin-top: 24px;
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-group input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Стили только для поля ФИО */
+#full-name:invalid {
+  border-color: #dc3545;
+}
+
+#full-name:invalid:focus {
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+}
+
+/* Стили для поля телефона */
+#phone {
+  border-color: #ddd;
+}
+
+#phone:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.send-sms-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.send-sms-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.send-sms-btn:disabled .loading-spinner-small {
+  border-top-color: #666;
+}
+
+.doctors-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.doctor-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.doctor-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, #007bff, #00bfff);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+}
+
+.doctor-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: #007bff;
+}
+
+.doctor-item:hover::before {
+  opacity: 0.1;
+}
+
+.doctor-avatar {
+  width: 70px;
+  height: 70px;
+  min-width: 70px;
+  min-height: 70px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 20px;
+  background-color: #f0f0f0;
+  position: relative;
+  z-index: 1;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  aspect-ratio: 1/1;
+}
+
+.doctor-item:hover .doctor-avatar {
+  border-color: #007bff;
+}
+
+.doctor-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: 1/1;
+}
+
+.doctor-name {
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: #333;
+  position: relative;
+  z-index: 1;
+}
+
+.selected-doctor {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.selected-doctor .doctor-avatar {
+  width: 80px;
+  height: 80px;
+  margin-right: 20px;
+}
+
+.selected-doctor .doctor-info {
+  margin-left: 15px;
+}
+
+.selected-doctor .doctor-name {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+
+.selected-doctor .doctor-specialty {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.selected-doctor .doctor-category {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.categories-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.category-item {
+  padding: 20px;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+  position: relative;
+  overflow: hidden;
+}
 
-  button {
-    padding: 12px 24px;
-    background-color: var(--primary-color);
+.category-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, #007bff, #00bfff);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+}
+
+.category-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: #007bff;
+}
+
+.category-item:hover::before {
+  opacity: 0.1;
+}
+
+.category-item span {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .categories-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .category-item {
+    padding: 15px;
+    font-size: 1rem;
+  }
+  
+  .doctors-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .doctor-item {
+    padding: 15px;
+  }
+  
+  .doctor-avatar {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    min-height: 60px;
+    margin-right: 15px;
+  }
+  
+  .selected-doctor {
+    padding: 15px;
+  }
+  
+  .selected-doctor .doctor-avatar {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    min-height: 60px;
+  }
+  
+  .schedule-days {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+  
+  .schedule-day {
+    min-width: 100%;
+    background: #f8f9fa;
+    padding: 0;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 10px;
+  }
+  
+  .schedule-date {
+    border-bottom: 1px solid #e0e0e0;
+    flex-direction: row;
+    justify-content: center;
+    gap: 5px;
+  }
+  
+  .day-name {
+    margin-bottom: 0;
+  }
+  
+  .schedule-slots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 10px;
+  }
+  
+  .time-slot {
+    border: 1px solid #ddd;
+  }
+  
+  .time-slot:hover {
+    background: #007bff;
     color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
-
-    &:disabled {
-      background-color: var(--text-color-light);
-      cursor: not-allowed;
-    }
-
-    &:not(:disabled):hover {
-      background-color: var(--primary-color-dark);
-    }
+    border-color: #007bff;
   }
 }
 
-// Навигация между шагами
-.step-navigation {
-  margin-top: 24px;
-  text-align: left;
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  min-height: 200px;
+}
 
-  .back-button {
-    background: none;
-    border: none;
-    color: var(--text-color);
-    cursor: pointer;
-    font-size: 16px;
-    padding: 8px 0;
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
 
-    &:hover {
-      color: var(--primary-color);
-    }
-  }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.doctor-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.doctor-specialty {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.doctor-available {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.confirmation-info {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.selected-time {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.time-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.time-value {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.confirmation-text {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.schedule-nav-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #007bff;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: color 0.2s ease;
+}
+
+.schedule-nav-btn:hover {
+  color: #0056b3;
+}
+
+.schedule-nav-btn:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.schedule-day--empty {
+  opacity: 0.6;
+}
+
+.doctor-categories {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.sms-message {
+  margin: 15px 0;
+  color: #666;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.sms-message.error {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.confirm-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.confirm-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.confirmation-message {
+  margin-top: 20px;
+  color: #28a745;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 10px;
+  background-color: rgba(40, 167, 69, 0.1);
+  border-radius: 4px;
+}
+
+.confirmation-message.error {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.success-message {
+  text-align: center;
+  padding: 30px;
+  background-color: rgba(40, 167, 69, 0.1);
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.success-icon {
+  font-size: 48px;
+  color: #28a745;
+  margin-bottom: 15px;
+}
+
+.success-text {
+  font-size: 1.1rem;
+  color: #28a745;
+  line-height: 1.4;
+}
+
+.download-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.download-btn:hover {
+  background-color: #218838;
+}
+
+.loading-spinner-small {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
 }
 </style> 
