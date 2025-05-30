@@ -127,7 +127,7 @@ export default defineNuxtConfig({
         },
         {
           name: 'robots',
-          content: 'index, follow'
+          content: 'noindex, nofollow'
         },
         // Open Graph мета-теги для социальных сетей
         {
