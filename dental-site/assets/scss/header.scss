@@ -123,8 +123,8 @@
 	grid-column-gap: rem(43);
 	grid-row-gap: rem(12);
 	grid-template-areas:
-		"header__specialButton info__location info__hours--weekdays"
-		"header__appointmentButton info__number info__hours--saturday";
+		"header__button_groups info__location info__hours--weekdays"
+		"header__button_groups info__number info__hours--saturday";
 
 	@media (width < $tablet) {
 		grid-template-areas:
@@ -138,6 +138,13 @@
 			"info__location"
 			"info__number";
 	}
+
+		.header__button_groups {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: rem(20);
+		}
 
 	// .info__location
 	&__location {
@@ -262,6 +269,7 @@
 
 	// .navbar__body
 	&__body {
+		border-top: #e7e7e7 1px solid;
 		transition: all 1s ease;
 
 		@media (width < $mobile) {

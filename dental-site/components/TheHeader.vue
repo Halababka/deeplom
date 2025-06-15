@@ -1,7 +1,7 @@
 /**
- * Компонент шапки сайта
- * Содержит логотип, контактную информацию, навигационное меню и кнопку записи
- */
+* Компонент шапки сайта
+* Содержит логотип, контактную информацию, навигационное меню и кнопку записи
+*/
 <script setup>
 // Подключение скрипта для липкой навигации
 import "~/js/files/sticky.js";
@@ -99,17 +99,18 @@ const openAppointmentModal = () => {
 
         <!-- Блок с контактной информацией -->
         <div class="header__info info">
-          <!-- Кнопка версии для слабовидящих (только для десктопа) -->
-          <div v-if="!isMobile" class="header__specialButton" style="cursor:pointer;">
-            <img id="specialButton" class="header__specialButton" style="cursor:pointer;" 
-                 src="https://lidrekon.ru/images/special.png"
-                 alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" 
-                 title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" />
+          <div class="header__button_groups">
+            <!-- Кнопка версии для слабовидящих (только для десктопа) -->
+            <div v-if="!isMobile" class="header__specialButton" style="cursor:pointer;">
+              <img id="specialButton" class="header__specialButton" style="cursor:pointer;"
+                src="https://lidrekon.ru/images/special.png" alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ"
+                title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" />
+            </div>
+            <!-- Кнопка онлайн-записи (десктопная версия) -->
+            <button class="header__appointmentButton desktop-only" @click="openAppointmentModal">
+              Онлайн запись
+            </button>
           </div>
-          <!-- Кнопка онлайн-записи (десктопная версия) -->
-          <button class="header__appointmentButton desktop-only" @click="openAppointmentModal">
-            Онлайн запись
-          </button>
           <!-- Контактная информация -->
           <div class="info__location">ул.Строителей 2е</div>
           <div class="info__number">
@@ -130,15 +131,12 @@ const openAppointmentModal = () => {
           </button>
           <!-- Кнопка версии для слабовидящих (мобильная версия) -->
           <div v-if="isMobile" class="header__specialButton" style="cursor:pointer;">
-            <img id="specialButton" class="header__specialButton" style="cursor:pointer;" 
-                 src="https://lidrekon.ru/images/special.png"
-                 alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" 
-                 title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" />
+            <img id="specialButton" class="header__specialButton" style="cursor:pointer;"
+              src="https://lidrekon.ru/images/special.png" alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ"
+              title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" />
           </div>
           <!-- Кнопка мобильного меню -->
-          <button type="button" class="icon-menu navbar__button" 
-                  :class="{ 'active': isMenuOpen }" 
-                  @click="toggleMenu">
+          <button type="button" class="icon-menu navbar__button" :class="{ 'active': isMenuOpen }" @click="toggleMenu">
             <span></span>
           </button>
         </div>
