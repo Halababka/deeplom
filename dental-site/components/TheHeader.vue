@@ -106,10 +106,6 @@ const openAppointmentModal = () => {
                 src="https://lidrekon.ru/images/special.png" alt="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ"
                 title="ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ" />
             </div>
-            <!-- Кнопка онлайн-записи (десктопная версия) -->
-            <button class="header__appointmentButton desktop-only" @click="openAppointmentModal">
-              Онлайн запись
-            </button>
           </div>
           <!-- Контактная информация -->
           <div class="info__location">ул.Строителей 2е</div>
@@ -125,10 +121,6 @@ const openAppointmentModal = () => {
       <div class="navbar">
         <!-- Элементы управления для мобильной версии -->
         <div class="navbar__controls">
-          <!-- Кнопка онлайн-записи (мобильная версия) -->
-          <button class="header__appointmentButton mobile-only" @click="openAppointmentModal">
-            Онлайн запись
-          </button>
           <!-- Кнопка версии для слабовидящих (мобильная версия) -->
           <div v-if="isMobile" class="header__specialButton" style="cursor:pointer;">
             <img id="specialButton" class="header__specialButton" style="cursor:pointer;"
@@ -168,8 +160,6 @@ const openAppointmentModal = () => {
         </nav>
       </div>
     </div>
-    <!-- Модальное окно записи -->
-    <TheAppointment ref="appointmentModal" />
   </header>
 </template>
 

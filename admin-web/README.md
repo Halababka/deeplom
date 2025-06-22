@@ -1,75 +1,52 @@
-# Nuxt Minimal Starter
+# admin-web
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+## Назначение
+Веб-интерфейс для администраторов и сотрудников клиники. Позволяет управлять услугами, специалистами, категориями, расписанием, просматривать заявки и т.д.
 
-## Setup
+## Основные технологии
+- Nuxt.js (Vue 3)
+- Pinia
+- TailwindCSS
 
-Make sure to install dependencies:
+## Структура
+- `components/` — компоненты интерфейса
+- `pages/` — страницы админки
+- `stores/` — хранилища состояния
+- `assets/` — стили и изображения
 
+## Запуск и настройка
+См. [README-INSTALL.md](../README-INSTALL.md) для подробной инструкции по установке и запуску.
+
+### Основные команды
+
+#### Установка зависимостей
 ```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
+npm install # или yarn install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
+#### Запуск в режиме разработки
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+npm run dev # или yarn dev
 ```
 
-## Production
-
-Build the application for production:
-
+#### Сборка для продакшена
 ```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+npm run build # или yarn build
 ```
 
-Locally preview production build:
-
+#### Предпросмотр продакшн-сборки
 ```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+npm run preview # или yarn preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+#### Генерация статического сайта
+```bash
+npm run generate # или yarn generate
+```
+
+#### Запуск продакшн-сервера
+```bash
+npm run start # или yarn start
+```
+
+

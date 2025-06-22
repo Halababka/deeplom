@@ -1,39 +1,20 @@
-# Сервис Dental (Backend)
-___
+# admin-backend
 
-### Описание
-Создан для обработки эндпоинтов и обращений к БД
+## Назначение
+Серверная часть системы. Реализует REST API, аутентификацию, работу с базой данных (Prisma, SQLite), загрузку файлов, обработку заявок и другие серверные функции.
 
-___
+## Основные технологии
+- Node.js
+- Express
+- Prisma ORM
+- JWT
+- Docker
+- SQLite
+
 ## Структура
+- `src/` — исходный код (контроллеры, сервисы, роуты, middleware)
+- `prisma/` — схема базы данных, миграции, сиды
+- `uploads/` — загруженные файлы
 
-* app.ts - инициализация приложения
-* db.ts - prisma клиент
-* server.ts - запуск сервера
-
-___
-## Скрипты
-* dev. Запуск сервера в режиме разработки
-    ```bash
-        nodemon --exec 'node --env-file=.env' src/server.ts
-    ```
-
-* build. Компиляция TypeScript в JavaScript
-    ```bash
-        tsc
-    ```
-
-* start. Запуск компилированного кода
-    ```bash
-        node --env-file=.env dist/server.js
-    ```
-
-* prisma:migrate. Запуск миграций
-    ```bash
-        npx prisma migrate dev
-    ```
-
-* prisma:generate. Генерация клиента Prisma
-    ```bash
-        npx prisma generate
-    ```
+## Запуск и настройка
+См. [README-INSTALL.md](../README-INSTALL.md) для подробной инструкции по установке и запуску.
