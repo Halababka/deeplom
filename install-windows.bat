@@ -1,5 +1,15 @@
 @echo off
-REM Скрипт установки проекта для Windows
+REM Переход в папку, где лежит этот скрипт
+cd /d %~dp0
+REM Скрипт установки проекта для Windows (требует прав администратора)
+
+REM Проверка запуска от имени администратора
+openfiles >nul 2>&1
+if %errorlevel% neq 0 (
+  echo Требуются права администратора. Перезапуск...
+  powershell -Command "Start-Process '%~f0' -Verb RunAs"
+  exit /b
+)
 
 REM Проверка наличия Node.js
 where node >nul 2>nul
